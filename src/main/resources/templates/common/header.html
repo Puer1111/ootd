@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<header th:fragment="header">
+    <nav id="logoUserSystem">
+        <div class="nav">
+            <div class="nav-left">
+                <div id="header-logo">
+                    <a href="/">OOTD</a>
+                </div>
+            </div>
+            <div class="nav-right">
+                <nav class="nav-menu">
+                    <a href="#">좋아요</a>
+                    <a href="#">마이페이지</a>
+                    <a href="#">장바구니</a>
+                </nav>
+            </div>
+        </div>
+    </nav>
+    <div id="searchList">
+        <div class="label">
+            <input type="text" placeholder="검색어를 입력하세요." id ="search-input">
+            <button class="searchButton">
+                <img src="/img/common/search.png" alt="searchImg" id="search">
+            </button>
+        </div>
+    </div>
+    <div class="simpleSearchTerm">
+        <a href="#" class="simpleSearch">
+            <div class="searchTermDiv"><span class="searchTerm">추천</span></div>
+        </a>
+        <a href="#" class="simpleSearch">
+            <div class="searchTermDiv"><span class="searchTerm">랭킹</span></div>
+        </a>
+        <a href="#" class="simpleSearch">
+            <div class="searchTermDiv"><span class="searchTerm">세일</span></div>
+        </a>
+    </div>
+</header>
+</body>
+</html>
