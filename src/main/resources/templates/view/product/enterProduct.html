@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>OOTD</title>
+    <link rel="stylesheet" href="/css/common/footer.css">
+    <link rel="stylesheet" href="/css/common/header.css">
+    <link rel="stylesheet" href="/css/common/layout.css">
+    <link rel="stylesheet" href="/css/common/reset.css">
+    <link rel="stylesheet" href="/css/product/enterProduct.css">
+</head>
+<body>
+<header th:replace="~{common/header :: header}"></header>
+<main>
+    <div th:fragment="content">
+        <form th:action="@{/enter/product}" method="POST">
+            <div class="outline">
+                <!--         brand           -->
+                <div class="brand-selection">
+                    <div class="select-container">
+                        <label for="brand-select">브랜드 선택:</label>
+                        <select id="brand-select" name="brandName">
+                            <option value="">-- 기존 브랜드 선택 --</option>
+                        </select>
+                        <button type="button" id="add-brand-btn">+ 새 브랜드 추가</button>
+                    </div>
+                </div>
+                <!--     Modal - brand        -->
+                <div id="brand-modal" class="modal">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <h2>새 브랜드 추가</h2>
+                        <div class="new-brand-form">
+                            <label for="new-brand">브랜드명:</label>
+                            <input type="text" id="new-brand" name="new-brand" placeholder="새 브랜드명 입력">
+                            <div class="modal-buttons">
+                                <button type="button" id="cancel-btn">취소</button>
+                                <button type="button" id="save-brand-btn">저장</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--     ProductName         -->
+                <label>
+                    <input type="text" name="productName" placeholder="상품명">
+                </label>
+                <label for="category">
+                    <select name="category" id="category">
+                        <option value="T-shirt">티셔츠</option>
+                        <option value="cardigan">가디건</option>
+                        <option value="shorts-sleeves">반팔</option>
+                        <option value="cap">모자</option>
+                    </select>
+                </label>
+               <button class="register">등록하기</button>
+            </div>
+        </form>
+    </div>
+</main>
+<footer th:replace="~{common/footer :: footer}"></footer>
+</body>
+<script src="/js/product/enterProduct.js"></script>
+
+</html>

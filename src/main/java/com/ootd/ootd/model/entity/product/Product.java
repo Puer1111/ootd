@@ -1,4 +1,4 @@
-package com.ootd.ootd.model.entity;
+package com.ootd.ootd.model.entity.product;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -21,11 +21,8 @@ import java.util.List;
 public class Product {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @Column(name = "product_no", unique = true)
-    private Integer productNo;
+    private Long productNo;
 
     @Column(name = "product_name", nullable = false, length = 100)
     private String productName;
@@ -33,7 +30,7 @@ public class Product {
     @Column(length = 50 , name = "product_brand")
     private String brand;
 
-    @Column(nullable = false)
+    @Column(nullable = false ,name="product_price")
     private int price;
 
     @Column(name = "product_image_url", length = 255)

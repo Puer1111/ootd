@@ -1,14 +1,12 @@
 package com.ootd.ootd.model.dto.product;
 
-import com.ootd.ootd.model.entity.Product;
+import com.ootd.ootd.model.entity.product.Product;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Getter
@@ -16,7 +14,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @ToString
 public class ProductDTO {
-    private Integer productNo;
+    private Long productNo;
     private String productName;
     private String brand;
     private int price;
@@ -25,7 +23,7 @@ public class ProductDTO {
     private String size;
     private List<String> color;
 
-    public ProductDTO(Integer productNo, String productName, String brand, int price, String imageUrl, String category, String size, List<String> color) {
+    public ProductDTO(Long productNo, String productName, String brand, int price, String imageUrl, String category, String size, List<String> color) {
         this.productNo = productNo;
         this.productName = productName;
         this.brand = brand;

@@ -8,10 +8,10 @@ import java.util.List;
 public interface ProductService {
     /**
      *  상품 검색
-     * @param keyword
+     * @param category
      * @return List<ClothesDTO>
      */
-    List<ProductDTO> searchProducts(String keyword);
+//    List<ProductDTO> searchProducts(String category);
 
 
     /**
