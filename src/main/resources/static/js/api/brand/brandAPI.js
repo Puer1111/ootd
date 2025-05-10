@@ -1,4 +1,8 @@
 export const brandAPI = {
+    getBrandSelect() {
+        return document.getElementById('brand-select');
+    },
+
     // brand 등록 함수
     register(brandName) {
         fetch('/api/register/brands', {
@@ -19,8 +23,7 @@ export const brandAPI = {
             .then(data => {
                 // 새 브랜드를 선택 옵션에 추가
                 const newOption = document.createElement('option');
-                const brandSelect = document.getElementById('brand-select');
-
+                const brandSelect = this.getBrandSelect();
                 newOption.value = data.brandId;  // 서버에서 반환된 ID
                 newOption.textContent = brandName;
                 brandSelect.appendChild(newOption);
@@ -34,5 +37,20 @@ export const brandAPI = {
             .catch(error => {
                 alert('브랜드 추가 중 오류가 발생했습니다: ' + error.message);
             });
+    },
+    lookup(){
+        const brandSelect = this.getBrandSelect();
+        fetch('/api/lookup/brands')
+            .then(response => response.json())
+            .then(brandNames => {
+                // 브랜드 옵션 추가
+                brandNames.forEach(brandName => {
+                    const option = document.createElement('option');
+                    option.value = brandName;
+                    option.textContent = brandName;
+                    brandSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error('브랜드 목록을 가져오는 중 오류 발생:', error));
     }
 }
