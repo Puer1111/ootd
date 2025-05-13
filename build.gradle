@@ -4,6 +4,10 @@ plugins {
 	id 'io.spring.dependency-management' version '1.1.7'
 }
 
+ext {
+	springCloudGcpVersion = "6.1.1"
+}
+
 group = 'com.ootd'
 version = '0.0.1-SNAPSHOT'
 
@@ -28,6 +32,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'com.google.cloud:spring-cloud-gcp-starter-storage'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'com.mysql:mysql-connector-j'
@@ -37,6 +42,12 @@ dependencies {
 //	웹 크롤링
 	implementation 'org.jsoup:jsoup:1.16.2'
 	implementation 'org.seleniumhq.selenium:selenium-java:latest.release'
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "com.google.cloud:spring-cloud-gcp-dependencies:$springCloudGcpVersion"
+	}
 }
 
 tasks.named('test') {
