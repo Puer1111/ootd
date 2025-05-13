@@ -6,6 +6,7 @@ plugins {
 
 ext {
 	springCloudGcpVersion = "6.1.1"
+	springCloudVersion = "2024.0.1"
 }
 
 group = 'com.ootd'
@@ -32,7 +33,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
 	implementation 'com.google.cloud:spring-cloud-gcp-starter-storage'
+
+	implementation 'org.springframework.cloud:spring-cloud-starter'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'com.mysql:mysql-connector-j'
@@ -47,6 +51,7 @@ dependencies {
 dependencyManagement {
 	imports {
 		mavenBom "com.google.cloud:spring-cloud-gcp-dependencies:$springCloudGcpVersion"
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion"
 	}
 }
 

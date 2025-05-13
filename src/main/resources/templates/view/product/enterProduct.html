@@ -13,7 +13,7 @@
 <header th:replace="~{common/header :: header}"></header>
 <main>
     <div th:fragment="content">
-        <form th:action="@{/enter/product}" method="POST">
+        <form th:action="@{/enter/product}" method="POST" enctype="multipart/form-data">
             <div class="outline">
                 <!--         brand           -->
                 <div class="brand-selection">
@@ -41,7 +41,8 @@
                     <input type="text" name="productName" placeholder="상품명">
                 </label>
                 <div class="product-img-boundary">
-                    <input type="file" name="imageUrl" multiple>
+                    <input type="file" name="imageUrl" id="fileInput" multiple>
+                    <div id="preview-area"></div>
                 </div>
                 <!--      category          -->
                 <label for="category">

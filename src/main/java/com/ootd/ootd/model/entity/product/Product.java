@@ -1,5 +1,6 @@
 package com.ootd.ootd.model.entity.product;
 
+import com.ootd.ootd.utils.StringToListConverter;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,8 +34,9 @@ public class Product {
     @Column(nullable = false ,name="product_price")
     private int price;
 
-    @Column(name = "product_image_url", length = 255)
-    private String imageUrl;
+    @Column(name = "product_image_url", length = 255 , columnDefinition = "TEXT")
+    @Convert(converter = StringToListConverter.class)
+    private List<String> imageUrls;
 
     @Column(length = 50 ,name = "product_category")
     private String category;

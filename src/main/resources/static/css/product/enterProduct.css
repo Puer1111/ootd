@@ -75,3 +75,18 @@
     background-color: #f0f0f0;
     border: 1px solid #ddd;
 }
+
+#preview-area {
+    display: none; /* 기본적으로 숨김 */
+    border: 2px dashed #ddd;
+    padding: 10px;
+    margin-top: 10px;
+    width:100px;
+    height: 100px;
+}
+
+#preview-area.has-images {
+    display: flex; /* 이미지가 있을 때만 보임 */
+    flex-wrap: wrap;
+    gap: 10px;
+}

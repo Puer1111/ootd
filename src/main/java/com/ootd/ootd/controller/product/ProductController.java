@@ -2,23 +2,26 @@ package com.ootd.ootd.controller.product;
 
 import com.ootd.ootd.model.dto.product.ProductDTO;
 import com.ootd.ootd.service.product.ProductService;
+import com.ootd.ootd.utils.service.GoogleCloudStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Controller
 public class ProductController {
     private final ProductService productService;
+    private final GoogleCloudStorageService googleCloudStorageService;
 
     @Autowired
-    public ProductController(final ProductService productService) {
+    public ProductController(final ProductService productService , final GoogleCloudStorageService googleCloudStorageService) {
         this.productService = productService;
+        this.googleCloudStorageService = googleCloudStorageService;
     }
 
     @GetMapping("/")
@@ -41,8 +44,13 @@ public class ProductController {
         return "view/product/enterProduct";
     }
     @PostMapping("/enter/product")
-    public ResponseEntity<?> insertProduct(@ModelAttribute ProductDTO dto){
+    public ResponseEntity<?> insertProduct(@ModelAttribute ProductDTO dto)  {
         ProductDTO productDTO = productService.insertProduct(dto);
+        try{
+            googleCloudStorageService.uploadImages(dto.getImage()) ;
+        }catch (IOException e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
         Map<String, Object> response = new HashMap<>();
         response.put("status", "success");
         response.put("product",productDTO);

@@ -10,7 +10,7 @@ export const api = {
 import {brandAPI} from './brand/brandAPI.js';
 import {categoryAPI} from "./category/categoryAPI.js";
 import {modal} from "../modal/modal.js";
-import {utils} from "../utils/utils";
+import {utils} from "../utils/utils.js";
 
 // 모듈 연결
 api.brand = brandAPI;

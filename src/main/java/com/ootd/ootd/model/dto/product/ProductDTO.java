@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,17 +19,19 @@ public class ProductDTO {
     private String productName;
     private String brand;
     private int price;
-    private String imageUrl;
+    private MultipartFile image;
+    private List<String> imageUrls;
     private String category;
     private String size;
     private List<String> color;
 
-    public ProductDTO(Long productNo, String productName, String brand, int price, String imageUrl, String category, String size, List<String> color) {
+    public ProductDTO(Long productNo, String productName, String brand, int price, MultipartFile image, List<String> imageUrls, String category, String size, List<String> color) {
         this.productNo = productNo;
         this.productName = productName;
         this.brand = brand;
         this.price = price;
-        this.imageUrl = imageUrl;
+        this.image = image;
+        this.imageUrls = imageUrls;
         this.category = category;
         this.size = size;
         this.color = color;
@@ -40,7 +43,7 @@ public class ProductDTO {
         dto.setProductName(entity.getProductName());
         dto.setBrand(entity.getBrand());
         dto.setPrice(entity.getPrice());
-        dto.setImageUrl(entity.getImageUrl());
+        dto.setImageUrls(entity.getImageUrls());
         dto.setCategory(entity.getCategory());
         dto.setSize(entity.getSize());
         dto.setColor(entity.getColor());
@@ -59,7 +62,7 @@ public class ProductDTO {
         entity.setProductName(dto.getProductName());
         entity.setBrand(dto.getBrand());
         entity.setPrice(dto.getPrice());
-        entity.setImageUrl(dto.getImageUrl());
+        entity.setImageUrls(dto.getImageUrls());
         entity.setCategory(dto.getCategory());
         entity.setSize(dto.getSize());
         entity.setColor(dto.getColor());

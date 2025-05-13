@@ -1,84 +1,107 @@
 export const utils = {
-    // 프리뷰 생성
-    createPreviewFromURL(url, options = {}) {
-        const preview = this.createPreviewElement(url, options);
-        return preview;
-    },
+    // 프리뷰 기능 초기화
+    init(fileInputId = 'fileInput', previewAreaId = 'preview-area') {
+        this.fileInput = document.getElementById(fileInputId);
+        this.previewArea = document.getElementById(previewAreaId);
 
-    // 파일을 GCS에 업로드 후 프리뷰 생성
-    async createPreview(file, options = {}) {
-        try {
-            // 업로드 중 로딩 표시
-            const loadingElement = this.createLoadingElement();
-            const container = options.container || document.body;
-            container.appendChild(loadingElement);
-
-            // GCS에 파일 업로드
-            const gcsUrl = await this.uploadToGCS(file);
-
-            // 로딩 제거하고 프리뷰 생성
-            loadingElement.remove();
-            return this.createPreviewFromURL(gcsUrl, options);
-
-        } catch (error) {
-            throw error;
+        if (!this.fileInput || !this.previewArea) {
+            console.error('파일 입력 또는 프리뷰 영역을 찾을 수 없습니다.');
+            return;
         }
-    },
-    // 업로드 받기
-    async uploadToGCS(file) {
-        const formData = new FormData();
-        formData.append('file', file);
 
-        try {
-            const response = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData
-            });
+        this.fileInput.addEventListener('change', (event) => {
+            this.showPreviews(event.target.files);
+            const files = Array.from(event.target.files);
 
-            const data = await response.json();
-            return data.publicUrl; // GCS 공개 URL
-        } catch (error) {
-            throw new Error('파일 업로드 실패: ' + error.message);
-        }
-    },
-
-    createPreviewElement(src, { className = 'preview-item', size = 'medium' } = {}) {
-        const div = document.createElement('div');
-        div.className = className;
-        div.innerHTML = `
-            <img src="${src}" alt="preview" class="preview-image ${size}">
-            <button class="remove-btn" type="button">×</button>
-        `;
-        return div;
-    },
-
-    createLoadingElement() {
-        const div = document.createElement('div');
-        div.className = 'loading-spinner';
-        div.innerHTML = '업로드 중...';
-        return div;
-    },
-    uploadFile(){
-        document.getElementById('fileInput').addEventListener('change', async (event) => {
-            const file = event.target.files[0];
-
-            if (file) {
-                try {
-                    // createPreview가 시작점
-                    const preview = await window.api.utils.createPreview(file, {
-                        container: document.getElementById('preview-area'),
-                        className: 'product-image-preview',
-                        size: 'medium'
-                    });
-
-                    // 업로드 성공 후 처리
-                    console.log('Preview element created:', preview);
-
-                } catch (error) {
-                    console.error('Upload failed:', error);
-                    alert('파일 업로드에 실패했습니다.');
-                }
+            if (files.length > 0) {
+                this.previewArea.classList.add('has-images'); // 이미지가 있으면 표시
+            } else {
+                this.previewArea.classList.remove('has-images'); // 없으면 숨김
             }
         });
+    },
+
+    // 여러 파일의 프리뷰 표시
+    showPreviews(files) {
+        // 기존 프리뷰 모두 제거
+        this.clearPreviews();
+
+        // 각 파일에 대해 프리뷰 생성
+        Array.from(files).forEach((file, index) => {
+            if (file.type.startsWith('image/')) {
+                this.createPreview(file, index);
+            }
+        });
+    },
+
+    // 단일 프리뷰 생성
+    createPreview(file, index) {
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            const div = document.createElement('div');
+            div.className = 'preview-item';
+            div.setAttribute('data-index', index);
+
+            div.innerHTML = `
+                <img src="${e.target.result}" alt="preview ${index}" class="preview-image">
+                <button class="remove-btn" type="button">×</button>
+            `;
+
+            // 삭제 버튼 이벤트 추가
+            const removeBtn = div.querySelector('.remove-btn');
+            removeBtn.addEventListener('click', () => this.removePreview(index));
+
+            this.previewArea.appendChild(div);
+        };
+
+        reader.readAsDataURL(file);
+    },
+
+    // 특정 프리뷰 제거
+    removePreview(index) {
+        const previewItem = this.previewArea.querySelector(`[data-index="${index}"]`);
+
+        if (previewItem) {
+            previewItem.remove();
+        }
+
+        // 파일 입력에서도 해당 파일 제거
+        this.updateFileInput(index);
+    },
+
+    // 파일 입력 업데이트
+    updateFileInput(removeIndex) {
+        const dt = new DataTransfer();
+        const files = Array.from(this.fileInput.files);
+
+        files.forEach((file, i) => {
+            if (i !== removeIndex) {
+                dt.items.add(file);
+            }
+        });
+
+        this.fileInput.files = dt.files;
+
+        // 남은 프리뷰들의 인덱스 재정렬
+        this.reindexPreviews();
+    },
+
+    // 프리뷰 인덱스 재정렬
+    reindexPreviews() {
+        const previews = this.previewArea.querySelectorAll('.preview-item');
+        previews.forEach((preview, i) => {
+            preview.setAttribute('data-index', i);
+        });
+    },
+
+    // 모든 프리뷰 제거
+    clearPreviews() {
+        this.previewArea.innerHTML = '';
+    },
+
+    // 현재 선택된 파일들 가져오기
+    getFiles() {
+        return Array.from(this.fileInput.files);
     }
 }
