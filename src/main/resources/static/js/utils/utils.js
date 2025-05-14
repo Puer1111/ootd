@@ -1,35 +1,67 @@
 export const utils = {
+    constructor() {
+        this.selectedFiles = [];
+        this.previewArea = document.getElementById('preview-area');
+
+        // 폼 제출 이벤트 리스너 추가
+        const form = document.getElementById('product-form');
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.submitForm();
+        });
+    },
+
+    handleFileSelect(e) {
+        const files = Array.from(e.target.files);
+
+        // selectedFiles 배열에 파일 추가
+        files.forEach(file => {
+            this.selectedFiles.push(file);
+        });
+
+        // 프리뷰 표시
+        this.showPreviews(files);
+
+        // 클래스 토글
+        if (this.selectedFiles.length > 0) {
+            this.previewArea.classList.add('has-images');
+        } else {
+            this.previewArea.classList.remove('has-images');
+        }
+    },
+
     // 프리뷰 기능 초기화
     init(fileInputId = 'fileInput', previewAreaId = 'preview-area') {
         this.fileInput = document.getElementById(fileInputId);
         this.previewArea = document.getElementById(previewAreaId);
+        this.selectedFiles = []; // 초기화 시 배열 초기화
 
         if (!this.fileInput || !this.previewArea) {
             console.error('파일 입력 또는 프리뷰 영역을 찾을 수 없습니다.');
             return;
         }
 
-        this.fileInput.addEventListener('change', (event) => {
-            this.showPreviews(event.target.files);
-            const files = Array.from(event.target.files);
+        // handleFileSelect 함수를 이벤트 리스너로 등록
+        this.fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
 
-            if (files.length > 0) {
-                this.previewArea.classList.add('has-images'); // 이미지가 있으면 표시
-            } else {
-                this.previewArea.classList.remove('has-images'); // 없으면 숨김
-            }
-        });
+        // 폼 제출 이벤트 리스너 추가
+        const form = document.getElementById('product-form');
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.submitForm();
+            });
+        }
     },
 
     // 여러 파일의 프리뷰 표시
     showPreviews(files) {
-        // 기존 프리뷰 모두 제거
-        this.clearPreviews();
-
         // 각 파일에 대해 프리뷰 생성
         Array.from(files).forEach((file, index) => {
             if (file.type.startsWith('image/')) {
-                this.createPreview(file, index);
+                // selectedFiles의 현재 길이를 기준으로 인덱스 설정
+                const actualIndex = this.selectedFiles.length - files.length + index;
+                this.createPreview(file, actualIndex);
             }
         });
     },
@@ -48,7 +80,6 @@ export const utils = {
                 <button class="remove-btn" type="button">×</button>
             `;
 
-            // 삭제 버튼 이벤트 추가
             const removeBtn = div.querySelector('.remove-btn');
             removeBtn.addEventListener('click', () => this.removePreview(index));
 
@@ -60,31 +91,22 @@ export const utils = {
 
     // 특정 프리뷰 제거
     removePreview(index) {
-        const previewItem = this.previewArea.querySelector(`[data-index="${index}"]`);
+        // selectedFiles에서 제거
+        this.selectedFiles.splice(index, 1);
 
+        // DOM에서 제거
+        const previewItem = this.previewArea.querySelector(`[data-index="${index}"]`);
         if (previewItem) {
             previewItem.remove();
         }
 
-        // 파일 입력에서도 해당 파일 제거
-        this.updateFileInput(index);
-    },
-
-    // 파일 입력 업데이트
-    updateFileInput(removeIndex) {
-        const dt = new DataTransfer();
-        const files = Array.from(this.fileInput.files);
-
-        files.forEach((file, i) => {
-            if (i !== removeIndex) {
-                dt.items.add(file);
-            }
-        });
-
-        this.fileInput.files = dt.files;
-
-        // 남은 프리뷰들의 인덱스 재정렬
+        // 인덱스 재정렬
         this.reindexPreviews();
+
+        // 클래스 업데이트
+        if (this.selectedFiles.length === 0) {
+            this.previewArea.classList.remove('has-images');
+        }
     },
 
     // 프리뷰 인덱스 재정렬
@@ -95,13 +117,44 @@ export const utils = {
         });
     },
 
-    // 모든 프리뷰 제거
-    clearPreviews() {
-        this.previewArea.innerHTML = '';
-    },
+    // 이미지 form 제출 함수
+    submitForm() {
+        const formData = new FormData();
+        const form = document.getElementById('product-form');
 
-    // 현재 선택된 파일들 가져오기
-    getFiles() {
-        return Array.from(this.fileInput.files);
+        // 다른 폼 필드들 추가
+        const inputs = form.querySelectorAll('input[type="text"], input[type="number"], select, textarea');
+        inputs.forEach(input => {
+            if (input.name && input.value) {
+                formData.append(input.name, input.value);
+            }
+        });
+
+        // 이미지 파일들 추가
+        console.log('Selected files count:', this.selectedFiles.length);
+        this.selectedFiles.forEach((file, index) => {
+            console.log(`Adding file ${index}:`, file.name);
+            formData.append('images', file);
+        });
+
+        // FormData 내용 확인
+        for (let [key, value] of formData.entries()) {
+            console.log(key, value);
+        }
+
+        fetch('/enter/product', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                if (data.redirectUrl) {
+                    window.location.href = data.redirectUrl;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
     }
 }

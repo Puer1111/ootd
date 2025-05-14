@@ -19,18 +19,18 @@ public class ProductDTO {
     private String productName;
     private String brand;
     private int price;
-    private MultipartFile image;
+    private MultipartFile[] images;
     private List<String> imageUrls;
     private String category;
     private String size;
     private List<String> color;
 
-    public ProductDTO(Long productNo, String productName, String brand, int price, MultipartFile image, List<String> imageUrls, String category, String size, List<String> color) {
+    public ProductDTO(Long productNo, String productName, String brand, int price, MultipartFile[] images, List<String> imageUrls, String category, String size, List<String> color) {
         this.productNo = productNo;
         this.productName = productName;
         this.brand = brand;
         this.price = price;
-        this.image = image;
+        this.images = images;
         this.imageUrls = imageUrls;
         this.category = category;
         this.size = size;

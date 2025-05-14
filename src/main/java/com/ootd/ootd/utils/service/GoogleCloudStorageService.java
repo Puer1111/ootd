@@ -44,7 +44,7 @@ public class GoogleCloudStorageService {
      * @param files MultipartFile 배열 (단일 파일도 배열로 전달)
      * @return 업로드된 이미지들의 URL 리스트
      */
-    public List<String> uploadImages(MultipartFile... files) throws IOException {
+    public List<String> uploadImages(MultipartFile[] files) throws IOException {
         List<String> uploadedUrls = new ArrayList<>();
 
         for (MultipartFile file : files) {
