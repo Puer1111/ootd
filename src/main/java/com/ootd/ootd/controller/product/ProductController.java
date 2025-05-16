@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -47,8 +49,8 @@ public class ProductController {
 
     @PostMapping("/enter/product")
     public ResponseEntity<?> insertProduct(@ModelAttribute ProductDTO dto)  {
-        ProductDTO productDTO = productService.insertProduct(dto);
-        System.out.println("Inserted product : " + productDTO);
+        ProductDTO productDTO = new ProductDTO();
+        System.out.println("Inserted product : " + dto);
         // null 체크 추가
         if (dto.getImages() != null) {
             System.out.println("Images count: " + dto.getImages().length);
@@ -62,11 +64,15 @@ public class ProductController {
         try {
             if (dto.getImages() != null && dto.getImages().length > 0) {
                 // 배열 전체를 한 번에 전달
-                googleCloudStorageService.uploadImages(dto.getImages());
+                List<String> images = new ArrayList<>();
+                images = googleCloudStorageService.uploadImages(dto.getImages());
                 System.out.println("Uploaded " + dto.getImages().length + " images");
+                dto.setImageUrls(images);
+                System.out.println("Checked ImageUrl : " + images);
             } else {
                 System.out.println("No images to upload");
             }
+            productDTO = productService.insertProduct(dto);
         } catch (IOException e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

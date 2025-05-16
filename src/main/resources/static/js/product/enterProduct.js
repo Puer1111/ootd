@@ -10,7 +10,10 @@ document.addEventListener('DOMContentLoaded', function() {
         window.api.modal.init();
 
         // brand 카테고리 가져오기.
-        window.api.brand.lookup();
+        window.api.brand.lookupBrand();
+
+        // category 가져오기
+        window.api.category.lookupCategory();
 
         // // 이미지 업로드
         window.api.utils.init('fileInput', 'preview-area');

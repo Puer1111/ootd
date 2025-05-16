@@ -5,6 +5,11 @@
     font-style: normal;
 }
 
+div[th\:fragment="content"] {
+    width: 100%;
+    max-width: 100%;
+}
+
 body {
     width: 1425px;
     display: flex;

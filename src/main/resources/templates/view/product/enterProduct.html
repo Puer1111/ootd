@@ -12,52 +12,62 @@
 <body>
 <header th:replace="~{common/header :: header}"></header>
 <main>
-    <div th:fragment="content">
+    <div th:fragment="content" class="border">
         <form th:action="@{/enter/product}" method="POST" enctype="multipart/form-data" id="product-form">
             <div class="outline">
-                <!--         brand           -->
-                <div class="brand-selection">
-                    <div class="select-container">
-                        <label for="brand-select">브랜드 선택:</label>
-                        <select id="brand-select" name="brandName">
-                            <option value="">-- 기존 브랜드 선택 --</option>
-                        </select>
-                        <button type="button" id="add-brand-btn">+ 새 브랜드 추가</button>
+                    <!--         brand           -->
+                    <div class="brand-selection">
+                        <div class="select-container">
+                            <label for="brand-select">브랜드 선택 :</label>
+                            <select id="brand-select" name="brandName">
+                                <option value="">-- 기존 브랜드 선택 --</option>
+                            </select>
+                            <button type="button" id="add-brand-btn">+ 새 브랜드 추가</button>
+                        </div>
                     </div>
-                </div>
-                <!--       common - Modal         -->
-                <div id="common-modal" class="modal">
-                    <div class="modal-content">
-                        <span class="close" id="close-modal">&times;</span>
-                        <h3 id="modal-title" class="modal-title"></h3>
-                        <input type="text" id="modal-input" class="modal-input">
-                        <button type="button" id="cancel-btn">취소</button>
-                        <button type="button" id="save-btn">저장</button>
+                    <!--       common - Modal         -->
+                    <div id="common-modal" class="modal">
+                        <div class="modal-content">
+                            <span class="close" id="close-modal">&times;</span>
+                            <h3 id="modal-title" class="modal-title"></h3>
+                            <input type="text" id="modal-input" class="modal-input">
+                            <button type="button" id="cancel-btn">취소</button>
+                            <button type="button" id="save-btn">저장</button>
+                        </div>
                     </div>
-                </div>
 
-                <!--     Product         -->
-                <label>
-                    <input type="text" name="productName" placeholder="상품명">
-                </label>
-                <div class="product-img-boundary">
-                    <input type="file" name="imageUrl" id="fileInput" multiple>
-                    <div class="preview-ghost">
-                        <div id="preview-area"></div>
+                    <!--     Product         -->
+                    <label for="product-input" class="product-label">
+                        <div class="productName">
+                            상품명 입력 :
+                        </div>
+                        <input type="text" name="productName" placeholder="상품명" id="product-input">
+                    </label>
+                    <!--      category          -->
+                    <label for="category-select">
+                        <span>
+                         카테고리 선택 :
+                        </span>
+                        <select id="category-select" name="category">
+                            <option value="">-- 기존 카테고리 선택 --</option>
+                            <option value="T-shirt">티셔츠</option>
+                            <option value="cardigan">가디건</option>
+                            <option value="shorts-sleeves">반팔</option>
+                            <option value="cap">모자</option>
+                        </select>
+                        <button type="button" id="add-category-btn">+ 새 카테고리 추가</button>
+                    </label>
+                    <div class="product-img-border">
+                            이미지 :
+                        <div class="product-img-boundary">
+                            <input type="file" name="imageUrl" id="fileInput" multiple>
+                            <div class="preview-ghost">
+                                <div id="preview-area"></div>
+                            </div>
+                        </div>
                     </div>
+                        <button class="register">등록하기</button>
                 </div>
-                <!--      category          -->
-                <label for="category-select">
-                    <select id="category-select" name="category">
-                        <option value="T-shirt">티셔츠</option>
-                        <option value="cardigan">가디건</option>
-                        <option value="shorts-sleeves">반팔</option>
-                        <option value="cap">모자</option>
-                    </select>
-                    <button type="button" id="add-category-btn">+ 새 카테고리 추가</button>
-                </label>
-               <button class="register">등록하기</button>
-            </div>
         </form>
     </div>
 </main>

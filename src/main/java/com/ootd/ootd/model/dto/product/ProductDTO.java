@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class ProductDTO {
     private Long productNo;
     private String productName;
-    private String brand;
+    private String brandName;
     private int price;
     private MultipartFile[] images;
     private List<String> imageUrls;
@@ -25,10 +25,10 @@ public class ProductDTO {
     private String size;
     private List<String> color;
 
-    public ProductDTO(Long productNo, String productName, String brand, int price, MultipartFile[] images, List<String> imageUrls, String category, String size, List<String> color) {
+    public ProductDTO(Long productNo, String productName, String brandName, int price, MultipartFile[] images, List<String> imageUrls, String category, String size, List<String> color) {
         this.productNo = productNo;
         this.productName = productName;
-        this.brand = brand;
+        this.brandName = brandName;
         this.price = price;
         this.images = images;
         this.imageUrls = imageUrls;
@@ -41,7 +41,7 @@ public class ProductDTO {
         ProductDTO dto = new ProductDTO();
         dto.setProductNo(entity.getProductNo());
         dto.setProductName(entity.getProductName());
-        dto.setBrand(entity.getBrand());
+        dto.setBrandName(entity.getBrandName());
         dto.setPrice(entity.getPrice());
         dto.setImageUrls(entity.getImageUrls());
         dto.setCategory(entity.getCategory());
@@ -60,7 +60,7 @@ public class ProductDTO {
         Product entity = new Product();
         entity.setProductNo(dto.getProductNo());
         entity.setProductName(dto.getProductName());
-        entity.setBrand(dto.getBrand());
+        entity.setBrandName(dto.getBrandName());
         entity.setPrice(dto.getPrice());
         entity.setImageUrls(dto.getImageUrls());
         entity.setCategory(dto.getCategory());

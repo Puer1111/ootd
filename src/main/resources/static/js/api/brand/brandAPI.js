@@ -24,12 +24,12 @@ export const brandAPI = {
                 // 새 브랜드를 선택 옵션에 추가
                 const newOption = document.createElement('option');
                 const brandSelect = this.getBrandSelect();
-                newOption.value = data.brandId;  // 서버에서 반환된 ID
+                newOption.value = data.brandNo;  // 서버에서 반환된 ID
                 newOption.textContent = brandName;
                 brandSelect.appendChild(newOption);
 
                 // 새로 추가된 브랜드 선택
-                brandSelect.value = data.brandId;
+                brandSelect.value = data.brandNo;
 
                 // 성공 메시지
                 alert(`'${brandName}' 브랜드가 추가되었습니다.`);
@@ -38,7 +38,7 @@ export const brandAPI = {
                 alert('브랜드 추가 중 오류가 발생했습니다: ' + error.message);
             });
     },
-    lookup(){
+    lookupBrand(){
         const brandSelect = this.getBrandSelect();
         fetch('/api/lookup/brands')
             .then(response => response.json())

@@ -29,7 +29,7 @@ public class Product {
     private String productName;
 
     @Column(length = 50 , name = "product_brand")
-    private String brand;
+    private String brandName;
 
     @Column(nullable = false ,name="product_price")
     private int price;
