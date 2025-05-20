@@ -29,23 +29,8 @@ public class Brand {
     @Column(name = "brand_Logo_Url")
     private String brandLogoUrl;
 
-    @Column(name = "brand_Description")
-    private String brandDescription;
-
-    @Column(name = "brand_WebSite")
+    @Column(name = "brand_WebSite" ,length = 500)
     private String brandWebsite;
 
-    // 감사 필드
-    @CreatedDate
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    // 낙관적 락 추가 (선택사항)
-    @Version
-    private Integer version;
 
 }

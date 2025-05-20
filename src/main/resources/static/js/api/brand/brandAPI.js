@@ -4,14 +4,16 @@ export const brandAPI = {
     },
 
     // brand 등록 함수
-    register(brandName) {
+    register(brandName,brandLogo,brandWeb) {
         fetch('/api/register/brands', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                brandName: brandName
+                brandName: brandName,
+                brandLogoUrl: brandLogo,
+                brandWebSite: brandWeb
             })
         })
             .then(response => {

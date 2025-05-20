@@ -1,6 +1,7 @@
 package com.ootd.ootd.model.dto.product;
 
 import com.ootd.ootd.model.entity.product.Product;
+import com.ootd.ootd.model.entity.product_colors.ProductColors;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,19 +24,9 @@ public class ProductDTO {
     private List<String> imageUrls;
     private String category;
     private String size;
-    private List<String> color;
+    private List<Long> colorsNo;
+    private Long productColorsNo;
 
-    public ProductDTO(Long productNo, String productName, String brandName, int price, MultipartFile[] images, List<String> imageUrls, String category, String size, List<String> color) {
-        this.productNo = productNo;
-        this.productName = productName;
-        this.brandName = brandName;
-        this.price = price;
-        this.images = images;
-        this.imageUrls = imageUrls;
-        this.category = category;
-        this.size = size;
-        this.color = color;
-    }
 
     public static ProductDTO convertToDTO(Product entity) {
         ProductDTO dto = new ProductDTO();
@@ -46,14 +37,10 @@ public class ProductDTO {
         dto.setImageUrls(entity.getImageUrls());
         dto.setCategory(entity.getCategory());
         dto.setSize(entity.getSize());
-        dto.setColor(entity.getColor());
-        return dto;
-    }
 
-    public static List<ProductDTO> fromEntityList(List<Product> entities) {
-        return entities.stream()
-                .map(ProductDTO::convertToDTO)
-                .collect(Collectors.toList());
+        ProductColors productColors = entity.getProductColors();
+        dto.setProductColorsNo(productColors.getProductColorsNo());
+        return dto;
     }
 
     public static Product convertToEntity(ProductDTO dto) {
@@ -65,7 +52,9 @@ public class ProductDTO {
         entity.setImageUrls(dto.getImageUrls());
         entity.setCategory(dto.getCategory());
         entity.setSize(dto.getSize());
-        entity.setColor(dto.getColor());
+        ProductColors productColors = new ProductColors();
+        productColors.setProductColorsNo(dto.getProductColorsNo());
+        entity.setProductColors(productColors);
         return entity;
     }
 }

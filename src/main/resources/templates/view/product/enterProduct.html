@@ -60,6 +60,7 @@
                         </div>
                     </div>
                 </div>
+                <!--        product - img           -->
                 <div class="product-img-selection">
                     <div class="all-Label">
                         <label for="fileInput"><span>이미지 :</span></label>
@@ -69,6 +70,16 @@
                     <div class="preview-ghost">
                         <div id="preview-area"></div>
                     </div>
+                    </div>
+                </div>
+
+                <div class="product-color-selection">
+                    <div class="all-Label">
+                        <label for="product-color"><span>색깔 선택:</span></label>
+                    </div>
+                    <div class="all-choose">
+                        <select id="product-color" name="colorsNo" multiple></select>
+                        <button type="button" id="add-color-btn">+ 새 색깔 추가</button>
                     </div>
                 </div>
 
@@ -83,15 +94,25 @@
                     </div>
                 </div>
 
-                    <button class="register">등록하기</button>
+                    <button type ="submit" class="register">등록하기</button>
             </div>
 
             <!--       common - Modal         -->
             <div id="common-modal" class="modal">
                 <div class="modal-content">
                     <span class="close" id="close-modal">&times;</span>
-                    <h3 id="modal-title" class="modal-title"></h3>
-                    <input type="text" id="modal-input" class="modal-input">
+                    <h3 id="modal-title"></h3>
+                    <div class="type-title-div">
+                        <div class="title-input">
+                            <input type="text" id="modal-input-title" class="modal-input">
+                        </div>
+                    </div>
+                    <div id="type-content-div">
+                        <div class="content-input">
+                            <input type="text" id="modal-input-content-1"><br/>
+                            <input type="text" id="modal-input-content-2">
+                        </div>
+                    </div>
                     <button type="button" id="cancel-btn">취소</button>
                     <button type="button" id="save-btn">저장</button>
                 </div>

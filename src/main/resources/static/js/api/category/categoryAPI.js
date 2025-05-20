@@ -28,7 +28,7 @@ export const categoryAPI = {
                 categorySelect.appendChild(newOption);
 
                 // 새로 추가된 카테고리 선택
-                categorySelect.value = data.categoryNo;
+                categorySelect.value = data.categoryName;
 
                 // 성공 메시지
                 alert(`'${data.categoryName}' 카테고리가 추가되었습니다.`);

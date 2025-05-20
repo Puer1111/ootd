@@ -35,7 +35,7 @@ public class BrandController {
     @GetMapping("/api/lookup/brands")
     public ResponseEntity<?> selectBrands() {
         try{
-            List<String> brandNames = brandService.getAllBrandNames();
+            List<String> brandNames = brandService.getAllBrand();
             return ResponseEntity.ok(brandNames);
         }catch(Exception e){
             System.out.println("Select brands error : " + e.getMessage());

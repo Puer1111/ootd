@@ -1,5 +1,6 @@
 package com.ootd.ootd.model.entity.product;
 
+import com.ootd.ootd.model.entity.product_colors.ProductColors;
 import com.ootd.ootd.utils.StringToListConverter;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -34,7 +35,7 @@ public class Product {
     @Column(nullable = false ,name="product_price")
     private int price;
 
-    @Column(name = "product_image_url", length = 255 , columnDefinition = "TEXT")
+    @Column(name = "product_image_url", length = 500 , columnDefinition = "TEXT")
     @Convert(converter = StringToListConverter.class)
     private List<String> imageUrls;
 
@@ -44,25 +45,8 @@ public class Product {
     @Column(length = 20 ,name = "product_size")
     private String size;
 
-    // 컬렉션 필드 매핑
-    @ElementCollection
-    @CollectionTable(
-            name = "product_colors",
-            joinColumns = @JoinColumn(name = "product_id")
-    )
-    @Column(name = "color", length = 30)
-    private List<String> color = new ArrayList<>();
+    @ManyToOne
+    @JoinColumn(name = "product_colors_no")
+    private ProductColors productColors;
 
-    // 감사 필드
-    @CreatedDate
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    // 낙관적 락 추가 (선택사항)
-    @Version
-    private Integer version;
 }

@@ -9,7 +9,7 @@
     /*margin: 0 auto;*/
 }
 .border{
-    height:714px;
+    height:800px;
     width:1465px;
 }
 
@@ -19,11 +19,11 @@
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    padding: 30px 30px; /* 상하 패딩 추가 */
-    height: 100%;
+    padding: 10px 10px; /* 상하 패딩 추가 */
+    height: 800px;
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    gap: 20px;
     justify-content: center; /* 중앙 정렬 추가 */
     box-sizing: border-box;
 }
@@ -111,6 +111,7 @@
     border-radius: 8px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     width: 400px;
+    min-height: 200px;
     position: relative;
 }
 
@@ -133,7 +134,10 @@
     font-size: 18px;
     color: #333;
 }
-
+.type-title-div{
+    position: relative;
+    top: 10px;
+}
 .modal-input {
     width: 100%;
     padding: 10px 12px;
@@ -296,7 +300,33 @@ input[name = "price"]{
     color: #333;
     background-color: #f9f9f9;
 }
+/* color */
+.product-color-selection{
+    display: flex;
+    align-items: center;
+}
 
+#add-color-btn{
+    background-color: #f1f1f1;
+    color: #555;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px 15px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+#product-color{
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 15px;
+    color: #333;
+    background-color: #f9f9f9;
+    margin-right: 10px;
+    min-width: 200px;
+    width: 200px;
+}
 /* 등록 버튼 */
 .register {
     background-color: #4a86e8;

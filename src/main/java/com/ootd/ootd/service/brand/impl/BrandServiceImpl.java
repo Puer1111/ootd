@@ -38,7 +38,7 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     @Transactional
-    public List<String> getAllBrandNames() {
+    public List<String> getAllBrand() {
         List<String> brandNames = new ArrayList<>();
         brandRepository.findAll().forEach(brand -> brandNames.add(brand.getBrandName()));
         return brandNames;

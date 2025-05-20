@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // category 가져오기
         window.api.category.lookupCategory();
 
+        // product-color 가져오기
+        window.api.colors.lookupColors();
+
         // // 이미지 업로드
         window.api.utils.init('fileInput', 'preview-area');
     })

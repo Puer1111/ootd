@@ -1,6 +1,9 @@
 package com.ootd.ootd.controller.product;
 
+import com.ootd.ootd.controller.colors.ColorsController;
 import com.ootd.ootd.model.dto.product.ProductDTO;
+import com.ootd.ootd.model.entity.product_colors.ProductColors;
+import com.ootd.ootd.service.colors.ColorsService;
 import com.ootd.ootd.service.product.ProductService;
 import com.ootd.ootd.utils.service.GoogleCloudStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +21,18 @@ import java.util.Map;
 
 @Controller
 public class ProductController {
-    private final ProductService productService;
-    private final GoogleCloudStorageService googleCloudStorageService;
 
     @Autowired
-    public ProductController(final ProductService productService , final GoogleCloudStorageService googleCloudStorageService) {
+    ProductService productService;
+    @Autowired
+    ColorsService colorsService;
+    @Autowired
+    GoogleCloudStorageService googleCloudStorageService;
+
+    public ProductController(ProductService productService, GoogleCloudStorageService googleCloudStorageService, ColorsService colorsService) {
         this.productService = productService;
         this.googleCloudStorageService = googleCloudStorageService;
+        this.colorsService = colorsService;
     }
 
     @GetMapping("/")
@@ -49,7 +57,7 @@ public class ProductController {
 
     @PostMapping("/enter/product")
     public ResponseEntity<?> insertProduct(@ModelAttribute ProductDTO dto)  {
-        ProductDTO productDTO = new ProductDTO();
+        ProductDTO productDTO;
         System.out.println("Inserted product : " + dto);
         // null 체크 추가
         if (dto.getImages() != null) {
@@ -64,7 +72,7 @@ public class ProductController {
         try {
             if (dto.getImages() != null && dto.getImages().length > 0) {
                 // 배열 전체를 한 번에 전달
-                List<String> images = new ArrayList<>();
+                List<String> images;
                 images = googleCloudStorageService.uploadImages(dto.getImages());
                 System.out.println("Uploaded " + dto.getImages().length + " images");
                 dto.setImageUrls(images);
@@ -72,6 +80,10 @@ public class ProductController {
             } else {
                 System.out.println("No images to upload");
             }
+
+            // 상품색깔 테이블에 들어가는 데이터
+            ProductColors productColors = colorsService.initToProductColor(dto.getColorsNo());
+            dto.setProductColorsNo(productColors.getProductColorsNo());
             productDTO = productService.insertProduct(dto);
         } catch (IOException e) {
             e.printStackTrace();

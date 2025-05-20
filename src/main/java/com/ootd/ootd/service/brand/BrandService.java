@@ -17,5 +17,5 @@ public interface BrandService {
      * 브랜드명 출력
      * @return List<String>
      */
-    List<String> getAllBrandNames();
+    List<String> getAllBrand();
 }

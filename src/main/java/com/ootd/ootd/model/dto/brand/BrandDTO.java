@@ -20,7 +20,6 @@ public class BrandDTO {
         brand.setBrandNo(dto.getBrandNo());
         brand.setBrandName(dto.getBrandName());
         brand.setBrandLogoUrl(dto.getBrandLogoUrl());
-        brand.setBrandDescription(dto.getBrandDescription());
         brand.setBrandWebsite(dto.getBrandWebSite());
         return brand;
     }
@@ -30,7 +29,6 @@ public class BrandDTO {
         dto.setBrandNo(brand.getBrandNo());
         dto.setBrandName(brand.getBrandName());
         dto.setBrandLogoUrl(brand.getBrandLogoUrl());
-        dto.setBrandDescription(brand.getBrandDescription());
         brand.setBrandWebsite(brand.getBrandWebsite());
         return dto;
     }
