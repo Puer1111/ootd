@@ -2,10 +2,10 @@ HELP.md
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
+!/src/main//build/
+!/src/test//build/
 
-### STS ###
+STS,
 .apt_generated
 .classpath
 .factorypath
@@ -14,24 +14,41 @@ build/
 .springBeans
 .sts4-cache
 bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
+!/src/main//bin/
+!/src/test//bin/
 
-### IntelliJ IDEA ###
+IntelliJ IDEA,
 .idea
 *.iws
 *.iml
-*.ipr
+.ipr
 out/
-!**/src/main/**/out/
-!**/src/test/**/out/
+!/src/main//out/
+!/src/test//out/
 
-### NetBeans ###
+NetBeans,
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
 
-### VS Code ###
+VS Code,
 .vscode/
+
+application properties,
+application.properties
+application.yml
+application-.properties
+application-*.yml
+
+키 파일,
+*.json
+*.p12
+*.pem
+
+Google Cloud 인증 파일,
+gcp-key.json
+**/gcp-key.json
+.json
+service-account-.json

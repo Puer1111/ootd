@@ -1,0 +1,10 @@
+.mypage-container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.user-info p {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
