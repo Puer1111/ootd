@@ -14,7 +14,7 @@ import java.util.List;
 @Table(name="colors")
 public class Colors {
     @Id
-    @Column(name="colors_no" , length = 30 , nullable = false)
+    @Column(name="colors_no" , length = 255 , nullable = false)
     private Long colorsNo;
 
     @Column(name ="colors_name" , nullable = false)

@@ -1,26 +1,30 @@
 package com.ootd.ootd.controller.product;
 
-import com.ootd.ootd.controller.colors.ColorsController;
 import com.ootd.ootd.model.dto.product.ProductDTO;
 import com.ootd.ootd.model.entity.product_colors.ProductColors;
 import com.ootd.ootd.service.colors.ColorsService;
 import com.ootd.ootd.service.product.ProductService;
 import com.ootd.ootd.utils.service.GoogleCloudStorageService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 public class ProductController {
+
+
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.setAutoGrowCollectionLimit(1024);
+    }
 
     @Autowired
     ProductService productService;
@@ -28,6 +32,8 @@ public class ProductController {
     ColorsService colorsService;
     @Autowired
     GoogleCloudStorageService googleCloudStorageService;
+
+
 
     public ProductController(ProductService productService, GoogleCloudStorageService googleCloudStorageService, ColorsService colorsService) {
         this.productService = productService;
@@ -56,20 +62,24 @@ public class ProductController {
     }
 
     @PostMapping("/enter/product")
-    public ResponseEntity<?> insertProduct(@ModelAttribute ProductDTO dto)  {
+    public ResponseEntity<?> insertProduct(@ModelAttribute ProductDTO dto,
+                                           HttpServletRequest request
+    )  {
+        String[] rawColors = request.getParameterValues("colorsNo");
         ProductDTO productDTO;
-        System.out.println("Inserted product : " + dto);
-        // null 체크 추가
-        if (dto.getImages() != null) {
-            System.out.println("Images count: " + dto.getImages().length);
-            for (int i = 0; i < dto.getImages().length; i++) {
-                MultipartFile image = dto.getImages()[i];
-                System.out.println("Image " + i + ": " + image.getOriginalFilename() +
-                        ", Size: " + image.getSize());
-            }
-        }
+//        System.out.println("=== 디버깅 ===");
+//        System.out.println("Raw colorsNo: " + Arrays.toString(rawColors));
+//        System.out.println("DTO colorsNo: " + dto.getColorsNo());
+//        System.out.println("Inserted product : " + dto);
 
         try {
+            if (rawColors != null && rawColors.length > 0) {
+                List<Long> colorsNoList = Arrays.stream(rawColors)
+                        .map(Long::parseLong)
+                        .collect(Collectors.toList());
+                dto.setColorsNo(colorsNoList);
+            }
+
             if (dto.getImages() != null && dto.getImages().length > 0) {
                 // 배열 전체를 한 번에 전달
                 List<String> images;
@@ -85,8 +95,8 @@ public class ProductController {
             ProductColors productColors = colorsService.initToProductColor(dto.getColorsNo());
             dto.setProductColorsNo(productColors.getProductColorsNo());
             productDTO = productService.insertProduct(dto);
+
         } catch (IOException e) {
-            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         Map<String, Object> response = new HashMap<>();

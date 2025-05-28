@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ColorsServiceImpl implements ColorsService {
@@ -48,19 +49,29 @@ public class ColorsServiceImpl implements ColorsService {
         });
         return result;
     }
-    // 상품 색깔 데이터
     @Override
-    public ProductColors initToProductColor(List<Long> ColorsNo) {
-//        Long productColorsNo = Long.parseLong(RandomGenerate.generateRandom10Digits());
-        ProductColors result = null;
-        for (Long colorNo : ColorsNo) {
-            // Colors 엔티티 조회
-            Colors checkedColorNo = colorsRepository.findById(colorNo)
-                    .orElseThrow(() -> new RuntimeException("색상을 찾을 수 없습니다: " + colorNo));
-            ProductColors productColors = new ProductColors(checkedColorNo);
-            productColorsRepository.save(productColors);
-            result = productColors;
+    public ProductColors initToProductColor(List<Long> colorsNo) {
+        // 1. 한 번에 모든 색상 조회 (성능 개선)
+        List<Colors> colors = colorsRepository.findAllById(colorsNo);
+
+        // 2. 조회된 색상 수와 요청한 색상 수가 같은지 확인
+        if (colors.size() != colorsNo.size()) {
+            List<Long> foundColorNos = colors.stream()
+                    .map(Colors::getColorsNo)
+                    .collect(Collectors.toList());
+            List<Long> notFoundColors = colorsNo.stream()
+                    .filter(colorNo -> !foundColorNos.contains(colorNo))
+                    .collect(Collectors.toList());
+            throw new RuntimeException("다음 색상을 찾을 수 없습니다: " + notFoundColors);
         }
-        return result;
+
+        // 3. 조회된 색상들의 번호만 추출
+        List<Long> validColorNos = colors.stream()
+                .map(Colors::getColorsNo)
+                .collect(Collectors.toList());
+
+        // 4. 하나의 ProductColors에 모든 색상 번호 저장
+        ProductColors productColors = new ProductColors(validColorNos);
+        return productColorsRepository.save(productColors);
     }
 }

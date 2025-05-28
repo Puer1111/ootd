@@ -58,7 +58,17 @@ public class SecurityConfig {
                                 "/img/**",            // 이미지
                                 "/webjars/**",        // 웹 자원
                                 "/error",             // 에러 페이지
-                                "/main"
+                                "/main",
+                                // 상품
+                                "/enter",              // 상품 등록
+                                "/enter/product",       // 상품- 등록 후 페이지
+                                "/api/register/colors", // 상품-색깔 등록
+                                "/api/lookup/colors",  // 상품-색깔 조회
+                                "/api/register/category", // 상품-카테고리-등록
+                                "/api/lookup/category", // 상품-카테고리-조회
+                                "/api/register/brands" , // 상품-브랜드-등록
+                                "/api/lookup/brands" // 상품-브랜드-조회
+
                         ).permitAll()                // 인증 없이 접근 허용
                         // /api/auth/mypage와 /mypage는 인증이 필요하도록 변경
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
