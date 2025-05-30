@@ -1,4 +1,4 @@
-package com.ootd.ootd.repository;
+package com.ootd.ootd.repository.user;
 
 import com.ootd.ootd.model.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -9,10 +9,16 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 /**
  * Spring Security 설정 클래스
@@ -21,7 +27,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * - CSRF, 폼 로그인, HTTP Basic 비활성화
  */
 @Configuration
-@EnableWebSecurity
+// @EnableWebSecurity(debug = true)  // 디버깅 활성화
+@EnableWebSecurity  // 디버깅 제거
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
@@ -33,16 +40,14 @@ public class SecurityConfig {
         this.customUserDetailsService = customUserDetailsService;
     }
 
-    /**
-     * 보안 필터 체인 설정
-     * - 경로 별 인증/권한 설정
-     * - JWT 필터 추가
-     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // CSRF 비활성화 (JWT 기반 API 보안 방식)
+                // CSRF 비활성화
                 .csrf(AbstractHttpConfigurer::disable)
+
+                // CORS 설정 (필요한 경우)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
                 // 요청 경로 별 인가 정책 설정
                 .authorizeHttpRequests(auth -> auth
@@ -59,6 +64,8 @@ public class SecurityConfig {
                                 "/webjars/**",        // 웹 자원
                                 "/error",             // 에러 페이지
                                 "/main",
+                                "/mypage",  // 페이지 접근은 허용
+                                "/go"       // 페이지 접근은 허용
                                 // 상품
                                 "/enter",              // 상품 등록
                                 "/enter/product",       // 상품- 등록 후 페이지
@@ -68,10 +75,14 @@ public class SecurityConfig {
                                 "/api/lookup/category", // 상품-카테고리-조회
                                 "/api/register/brands" , // 상품-브랜드-등록
                                 "/api/lookup/brands", // 상품-브랜드-조회
-                                    "/goPay"            // 결제 테스트
+                                "/goPay"            // 결제 테스트
                         ).permitAll()                // 인증 없이 접근 허용
                         // /api/auth/mypage와 /mypage는 인증이 필요하도록 변경
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
+
+                // 세션 관리 - JWT 사용하므로 STATELESS로 설정
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
                 // 기본 로그인/HTTP Basic 인증 비활성화
@@ -80,32 +91,39 @@ public class SecurityConfig {
 
                 // 로그아웃 설정
                 .logout(logout -> logout
-                        .logoutUrl("/logout")  // 로그아웃 요청 경로
-                        .logoutSuccessUrl("/login") // 로그아웃 후 이동 경로
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
                 )
 
-                // JWT 인증 필터 등록 (기존 인증 필터 앞에 위치)
+                // JWT 인증 필터 등록
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-    /**
-     * JWT 인증 필터 등록
-     * - 요청 시 JWT 토큰 유효성 검사 및 사용자 인증 처리
-     */
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter(jwtTokenProvider, customUserDetailsService);
     }
 
-    /**
-     * 비밀번호 암호화를 위한 PasswordEncoder 빈 등록
-     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    // CORS 설정 (필요한 경우)
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOriginPatterns(List.of("*"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
