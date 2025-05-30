@@ -35,3 +35,23 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# application properties
+application.properties
+application.yml
+application-*.properties
+application-*.yml
+
+# 키 파일
+*.json
+*.p12
+*.pem
+
+# Google Cloud 인증 파일
+gcp-key.json
+**/gcp-key.json
+*.json
+service-account-*.json
+
+# build.gradle
+build.gradle
