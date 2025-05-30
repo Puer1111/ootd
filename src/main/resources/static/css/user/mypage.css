@@ -1,10 +1,346 @@
+/* 기존 mypage.css에 추가할 스타일들 */
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Noto Sans KR', sans-serif;
+}
+
 .mypage-container {
-    width: 80%;
-    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    padding: 2rem 2rem;
+    background-color: #f9f9f9;
+    min-height: calc(100vh - 56px);
+    width: 100%;
+    margin-top: 56px;
+    box-sizing: border-box;
+}
+
+.user-card {
+    background: #ffffff;
+    width: 100%;
+    max-width: 800px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    position: relative;
+    margin-top: 1rem;
+}
+
+.user-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.user-card-header h2 {
+    margin: 0;
+    color: #333;
+    font-size: 1.5rem;
+}
+
+.logout-btn {
+    background-color: #ff5252;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.logout-btn:hover {
+    background-color: #e04848;
+}
+
+.user-info {
+    margin-top: 1rem;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.2rem;
+    padding: 0.8rem;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    justify-content: space-between;
+}
+
+.info-item label {
+    font-weight: 600;
+    color: #555;
+    min-width: 80px;
+}
+
+.info-item span {
+    color: #333;
+    font-weight: 500;
+    flex: 1;
+    margin-left: 1rem;
+}
+
+.change-password-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.change-password-btn:hover {
+    background-color: #0056b3;
+}
+
+#loading {
+    color: #666;
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.1rem;
+}
+
+#errorMessage {
+    background-color: #ffebee;
+    border: 1px solid #ffcdd2;
+    border-radius: 4px;
+    margin: 2rem auto;
+    max-width: 400px;
+    padding: 1rem;
+    text-align: center;
+}
+
+#errorMessage p {
+    margin-bottom: 1rem;
+    color: #d32f2f;
+}
+
+#errorMessage button {
+    margin: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+#errorMessage button:hover {
+    background-color: #0056b3;
+}
+
+/* 모달 스타일 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 10% auto;
+    padding: 0;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    animation: slideIn 0.3s;
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #eee;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 1.3rem;
+}
+
+.close {
+    color: #aaa;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.close:hover {
+    color: #333;
+}
+
+.modal-body {
     padding: 2rem;
 }
 
-.user-info p {
-    font-size: 1.2rem;
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #555;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+    box-sizing: border-box;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    display: none;
+}
+
+.show-error .error-message {
+    display: block;
+}
+
+.show-error .form-control {
+    border-color: #dc3545;
+}
+
+.form-message {
+    padding: 0.75rem;
+    border-radius: 4px;
     margin-bottom: 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.success-message {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.error-message.form-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    display: block;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.btn-cancel {
+    padding: 0.75rem 1.5rem;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn-cancel:hover {
+    background-color: #5a6268;
+}
+
+.btn-submit {
+    padding: 0.75rem 1.5rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn-submit:hover {
+    background-color: #0056b3;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .mypage-container {
+        padding: 1rem;
+        margin-top: 56px;
+    }
+
+    .user-card {
+        padding: 1.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .info-item {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .info-item label {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    .info-item span {
+        margin-left: 0;
+        margin-bottom: 0.5rem;
+    }
+
+    .modal-content {
+        width: 95%;
+        margin: 5% auto;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .modal-buttons {
+        flex-direction: column;
+    }
+
+    .btn-cancel, .btn-submit {
+        width: 100%;
+    }
 }

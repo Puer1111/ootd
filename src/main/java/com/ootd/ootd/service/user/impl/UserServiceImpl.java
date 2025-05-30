@@ -3,7 +3,7 @@ package com.ootd.ootd.service.user.impl;
 import com.ootd.ootd.model.dto.user.SignupRequest;
 import com.ootd.ootd.model.dto.user.UserDTO;
 import com.ootd.ootd.model.entity.User;
-import com.ootd.ootd.repository.UserRepository;
+import com.ootd.ootd.repository.user.UserRepository;
 import com.ootd.ootd.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -65,4 +65,5 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
         return new UserDTO(user);
     }
+
 }
