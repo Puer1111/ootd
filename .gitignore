@@ -53,5 +53,5 @@ gcp-key.json
 *.json
 service-account-*.json
 
-#build.gradle
+# build.gradle
 build.gradle

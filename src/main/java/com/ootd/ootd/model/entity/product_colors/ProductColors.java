@@ -1,11 +1,12 @@
 package com.ootd.ootd.model.entity.product_colors;
 
-import com.ootd.ootd.model.entity.colors.Colors;
-import com.ootd.ootd.model.entity.product.Product;
+import com.ootd.ootd.utils.LongListToStringConverter;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -19,18 +20,11 @@ public class ProductColors {
     @Column(name="product_colors_no")
     private Long productColorsNo;
 
-    @ManyToOne
-    @JoinColumn(name = "product_no")  // 이 부분이 중요: colors_no 컬럼을 통해 Colors 테이블과 조인
-    private Product product;
+    @Column(name = "colors_no",length = 500)
+    @Convert(converter = LongListToStringConverter.class)
+    private List<Long> colorsNo;  // 여러 색상 번호를 리스트로 저장
 
-//    @Column(name = "colors_no")
-//    private Long colorNo;
-
-    @ManyToOne
-    @JoinColumn(name = "colors_no")  // 이 부분이 중요: colors_no 컬럼을 통해 Colors 테이블과 조인
-    private Colors colors;  // 엔티티 관계 필드
-
-    public ProductColors(Colors colors) {
-        this.colors = colors;
+    public ProductColors(List<Long> colorsNo) {
+        this.colorsNo = colorsNo;
     }
 }

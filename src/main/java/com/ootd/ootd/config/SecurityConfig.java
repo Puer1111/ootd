@@ -52,26 +52,33 @@ public class SecurityConfig {
                 // 요청 경로 별 인가 정책 설정
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/",
-                                "/login",
-                                "/signup",
-                                "/api/auth/login",
-                                "/api/auth/signup",
-                                "/view/**",
-                                "/css/**",
-                                "/js/**",
-                                "/img/**",
-                                "/webjars/**",
-                                "/error",
+                                "/",                  // 루트
+                                "/login",             // 로그인 페이지
+                                "/signup",            // 회원가입 페이지
+                                "/api/auth/login",    // 로그인 API
+                                "/api/auth/signup",   // 회원가입 API
+                                "/view/**",           // View 페이지
+                                "/css/**",            // 정적 CSS
+                                "/js/**",             // 정적 JS
+                                "/img/**",            // 이미지
+                                "/webjars/**",        // 웹 자원
+                                "/error",             // 에러 페이지
                                 "/main",
                                 "/mypage",  // 페이지 접근은 허용
                                 "/go"       // 페이지 접근은 허용
-                        ).permitAll()
-
-                        // API 엔드포인트만 인증 필요
-                        .requestMatchers("/api/auth/mypage").authenticated()
-                        .anyRequest().permitAll()  // 나머지는 모두 허용으로 임시 변경
-                )
+                                // 상품
+                                "/enter",              // 상품 등록
+                                "/enter/product",       // 상품- 등록 후 페이지
+                                "/api/register/colors", // 상품-색깔 등록
+                                "/api/lookup/colors",  // 상품-색깔 조회
+                                "/api/register/category", // 상품-카테고리-등록
+                                "/api/lookup/category", // 상품-카테고리-조회
+                                "/api/register/brands" , // 상품-브랜드-등록
+                                "/api/lookup/brands", // 상품-브랜드-조회
+                                "/goPay"            // 결제 테스트
+                        ).permitAll()                // 인증 없이 접근 허용
+                        // /api/auth/mypage와 /mypage는 인증이 필요하도록 변경
+                        .anyRequest().authenticated() // 나머지 요청은 인증 필요
 
                 // 세션 관리 - JWT 사용하므로 STATELESS로 설정
                 .sessionManagement(session -> session
