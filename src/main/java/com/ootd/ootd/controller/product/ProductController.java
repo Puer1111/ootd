@@ -67,10 +67,6 @@ public class ProductController {
     )  {
         String[] rawColors = request.getParameterValues("colorsNo");
         ProductDTO productDTO;
-//        System.out.println("=== 디버깅 ===");
-//        System.out.println("Raw colorsNo: " + Arrays.toString(rawColors));
-//        System.out.println("DTO colorsNo: " + dto.getColorsNo());
-//        System.out.println("Inserted product : " + dto);
 
         try {
             if (rawColors != null && rawColors.length > 0) {
