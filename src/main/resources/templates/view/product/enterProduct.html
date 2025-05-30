@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>OOTD</title>
+    <link rel="stylesheet" href="/css/common/footer.css">
+    <link rel="stylesheet" href="/css/common/header.css">
+    <link rel="stylesheet" href="/css/common/layout.css">
+    <link rel="stylesheet" href="/css/common/reset.css">
+    <link rel="stylesheet" href="/css/product/enterProduct.css">
+</head>
+<body>
+<header th:replace="~{common/header :: header}"></header>
+<main>
+    <div th:fragment="content" class="border">
+        <form th:action="@{/enter/product}" method="POST" enctype="multipart/form-data" id="product-form">
+            <div class="outline">
+                <!--         brand           -->
+                <div class="brand-selection">
+                    <div class="select-container">
+                        <div class="all-Label">
+                            <label for="brand-select"><span>브랜드 선택 :</span></label>
+                        </div>
+                        <div class="all-choose">
+                            <select id="brand-select" name="brandName">
+                                <option value="">-- 기존 브랜드 선택 --</option>
+                            </select>
+                            <button type="button" id="add-brand-btn">+ 새 브랜드 추가</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!--     Product         -->
+                <div class="product-selection">
+                    <div class="select-container">
+                        <div class="all-Label">
+                            <label for="product-input" class="product-label"><span>상품명 입력 :</span></label>
+                        </div>
+                        <div class="all-choose">
+                            <input type="text" name="productName" placeholder="상품명" id="product-input">
+                        </div>
+                    </div>
+                </div>
+
+                <!--      category          -->
+                <div class="category-selection">
+                    <div class="select-container">
+                        <div class="all-Label">
+                            <label for="category-select"><span>카테고리 선택 :</span></label>
+                        </div>
+                        <div class="all-choose">
+                            <select id="category-select" name="category">
+                                <option value="">-- 기존 카테고리 선택 --</option>
+                                <option value="T-shirt">티셔츠</option>
+                                <option value="cardigan">가디건</option>
+                                <option value="shorts-sleeves">반팔</option>
+                                <option value="cap">모자</option>
+                            </select>
+                            <button type="button" id="add-category-btn">+ 새 카테고리 추가</button>
+                        </div>
+                    </div>
+                </div>
+                <!--        product - img           -->
+                <div class="product-img-selection">
+                    <div class="all-Label">
+                        <label for="fileInput"><span>이미지 :</span></label>
+                    </div>
+                    <div class="product-img-boundary">
+                        <input type="file" name="images" id="fileInput" multiple>
+                        <div class="preview-ghost">
+                            <div id="preview-area"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="product-color-selection">
+                    <div class="all-Label">
+                        <label for="product-color"><span>색깔 선택:</span></label>
+                    </div>
+                    <div class="all-choose">
+                        <select id="product-color" name="colorsNo" multiple size="5" ></select>
+                        <div id="selected-info">선택된 항목: <span id="selected-count">0</span>개</div>
+                        <ul id="selected-list"></ul>
+                        <button type="button" id="add-color-btn">+ 새 색깔 추가</button>
+                    </div>
+                </div>
+
+                <!--       price       -->
+                <div class="price-selection">
+                    <div class="all-Label">
+                        <label for="product-price"><span>가격 : </span></label>
+                    </div>
+                    <div class="input-wrapper">
+                        <input type="number" id="product-price" name="price" step="1000">
+                        <span>원</span>
+                    </div>
+                </div>
+                    <button type ="button" class="register" id="submit-btn">등록하기</button>
+            </div>
+
+            <!--       common - Modal         -->
+            <div id="common-modal" class="modal">
+                <div class="modal-content">
+                    <span class="close" id="close-modal">&times;</span>
+                    <h3 id="modal-title"></h3>
+                    <div class="type-title-div">
+                        <div class="title-input">
+                            <input type="text" id="modal-input-title" class="modal-input">
+                        </div>
+                    </div>
+                    <div id="type-content-div">
+                        <div class="content-input">
+                            <input type="text" id="modal-input-content-1"><br/>
+                            <input type="text" id="modal-input-content-2">
+                        </div>
+                    </div>
+                    <button type="button" id="cancel-btn">취소</button>
+                    <button type="button" id="save-btn">저장</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</main>
+<footer th:replace="~{common/footer :: footer}"></footer>
+</body>
+<script type = "module" src="/js/product/enterProduct.js"></script>
+
+</html>

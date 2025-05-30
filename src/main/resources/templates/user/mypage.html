@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>마이페이지</title>
+    <link rel="stylesheet" th:href="@{/css/user/mypage.css}">
+    <link rel="stylesheet" th:href="@{/css/common/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/common/header.css}">
+    <link rel="stylesheet" th:href="@{/css/common/layout.css}">
+
+
+</head>
+<body>
+
+<header>
+    <div style="text-align: right; padding: 1rem;">
+        <a href="/logout">로그아웃</a>
+    </div>
+
+</header>
+
+<div class="mypage-container">
+    <h1>마이페이지</h1>
+    <div class="user-info">
+        <p><strong>이름:</strong> <span th:text="${user.name}"></span></p>
+        <p><strong>이메일:</strong> <span th:text="${user.email}"></span></p>
+        <p><strong>아이디:</strong> <span th:text="${user.username}"></span></p>
+    </div>
+</div>
+<script>
+    document.getElementById('logoutBtn').addEventListener('click', function () {
+    // 로컬 스토리지의 JWT 삭제
+    localStorage.removeItem('auth_token');
+
+    // 로그아웃 요청 보내기 (선택적: 백엔드 세션 무효화, 쿠키 삭제 목적)
+    fetch('/logout', {
+    method: 'POST',
+    credentials: 'include'
+    }).then(() => {
+    window.location.href = '/login';
+    });
+    });
+</script>
+</body>
+</html>

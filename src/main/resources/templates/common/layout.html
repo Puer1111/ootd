@@ -9,15 +9,10 @@
     <link rel="stylesheet" href="/css/common/reset.css">
 </head>
 <body>
-<header th:replace="~{common/header.html :: header}"></header>
-<main>
-    <div th:fragment="content">
-        <h1>Test</h1>
-    </div>
-    <div>
-        <a th:href="@{/api/auth/signup}" class="btn">go go</a>
-    </div>
-</main>
-<footer th:replace="~{common/footer.html :: footer}"></footer>
+  <header th:replace="~{common/header :: header}"></header>
+    <main>
+      <div th:fragment="content"></div>
+    </main>
+  <footer th:replace="~{common/footer :: footer}"></footer>
 </body>
 </html>

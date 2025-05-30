@@ -12,10 +12,9 @@
 <header th:replace="~{common/header.html :: header}"></header>
 <main>
     <div th:fragment="content">
-        <h1>Test</h1>
-    </div>
-    <div>
-        <a th:href="@{/api/auth/signup}" class="btn">go go</a>
+        <form th:action="/products/${clothes.clothesNo}">
+
+        </form>
     </div>
 </main>
 <footer th:replace="~{common/footer.html :: footer}"></footer>
