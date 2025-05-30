@@ -66,10 +66,10 @@
                         <label for="fileInput"><span>이미지 :</span></label>
                     </div>
                     <div class="product-img-boundary">
-                        <input type="file" name="imageUrl" id="fileInput" multiple>
-                    <div class="preview-ghost">
-                        <div id="preview-area"></div>
-                    </div>
+                        <input type="file" name="images" id="fileInput" multiple>
+                        <div class="preview-ghost">
+                            <div id="preview-area"></div>
+                        </div>
                     </div>
                 </div>
 
@@ -78,7 +78,9 @@
                         <label for="product-color"><span>색깔 선택:</span></label>
                     </div>
                     <div class="all-choose">
-                        <select id="product-color" name="colorsNo" multiple></select>
+                        <select id="product-color" name="colorsNo" multiple size="5" ></select>
+                        <div id="selected-info">선택된 항목: <span id="selected-count">0</span>개</div>
+                        <ul id="selected-list"></ul>
                         <button type="button" id="add-color-btn">+ 새 색깔 추가</button>
                     </div>
                 </div>
@@ -93,8 +95,7 @@
                         <span>원</span>
                     </div>
                 </div>
-
-                    <button type ="submit" class="register">등록하기</button>
+                    <button type ="button" class="register" id="submit-btn">등록하기</button>
             </div>
 
             <!--       common - Modal         -->

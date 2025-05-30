@@ -1,7 +1,8 @@
 export const colors ={
-    getColorSelect(){
-        return document.getElementById("product-color");
+    getColorSelect() {
+        return document.getElementById('product-color');
     },
+
     register(colorName){
         fetch('/api/register/colors', {
             method: 'POST',
@@ -27,7 +28,6 @@ export const colors ={
 
                 // 새로 추가된 브랜드 선택
                 colorSelect.value = data.colorsNo;
-                colorSelect.selected = true;
 
                 // 성공 메시지
                 alert(`'${colorName}' 색깔이 추가되었습니다.`);
@@ -52,5 +52,27 @@ export const colors ={
                 })
                 .catch(error => console.error('색깔 목록을 가져오는 중 오류 발생:', error));
     },
+    updateSelectedInfo() {
+        const colorSelect = this.getColorSelect();
+        const selectedCount = colorSelect.selectedOptions.length;
+        const selectedList = document.getElementById('selected-list');
 
+        // 선택 개수 업데이트
+        document.getElementById('selected-count').textContent = selectedCount;
+
+        // 선택 목록 업데이트
+        selectedList.innerHTML = '';
+        // 오타 수정: select → colorSelect
+        Array.from(colorSelect.selectedOptions).forEach(option => {
+            const li = document.createElement('li');
+            li.textContent = `${option.text}`;
+            selectedList.appendChild(li);
+        });
+    },
+
+    test() {
+        const select = this.getColorSelect();
+        // bind를 사용하여 this 컨텍스트 유지
+        select.addEventListener('change', this.updateSelectedInfo.bind(this));
+    },
 }
