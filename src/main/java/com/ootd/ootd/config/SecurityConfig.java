@@ -66,9 +66,12 @@ public class SecurityConfig {
                                 "/api/lookup/colors",  // 상품-색깔 조회
                                 "/api/register/category", // 상품-카테고리-등록
                                 "/api/lookup/category", // 상품-카테고리-조회
-                                "/api/register/brands" , // 상품-브랜드-등록
+                                "/api/register/brands", // 상품-브랜드-등록
                                 "/api/lookup/brands", // 상품-브랜드-조회
-                                "/goPay"            // 결제 테스트
+                                "/goPay",                // 결제 테스트
+                                "/orders",               // 주문 상품 등록
+                                "/payments/save",   // 결제 저장
+                                "/validation/{imp_uid}" // 결제 검증
                         ).permitAll()                // 인증 없이 접근 허용
                         // /api/auth/mypage와 /mypage는 인증이 필요하도록 변경
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요

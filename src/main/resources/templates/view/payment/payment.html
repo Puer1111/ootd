@@ -1,38 +1,43 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>Payment</title>
-  <link rel="stylesheet" href="/css/common/footer.css">
-  <link rel="stylesheet" href="/css/common/header.css">
-  <link rel="stylesheet" href="/css/common/layout.css">
-  <link rel="stylesheet" href="/css/common/reset.css">
+    <meta charset="UTF-8">
+    <title>Payment</title>
+    <link rel="stylesheet" href="/css/common/footer.css">
+    <link rel="stylesheet" href="/css/common/header.css">
+    <link rel="stylesheet" href="/css/common/layout.css">
+    <link rel="stylesheet" href="/css/common/reset.css">
 </head>
 <body>
 <header th:replace="~{common/header :: header}"></header>
 <main>
-  <div th:fragment="content">
-    <div class="test1">
-      <div class="payment-product-title">
-        <span>결제 상품 : </span>
-        <div class="payment-product-title-show">
-        </div>
-      </div>
-      <div class="payment-product-price">
-        <span>상품 금액 : </span>
-        <div class="payment-product-price-show">
-        </div>
-        <span>할인 : </span><p class="sale-percent"></p>
-        <span>결제 금액 : </span>
-      </div>
+    <div th:fragment="content">
+        <div class="test1">
+            <div class="payment-product-title">
+                <span>결제 상품 : </span>
+                <div class="payment-product-title-show" id="productName">Test</div>
+            </div>
+            <div class="payment-product-price">
+                <span>상품 금액 : </span>
+                <div class="payment-product-price-show" id="productPrice">5000</div>
+                <span>수량: </span>
+                <button>+</button><span id="quantity">10</span><button>-</button>
+                <span>할인 : </span>
+                <p class="sale-percent" id="salePercent">40</p>
+                <span>결제 금액 : </span>
+                <p id="totalPrice">55000</p>
+            </div>
 
-      <div class="payment-submit">
-        <button id = payment-button> 결제 하기 </button>
-      </div>
+            <div class="payment-submit">
+                <button id="payment-button" class="apply-button"> 결제 하기</button>
+            </div>
+        </div>
+
     </div>
-
-  </div>
 </main>
 <footer th:replace="~{common/footer :: footer}"></footer>
+<script src="/js/api/payment/payment.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.iamport.kr/v1/iamport.js" defer></script>
 </body>
 </html>
