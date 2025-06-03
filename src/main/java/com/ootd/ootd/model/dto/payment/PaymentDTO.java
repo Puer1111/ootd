@@ -11,7 +11,7 @@ import java.util.Date;
 @Data
 public class PaymentDTO {
     private String impUid;
-    private Long productNo;
+    private Long orderId;
     private String productName;
     private String payMethod;
     private String merchantUid;
@@ -20,10 +20,11 @@ public class PaymentDTO {
     private String email;
     private String userName;
     private String orderDate;
+    private String paymentStatus;
 
-    public PaymentDTO(String impUid, Long productNo, String productName, String payMethod, String merchantUid, Integer totalPrice, String phone, String email, String userName, String orderDate) {
+    public PaymentDTO(String impUid, Long orderId, String productName, String payMethod, String merchantUid, Integer totalPrice, String phone, String email, String userName, String orderDate, String paymentStatus) {
         this.impUid = impUid;
-        this.productNo = productNo;
+        this.orderId = orderId;
         this.productName = productName;
         this.payMethod = payMethod;
         this.merchantUid = merchantUid;
@@ -32,11 +33,12 @@ public class PaymentDTO {
         this.email = email;
         this.userName = userName;
         this.orderDate = orderDate;
+        this.paymentStatus = paymentStatus;
     }
 
     public static Payment convertToEntity(PaymentDTO dto) {
         return Payment.builder().impUid(dto.getImpUid())
-                .productNo(dto.getProductNo())
+                .orderId(dto.getOrderId())
                 .productName(dto.getProductName())
                 .payMethod(dto.getPayMethod())
                 .merchantUid(dto.getMerchantUid())
@@ -45,12 +47,13 @@ public class PaymentDTO {
                 .email(dto.getEmail())
                 .userName(dto.getUserName())
                 .orderDate(dto.getOrderDate())
+                .paymentStatus(dto.getPaymentStatus())
                 .build();
     }
     public static PaymentDTO convertToDTO(Payment entity) {
         return PaymentDTO.builder()
                 .impUid(entity.getImpUid())
-                .productNo(entity.getProductNo())
+                .orderId(entity.getOrderId())
                 .productName(entity.getProductName())
                 .payMethod(entity.getPayMethod())
                 .merchantUid(entity.getMerchantUid())
@@ -59,6 +62,7 @@ public class PaymentDTO {
                 .email(entity.getEmail())
                 .userName(entity.getUserName())
                 .orderDate(entity.getOrderDate())
+                .paymentStatus(entity.getPaymentStatus())
                 .build();
     }
 }

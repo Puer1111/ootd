@@ -20,8 +20,9 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderDTO createOrder(OrderDTO dto) {
         Order savedOrder = OrderDTO.convertToEntity(dto);
-        orderRepository.save(savedOrder);
-        return OrderDTO.convertToDTO(savedOrder);
+        Order order = orderRepository.save(savedOrder);
+        System.out.println("OrderId Entity 확인: " + order.getOrderId());
+        return OrderDTO.convertToDTO(order);
     }
 }
 //TODO JS쪽 order에 정보 넘기는거 확인.

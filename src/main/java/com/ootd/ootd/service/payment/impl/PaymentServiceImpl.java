@@ -1,9 +1,13 @@
 package com.ootd.ootd.service.payment.impl;
 
 import com.ootd.ootd.model.dto.payment.PaymentDTO;
+import com.ootd.ootd.model.entity.order.Order;
+import com.ootd.ootd.repository.order.OrderRepository;
 import com.ootd.ootd.repository.payment.PaymentRepository;
 import com.ootd.ootd.service.payment.PaymentService;
 import com.siot.IamportRestClient.IamportClient;
+import com.siot.IamportRestClient.exception.IamportResponseException;
+import com.siot.IamportRestClient.request.CancelData;
 import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Payment;
 import jakarta.annotation.PostConstruct;
@@ -11,10 +15,15 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+
 @Service
 public class PaymentServiceImpl implements PaymentService {
     @Autowired
     private PaymentRepository paymentRepository;
+    @Autowired
+    private OrderRepository orderRepository;
 
     private IamportClient iamportClient;
 
@@ -23,8 +32,9 @@ public class PaymentServiceImpl implements PaymentService {
         this.iamportClient = new IamportClient(apiKey, secretKey);
     }
 
-    public PaymentServiceImpl(PaymentRepository paymentRepository) {
+    public PaymentServiceImpl(PaymentRepository paymentRepository, OrderRepository orderRepository) {
         this.paymentRepository = paymentRepository;
+        this.orderRepository = orderRepository;
     }
 
     @Value("${IMP_API_KEY}")
@@ -47,6 +57,31 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public void savePayment(PaymentDTO dto) {
         com.ootd.ootd.model.entity.payment.Payment savedPayment = PaymentDTO.convertToEntity(dto);
+        System.out.println("DTO 확인: " + dto);
         paymentRepository.save(savedPayment);
+        Order order = orderRepository.findById(dto.getOrderId()).orElse(null);
+        order.setOrderStatus("success");
+        orderRepository.save(order);
+    }
+
+    @Override
+    public String getImpUid(Long orderId) {
+        return paymentRepository.findByOrderId(orderId);
+    }
+    @Transactional
+    @Override
+    public IamportResponse<Payment> cancelPayment(String imp_uid)  {
+        try {
+            CancelData cancelData = new CancelData(imp_uid, true);
+            IamportResponse<Payment> payment = iamportClient.cancelPaymentByImpUid(cancelData);
+//          paymentRepository.deleteByImpUid(imp_uid);
+            com.ootd.ootd.model.entity.payment.Payment changeStatus = paymentRepository.changeStatus(imp_uid);
+            changeStatus.setPaymentStatus("cancel");
+            paymentRepository.save(changeStatus);
+            return payment;
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

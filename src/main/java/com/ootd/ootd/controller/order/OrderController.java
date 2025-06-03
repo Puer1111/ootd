@@ -22,6 +22,7 @@ public class OrderController {
     @PostMapping("/orders")
     public ResponseEntity<?> createOrder(@RequestBody OrderDTO order) {
         OrderDTO saveOrder = orderService.createOrder(order);
+        System.out.println("orderID 확인: " + saveOrder.getOrderId());
         return ResponseEntity.ok(saveOrder);
     }
 

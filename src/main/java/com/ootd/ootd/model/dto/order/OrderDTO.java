@@ -21,7 +21,9 @@ public class OrderDTO {
     private Integer salePercent;
     private Long totalPrice;
 
-    public OrderDTO(Long orderId, Long quantity, String orderDate, String merchantUid, String username, String productName, Integer productPrice, Integer salePercent, Long totalPrice) {
+    private String orderStatus;
+
+    public OrderDTO(Long orderId, Long quantity, String orderDate, String merchantUid, String username, String productName, Integer productPrice, Integer salePercent, Long totalPrice, String orderStatus) {
         this.orderId = orderId;
         this.quantity = quantity;
         this.orderDate = orderDate;
@@ -31,19 +33,19 @@ public class OrderDTO {
         this.productPrice = productPrice;
         this.salePercent = salePercent;
         this.totalPrice = totalPrice;
+        this.orderStatus = orderStatus;
     }
 
     public static OrderDTO convertToDTO(Order order){
-        return OrderDTO.builder().quantity(order.getQuantity()).orderDate(order.getOrderDate())
+        return OrderDTO.builder().orderId(order.getOrderId()).quantity(order.getQuantity()).orderDate(order.getOrderDate())
                 .merchantUid(order.getMerchantUid()).username(order.getUserName()).productName(order.getProductName())
                 .productPrice(order.getProductPrice()).totalPrice(order.getTotalPrice())
-                .salePercent(order.getSalePercent())
-                .build();
+                .salePercent(order.getSalePercent()).orderStatus(order.getOrderStatus()).build();
     }
 
     public static Order convertToEntity(OrderDTO dto){
         return Order.builder().quantity(dto.getQuantity()).orderDate(dto.getOrderDate()).merchantUid(dto.getMerchantUid())
                 .userName(dto.getUsername()).productName(dto.getProductName()).productPrice(dto.getProductPrice()).salePercent(dto.getSalePercent())
-                .totalPrice(dto.getTotalPrice()).build();
+                .totalPrice(dto.getTotalPrice()).orderStatus(dto.getOrderStatus()).build();
     }
 }

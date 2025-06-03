@@ -9,4 +9,7 @@ public interface PaymentService {
     IamportResponse<Payment> validatePayment(String impUid);
     void savePayment(PaymentDTO dto);
 
+    String getImpUid(Long orderNo);
+
+    IamportResponse<Payment> cancelPayment(String imp_uid);
 }

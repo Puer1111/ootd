@@ -30,7 +30,6 @@ async function createOrder(){
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-            productNo: 1,
             quantity: item.quantity,
             merchantUid: "merchant_" + new Date().getTime(),
             // userName:userName,
@@ -45,6 +44,9 @@ async function createOrder(){
 
 async function requestPay() {
     const data = await createOrder();
+    console.log("🔍 createOrder 응답 데이터:", data);
+    console.log("🔍 orderId 값:", data.orderId);
+    console.log("🔍 data 타입:", typeof data);
 
     if (!data) {
         alert("결제 데이터를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
@@ -98,7 +100,7 @@ async function requestPay() {
 
                     // 🔥 결제 정보 저장 요청
                     const buyerInfo = {
-                        productNo:1,
+                        orderId:data.orderId,
                         impUid: rsp.imp_uid,
                         // productNo: validationResult.productNo,
                         productName: data.productName,
@@ -152,57 +154,56 @@ document.querySelector(".apply-button").addEventListener("click", async function
 //         return;
 //     }
 
-// async function cancelPay() {
-//     const reservationNo = prompt("예약 번호를 입력해주세요").trim();
-//     if (!reservationNo) {
-//         alert("올바른 예약 번호를 입력해야 합니다.");
-//         return;
-//     }
-//
-//     try {
-//         // 서버에서 imp_uid를 가져옴.
-//         const response = await fetch("/api/getImpUid", {
-//             method: "POST",
-//             headers: {
-//                 "Content-Type": "application/json"
-//             },
-//             body: JSON.stringify({ reservationNo }) // JSON 형식으로 데이터 전송
-//         });
-//
-//         if (!response.ok) {
-//             throw new Error("예약 정보를 가져오는데 실패했습니다.");
-//         }
-//
-//         const imp_uid = await response.json();
-//         console.log("잘 왔니??" , imp_uid);
-//         if (imp_uid) {
-//             const isConfirmed = confirm("정말 취소 하시겠습니까?");
-//             if (isConfirmed) {
-//                 // 결제 취소 요청 (POST 요청)
-//                 const cancelResponse = await fetch("/api/payments/cancel", {
-//                     method: "POST",
-//                     headers: {
-//                         "Content-Type": "application/json"
-//                     },
-//                     body: JSON.stringify({
-//                         imp_uid: imp_uid,
-//                         reason: "고객 요청으로 취소" // 취소 사유 추가
-//                     })
-//                 });
-//                 if (!cancelResponse.ok) {
-//                     throw new Error("결제 취소에 실패했습니다.");
-//                 }
-//
-//                 alert("취소가 완료되었습니다!");
-//                 console.log(await cancelResponse.json());
-//             }
-//         } else {
-//             alert("유효한 예약 번호가 아닙니다.");
-//         }
-//     } catch (error) {
-//         alert(error.message);
-//     }
-// }
-// document.querySelector(".cancel-button").addEventListener("click", async function () {
-//     cancelPay();
-// });
+async function cancelPay() {
+    const orderNo = prompt("예약 번호를 입력해주세요").trim();
+    if (!orderNo) {
+        alert("올바른 예약 번호를 입력해야 합니다.");
+        return;
+    }
+
+    try {
+        // 서버에서 imp_uid를 가져옴.
+        const response = await fetch("/api/getImpUid", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify( {orderNo} ) // JSON 형식으로 데이터 전송
+        });
+
+        if (!response.ok) {
+            throw new Error("예약 정보를 가져오는데 실패했습니다.");
+        }
+
+        const responseData = await response.json();
+        const imp_uid = responseData.impUid;
+
+        console.log("잘 왔니??" , imp_uid);
+        if (imp_uid) {
+            const isConfirmed = confirm("정말 취소 하시겠습니까?");
+            if (isConfirmed) {
+                // 결제 취소 요청 (POST 요청)
+                const cancelResponse = await fetch(`/payments/cancel/${imp_uid}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        reason: "고객 요청으로 취소" // 취소 사유 추가
+                    })
+                });
+                if (!cancelResponse.ok) {
+                    throw new Error("결제 취소에 실패했습니다.");
+                }
+                alert("취소가 완료되었습니다!");
+            }
+        } else {
+            alert("유효한 예약 번호가 아닙니다.");
+        }
+    } catch (error) {
+        alert(error.message);
+    }
+}
+document.querySelector(".cancel-button").addEventListener("click", async function () {
+    await cancelPay();
+});

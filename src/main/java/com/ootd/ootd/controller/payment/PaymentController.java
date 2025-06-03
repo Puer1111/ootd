@@ -5,13 +5,17 @@ import com.ootd.ootd.service.payment.PaymentService;
 import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Payment;
+import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import retrofit2.http.Path;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 public class PaymentController {
@@ -47,4 +51,21 @@ public class PaymentController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/api/getImpUid")
+    public ResponseEntity<?> getImpUid(@RequestBody Map<String, Long> request) {
+        Long orderId = request.get("orderNo");
+        if (orderId == null) {
+            return ResponseEntity.badRequest().body("orderNo is required");
+        }
+        String result = paymentservice.getImpUid(orderId);
+        Map<String, String> response = new HashMap<>();
+        response.put("impUid", result);
+
+        return ResponseEntity.ok().body(response);
+    }
+    @PostMapping("/payments/cancel/{imp_uid}")
+    public ResponseEntity<?> cancelPayment(@PathVariable("imp_uid") String imp_uid) {
+            IamportResponse<Payment> reponse = paymentservice.cancelPayment(imp_uid);
+        return ResponseEntity.ok().build();
+    }
 }

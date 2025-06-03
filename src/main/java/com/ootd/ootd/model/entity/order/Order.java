@@ -9,7 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 @Setter
 @NoArgsConstructor
 @Builder
-@AllArgsConstructor
+@ToString
 @Table(name="orders")
 public class Order {
     @Id
@@ -42,5 +42,19 @@ public class Order {
     @Column(name="orders_Price")
     private Long totalPrice;
 
+    @Column(name="order_status")
+    private String orderStatus = "wait";
 
+    public Order(Long orderId, Long quantity, String orderDate, String merchantUid, String userName, String productName, Integer productPrice, Integer salePercent, Long totalPrice, String orderStatus) {
+        this.orderId = orderId;
+        this.quantity = quantity;
+        this.orderDate = orderDate;
+        this.merchantUid = merchantUid;
+        this.userName = userName;
+        this.productName = productName;
+        this.productPrice = productPrice;
+        this.salePercent = salePercent;
+        this.totalPrice = totalPrice;
+        this.orderStatus = "wait";
+    }
 }

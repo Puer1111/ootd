@@ -2,6 +2,19 @@ package com.ootd.ootd.repository.payment;
 
 import com.ootd.ootd.model.entity.payment.Payment;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 
 public interface PaymentRepository extends JpaRepository<Payment,Long> {
+    @Query("SELECT p.impUid FROM Payment p WHERE p.orderId = :orderId")
+    String findByOrderId(Long orderId);
+
+//    @Query("UPDATE Payment p set p.paymentStatus = 'cancel' WHERE p.impUid = :impUid")
+    @Query("SELECT p FROM Payment p WHERE p.impUid = :impUid")
+    Payment changeStatus(String impUid);
+
+//
+//    @Modifying
+//    @Query("DELETE FROM Payment p where p.impUid = :impUid")
+//    void deleteByImpUid(String impUid);
 }

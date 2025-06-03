@@ -8,11 +8,11 @@ import lombok.Setter;
 
 import java.util.Date;
 
-@Entity
 @Getter
-@Setter
+@Entity
 @NoArgsConstructor
 @Builder
+@Setter
 public class Payment {
 
     @Id
@@ -22,8 +22,8 @@ public class Payment {
 
     @Column(name="imp_uid" ,nullable = false)
     private String impUid;
-    @Column(name="product_No")
-    private Long productNo;
+    @Column(name="orders_Id")
+    private Long orderId;
     @Column(name="product_Name" ,nullable = false)
     private String productName;
     @Column(name="pay_Method")
@@ -38,13 +38,16 @@ public class Payment {
     private String email;
     @Column(name="user_Name")
     private String userName;
-    @Column(name="order_Date")
+    @Column(name="orders_Date")
     private String orderDate;
 
-    public Payment(Long paymentId, String impUid, Long productNo, String productName, String payMethod, String merchantUid, Integer totalPrice, String phone, String email, String userName, String orderDate) {
+    @Column(name="payment_status")
+    private String paymentStatus = "success";
+
+    public Payment(Long paymentId, String impUid, Long orderId, String productName, String payMethod, String merchantUid, Integer totalPrice, String phone, String email, String userName, String orderDate, String paymentStatus) {
         this.paymentId = paymentId;
         this.impUid = impUid;
-        this.productNo = productNo;
+        this.orderId = orderId;
         this.productName = productName;
         this.payMethod = payMethod;
         this.merchantUid = merchantUid;
@@ -53,5 +56,6 @@ public class Payment {
         this.email = email;
         this.userName = userName;
         this.orderDate = orderDate;
+        this.paymentStatus = "success";
     }
 }

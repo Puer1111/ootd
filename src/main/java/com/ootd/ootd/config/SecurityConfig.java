@@ -71,7 +71,9 @@ public class SecurityConfig {
                                 "/goPay",                // 결제 테스트
                                 "/orders",               // 주문 상품 등록
                                 "/payments/save",   // 결제 저장
-                                "/validation/{imp_uid}" // 결제 검증
+                                "/validation/{imp_uid}", // 결제 검증
+                                "/api/getImpUid",        // 고객 번호 조회
+                                "/payments/cancel/{imp_uid}" // 결제 취소
                         ).permitAll()                // 인증 없이 접근 허용
                         // /api/auth/mypage와 /mypage는 인증이 필요하도록 변경
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
