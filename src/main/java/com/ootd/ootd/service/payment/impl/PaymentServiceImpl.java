@@ -59,9 +59,10 @@ public class PaymentServiceImpl implements PaymentService {
         com.ootd.ootd.model.entity.payment.Payment savedPayment = PaymentDTO.convertToEntity(dto);
         System.out.println("DTO 확인: " + dto);
         paymentRepository.save(savedPayment);
-        Order order = orderRepository.findById(dto.getOrderId()).orElse(null);
-        order.setOrderStatus("success");
-        orderRepository.save(order);
+//        Order order = orderRepository.findById(dto.getOrderId()).orElse(null);
+//        order.setOrderStatus("success");
+//        orderRepository.save(order);
+        orderRepository.changeOrderStatus(dto.getOrderId());
     }
 
     @Override
@@ -74,10 +75,8 @@ public class PaymentServiceImpl implements PaymentService {
         try {
             CancelData cancelData = new CancelData(imp_uid, true);
             IamportResponse<Payment> payment = iamportClient.cancelPaymentByImpUid(cancelData);
-//          paymentRepository.deleteByImpUid(imp_uid);
-            com.ootd.ootd.model.entity.payment.Payment changeStatus = paymentRepository.changeStatus(imp_uid);
-            changeStatus.setPaymentStatus("cancel");
-            paymentRepository.save(changeStatus);
+            paymentRepository.changeStatus(imp_uid);
+            orderRepository.cancelOrderStatus(imp_uid);
             return payment;
         }catch(Exception e) {
             e.printStackTrace();
