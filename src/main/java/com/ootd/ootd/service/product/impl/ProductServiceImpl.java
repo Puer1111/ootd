@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class ProductServiceImpl implements ProductService {
 
@@ -39,5 +42,21 @@ public class ProductServiceImpl implements ProductService {
         }catch(Exception e){
             throw new RuntimeException();
         }
+    }
+
+    // ProductServiceImpl에 추가
+    @Override
+    public List<ProductDTO> getAllProducts() {
+        List<Product> products = productRepository.findAll();
+        return products.stream()
+                .map(ProductDTO::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public ProductDTO getProductById(Long productNo) {
+        Product product = productRepository.findById(productNo.toString())
+                .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
+        return ProductDTO.convertToDTO(product);
     }
 }

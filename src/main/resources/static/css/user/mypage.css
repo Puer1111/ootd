@@ -1,5 +1,3 @@
-/* 기존 mypage.css에 추가할 스타일들 */
-
 body {
     margin: 0;
     padding: 0;
@@ -9,7 +7,7 @@ body {
 .mypage-container {
     display: flex;
     justify-content: center;
-    padding: 2rem 2rem;
+    padding: 2rem 5%; /* 좌우 여백 5%로 줄임 */
     background-color: #f9f9f9;
     min-height: calc(100vh - 56px);
     width: 100%;
@@ -20,7 +18,7 @@ body {
 .user-card {
     background: #ffffff;
     width: 100%;
-    max-width: 800px;
+    max-width: 1200px; /* 800px에서 1200px로 증가 */
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     padding: 2rem;
@@ -56,6 +54,98 @@ body {
 
 .logout-btn:hover {
     background-color: #e04848;
+}
+
+.user-stats {
+    display: flex;
+    justify-content: space-around;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 1.5rem;
+}
+
+.stat-item {
+    text-align: center;
+    flex: 1;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.stat-value {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.stat-unit {
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: #666;
+}
+
+.menu-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 0;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.menu-item:hover {
+    background-color: #f8f9fa;
+}
+
+.menu-item:last-child {
+    border-bottom: none;
+}
+
+.menu-text {
+    font-size: 1rem;
+    color: #333;
+    font-weight: 400;
+}
+
+.menu-arrow {
+    font-size: 1.2rem;
+    color: #ccc;
+    font-weight: 300;
+}
+
+/* 개인정보 */
+.personal-info-detail {
+    display: none;
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    margin: 1rem -2rem;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.personal-info-detail .user-info {
+    margin-top: 0;
+}
+
+.personal-info-detail .info-item {
+    background-color: white;
+    margin-bottom: 0.8rem;
+    padding: 1rem;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+.personal-info-detail .info-item:last-child {
+    margin-bottom: 0;
 }
 
 .user-info {
@@ -137,7 +227,7 @@ body {
     background-color: #0056b3;
 }
 
-/* 모달 스타일 */
+/* modal */
 .modal {
     display: none;
     position: fixed;
@@ -299,16 +389,44 @@ body {
     background-color: #0056b3;
 }
 
-/* 반응형 디자인 */
 @media (max-width: 768px) {
     .mypage-container {
-        padding: 1rem;
+        padding: 1rem 2%;
         margin-top: 56px;
     }
 
     .user-card {
         padding: 1.5rem;
         margin-top: 0.5rem;
+    }
+
+    .user-stats {
+        padding: 1rem 0;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+    }
+
+    .stat-value {
+        font-size: 1rem;
+    }
+
+    .menu-item {
+        padding: 0.8rem 0;
+    }
+
+    .menu-text {
+        font-size: 0.9rem;
+    }
+
+    .personal-info-detail {
+        margin: 1rem -1.5rem;
+        padding: 1rem;
+    }
+
+    .personal-info-detail .info-item {
+        padding: 0.8rem;
     }
 
     .info-item {

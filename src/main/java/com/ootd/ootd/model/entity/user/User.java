@@ -1,4 +1,4 @@
-package com.ootd.ootd.model.entity;
+package com.ootd.ootd.model.entity.user;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -50,6 +50,9 @@ public class User {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(nullable = false)
+    private String phone;
 
     @PrePersist // 엔티티가 처음 저장되기 직전에 자동으로 호출됨
     protected void onCreate() { // insert전에 실행된다는데 좀 모르겠음 찾아봐야함 아마 시간갱신 코드같음

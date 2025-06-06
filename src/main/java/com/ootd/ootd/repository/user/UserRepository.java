@@ -1,6 +1,6 @@
 package com.ootd.ootd.repository.user;
 
-import com.ootd.ootd.model.entity.User;
+import com.ootd.ootd.model.entity.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 

@@ -1,9 +1,6 @@
 package com.ootd.ootd.utils.service;
 
-import com.google.cloud.storage.BlobId;
-import com.google.cloud.storage.BlobInfo;
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
+import com.google.cloud.storage.*;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +58,8 @@ public class GoogleCloudStorageService {
                         .build();
 
                 // 파일 업로드
-                storage.create(blobInfo, file.getBytes());
+                Blob blob = storage.create(blobInfo, file.getBytes());
+                blob.createAcl(Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER));
 
                 // 공개 URL 생성 및 리스트에 추가
                 String imageUrl = String.format("https://storage.googleapis.com/%s/%s", bucketName, fileName);
@@ -72,13 +70,4 @@ public class GoogleCloudStorageService {
         return uploadedUrls;
     }
 
-//    /**
-//     * 단일 이미지 업로드를 위한 편의 메서드
-//     * @param file 단일 MultipartFile
-//     * @return 업로드된 이미지의 URL
-//     */
-//    public String uploadSingleImage(MultipartFile file) throws IOException {
-//        List<String> urls = uploadImages(file);
-//        return urls.isEmpty() ? null : urls.get(0);
-//    }
 }

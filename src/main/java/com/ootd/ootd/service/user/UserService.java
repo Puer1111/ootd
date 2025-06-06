@@ -2,7 +2,7 @@ package com.ootd.ootd.service.user;
 
 import com.ootd.ootd.model.dto.user.SignupRequest;
 import com.ootd.ootd.model.dto.user.UserDTO;
-import com.ootd.ootd.model.entity.User;
+import com.ootd.ootd.model.entity.user.User;
 import jakarta.validation.constraints.NotBlank;
 
 public interface UserService {

@@ -1,6 +1,6 @@
 package com.ootd.ootd.model.dto.user;
 
-import com.ootd.ootd.model.entity.User;
+import com.ootd.ootd.model.entity.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,6 +16,7 @@ public class UserDTO {
     private String password;
     private String email;
     private String name;
+    private String phone;
 
     public UserDTO(User user) {
         this.id = user.getId();
@@ -23,5 +24,6 @@ public class UserDTO {
         this.password = user.getPassword(); // 응답에 사용하지 않으면 제거
         this.email = user.getEmail();
         this.name = user.getName();
+        this.phone = user.getPhone();
     }
 }

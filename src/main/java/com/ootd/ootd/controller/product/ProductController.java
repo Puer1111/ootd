@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.ui.Model;
 
 import java.io.IOException;
 import java.util.*;
@@ -41,9 +42,19 @@ public class ProductController {
         this.colorsService = colorsService;
     }
 
+    // ProductController.java에 추가
     @GetMapping("/")
-    public String test() {
+    public String test(Model model) {
+        List<ProductDTO> products = productService.getAllProducts();
+        model.addAttribute("products", products);
         return "view/index";
+    }
+
+    @GetMapping("/products/{productNo}")
+    public String productDetail(@PathVariable Long productNo, Model model) {
+        ProductDTO product = productService.getProductById(productNo);
+        model.addAttribute("product", product);
+        return "view/product/productDetail";
     }
 
 //    @GetMapping("/search/products/{keyword}")
@@ -101,6 +112,8 @@ public class ProductController {
         response.put("redirectUrl", "/");  // 마이페이지로 이동 엔드포인트 차후 수정.
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+
 
 
 }

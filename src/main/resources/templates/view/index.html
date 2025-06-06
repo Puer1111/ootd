@@ -7,15 +7,54 @@
     <link rel="stylesheet" href="/css/common/header.css">
     <link rel="stylesheet" href="/css/common/layout.css">
     <link rel="stylesheet" href="/css/common/reset.css">
+    <link rel="stylesheet" href="/css/static/main.css">
 </head>
 <body>
 <header th:replace="~{common/header.html :: header}"></header>
 <main>
     <div th:fragment="content">
-        <h1>Test</h1>
-    </div>
-    <div>
-        <a th:href="@{/api/auth/signup}" class="btn">go go</a>
+        <div class="main-container">
+            <h1 class="main-title">OOTD</h1>
+
+            <!-- 상품 섹션 -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">상품</h2>
+                    <a href="/enter" class="section-link">상품 등록하기</a>
+                </div>
+
+                <!-- 상품이 있을 때 -->
+                <div th:if="${products != null and !products.empty}" class="grid-container">
+                    <div th:each="product : ${products}" class="card"
+                         th:onclick="'location.href=\'/products/\' + ${product.productNo}'">
+
+                        <div class="card-image">
+                            <img th:if="${product.imageUrls != null and !product.imageUrls.empty}"
+                                 th:src="${product.imageUrls[0]}"
+                                 th:alt="${product.productName}">
+                            <span th:if="${product.imageUrls == null or product.imageUrls.empty}">
+                                이미지 없음
+                            </span>
+                        </div>
+
+                        <div class="card-content">
+                            <div class="card-subtitle" th:text="${product.brandName}">브랜드명</div>
+                            <div class="card-title" th:text="${product.productName}">상품명</div>
+                            <div class="card-tag" th:text="${product.category}">카테고리</div>
+                            <div class="card-price" th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'">
+                                가격
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 상품이 없을 때 -->
+                <div th:if="${products == null or products.empty}" class="empty-state">
+                    <p>등록된 상품이 없습니다.</p>
+                    <a href="/enter" class="btn btn-primary">첫 상품 등록하기</a>
+                </div>
+            </div>
+        </div>
     </div>
 </main>
 <footer th:replace="~{common/footer.html :: footer}"></footer>

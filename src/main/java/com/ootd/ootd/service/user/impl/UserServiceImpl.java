@@ -2,7 +2,7 @@ package com.ootd.ootd.service.user.impl;
 
 import com.ootd.ootd.model.dto.user.SignupRequest;
 import com.ootd.ootd.model.dto.user.UserDTO;
-import com.ootd.ootd.model.entity.User;
+import com.ootd.ootd.model.entity.user.User;
 import com.ootd.ootd.repository.user.UserRepository;
 import com.ootd.ootd.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +30,7 @@ public class UserServiceImpl implements UserService {
                 .password(passwordEncoder.encode(signupRequest.getPassword()))
                 .email(signupRequest.getEmail())
                 .name(signupRequest.getName())
+                .phone(signupRequest.getPhone())
                 .build();
 
         // 저장
@@ -41,6 +42,7 @@ public class UserServiceImpl implements UserService {
                 .username(savedUser.getUsername())
                 .email(savedUser.getEmail())
                 .name(savedUser.getName())
+                .phone(savedUser.getPhone())
                 .build();
     }
 

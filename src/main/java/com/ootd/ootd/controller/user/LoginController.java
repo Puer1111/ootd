@@ -1,6 +1,6 @@
 package com.ootd.ootd.controller.user;
 
-import com.ootd.ootd.model.entity.User;
+import com.ootd.ootd.model.entity.user.User;
 import com.ootd.ootd.repository.user.UserRepository;
 import com.ootd.ootd.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,10 +109,12 @@ public class LoginController {
                 userInfo.put("username", user.getUsername());
                 userInfo.put("email", user.getEmail());
                 userInfo.put("name", user.getName());
+                userInfo.put("phone", user.getPhone());
             } else {
                 userInfo.put("username", userDetails.getUsername());
                 userInfo.put("email", userDetails.getUsername());
                 userInfo.put("name", "사용자");
+                userInfo.put("phone", user.getPhone());
             }
 
             response.put("user", userInfo);

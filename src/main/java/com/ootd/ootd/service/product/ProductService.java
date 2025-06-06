@@ -21,4 +21,8 @@ public interface ProductService {
      * @return
      */
     ProductDTO insertProduct(ProductDTO dto);
+
+    // ProductService 인터페이스에 추가
+    List<ProductDTO> getAllProducts();
+    ProductDTO getProductById(Long productNo);
 }
