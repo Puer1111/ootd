@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">로그인</title>
+    <!-- Google Fonts - Noto Sans KR -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- 외부 CSS 파일 링크 -->
+    <link rel="stylesheet" th:href="@{/css/user/login.css}">
+    <link rel="stylesheet" th:href="@{/css/common/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/common/header.css}">
+    <link rel="stylesheet" th:href="@{/css/common/layout.css}">
+    <!-- 헤더 템플릿 추가 -->
+    <header th:replace="~{common/header.html :: header}"></header>
+</head>
+<body>
+<div class="container">
+    <div class="left-panel">
+        <h1>환영합니다</h1>
+        <p>로그인하여 서비스를 이용해보세요. 여러분의 방문을 환영합니다.</p>
+    </div>
+    <div class="right-panel">
+        <div class="login-form">
+            <div class="form-header">
+                <h2>로그인</h2>
+            </div>
+            <form id="loginForm" action="/api/auth/login" method="post">
+                <div class="form-group">
+                    <label for="email">이메일</label>
+                    <input type="email" id="email" name="email" class="form-control" required>
+                    <div class="error-message" id="email-error">이메일을 입력해주세요.</div>
+                </div>
+                <div class="form-group">
+                    <label for="password">비밀번호</label>
+                    <input type="password" id="password" name="password" class="form-control" required>
+                    <div class="error-message" id="password-error">비밀번호를 입력해주세요.</div>
+                </div>
+                <div class="form-message" id="form-message"></div>
+                <button type="submit" class="btn" id="submitBtn">로그인</button>
+                <div class="form-footer">
+                    <p>계정이 없으신가요? <a href="/signup">회원가입</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 푸터 템플릿 추가 -->
+<footer th:replace="~{common/footer.html :: footer}"></footer>
+
+<script src="/js/user/login.js"></script>
+</body>
+</html>

@@ -59,6 +59,7 @@ public class SecurityConfig {
                                 "/webjars/**",        // 웹 자원
                                 "/error",             // 에러 페이지
                                 "/main",
+                                "/mypage",
                                 // 상품
                                 "/enter",              // 상품 등록
                                 "/enter/product",       // 상품- 등록 후 페이지

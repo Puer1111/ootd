@@ -86,7 +86,7 @@ public class LoginController {
 
     @GetMapping("/mypage")
     public String goPage() {
-        return "user/mypage";
+        return "view/user/mypage";
     }
 
     @GetMapping("/api/auth/mypage")
