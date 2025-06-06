@@ -75,7 +75,7 @@ public class PaymentServiceImpl implements PaymentService {
         try {
             CancelData cancelData = new CancelData(imp_uid, true);
             IamportResponse<Payment> payment = iamportClient.cancelPaymentByImpUid(cancelData);
-            paymentRepository.changeStatus(imp_uid);
+            int result = paymentRepository.changeStatus(imp_uid);
             orderRepository.cancelOrderStatus(imp_uid);
             return payment;
         }catch(Exception e) {

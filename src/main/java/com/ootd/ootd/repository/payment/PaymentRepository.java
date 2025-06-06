@@ -9,17 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 public interface PaymentRepository extends JpaRepository<Payment,Long> {
     @Query("SELECT p.impUid FROM Payment p WHERE p.orderId = :orderId")
     String findByOrderId(Long orderId);
+
     @Modifying
     @Transactional
     @Query("UPDATE Payment p set p.paymentStatus = 'cancel' WHERE p.impUid = :impUid")
-//    @Query("SELECT p FROM Payment p WHERE p.impUid = :impUid")
     int changeStatus(String impUid);
 
-//    @Query("SELECT p FROM Payment p WHERE p.impUid= :impUid")
-//    Payment findByIdImpUid(String impUid);
-
-//
-//    @Modifying
-//    @Query("DELETE FROM Payment p where p.impUid = :impUid")
-//    void deleteByImpUid(String impUid);
 }

@@ -46,15 +46,6 @@ public class ProductController {
         return "view/index";
     }
 
-//    @GetMapping("/search/products/{keyword}")
-//    public List<ProductDTO> searchProducts(@PathVariable("keyword") String category) {
-//        try {
-//            return productService.searchProducts(category);
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-    //TODO : 검색 구현해보기 .
 
     @GetMapping("/enter")
     public String showEnterProductForm(){
