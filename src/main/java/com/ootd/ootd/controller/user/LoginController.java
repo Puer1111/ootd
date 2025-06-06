@@ -32,7 +32,7 @@ public class LoginController {
     @GetMapping("/login")
     public String loginPage(Model model) {
         model.addAttribute("title", "로그인");
-        return "user/login";
+        return "view/user/login";
     }
 
     // 로그인 처리 API
@@ -86,7 +86,7 @@ public class LoginController {
 
     @GetMapping("/mypage")
     public String goPage() {
-        return "user/mypage";
+        return "view/user/mypage";
     }
 
     @GetMapping("/api/auth/mypage")
