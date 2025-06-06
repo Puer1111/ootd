@@ -59,7 +59,6 @@ public class SecurityConfig {
                                 "/webjars/**",        // 웹 자원
                                 "/error",             // 에러 페이지
                                 "/main",
-                                "/mypage",
                                 // 상품
                                 "/enter",              // 상품 등록
                                 "/enter/product",       // 상품- 등록 후 페이지
@@ -67,9 +66,14 @@ public class SecurityConfig {
                                 "/api/lookup/colors",  // 상품-색깔 조회
                                 "/api/register/category", // 상품-카테고리-등록
                                 "/api/lookup/category", // 상품-카테고리-조회
-                                "/api/register/brands" , // 상품-브랜드-등록
+                                "/api/register/brands", // 상품-브랜드-등록
                                 "/api/lookup/brands", // 상품-브랜드-조회
-                                "/goPay"            // 결제 테스트
+                                "/goPay",                // 결제 테스트
+                                "/orders",               // 주문 상품 등록
+                                "/payments/save",   // 결제 저장
+                                "/validation/{imp_uid}", // 결제 검증
+                                "/api/getImpUid",        // 고객 번호 조회
+                                "/payments/cancel/{imp_uid}" // 결제 취소
                         ).permitAll()                // 인증 없이 접근 허용
                         // /api/auth/mypage와 /mypage는 인증이 필요하도록 변경
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
