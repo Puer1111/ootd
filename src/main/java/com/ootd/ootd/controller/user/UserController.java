@@ -31,7 +31,7 @@ public class UserController {
     public String signupPage(Model model) {
         // UI에 필요한 데이터를 추가적으로 전달 가능
         model.addAttribute("title", "회원가입");
-        return "user/signup"; // templates/view/signup.html로 매핑
+        return "view/user/signup"; // templates/view/signup.html로 매핑
     }
 
     @PostMapping("/signup")
