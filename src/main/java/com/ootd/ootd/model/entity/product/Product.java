@@ -1,5 +1,6 @@
 package com.ootd.ootd.model.entity.product;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ootd.ootd.model.entity.product_colors.ProductColors;
 import com.ootd.ootd.utils.StringToListConverter;
 import jakarta.persistence.*;
@@ -38,6 +39,7 @@ public class Product {
     @Column(name = "product_image_url", length = 500 , columnDefinition = "TEXT")
     @Convert(converter = StringToListConverter.class)
     private List<String> imageUrls;
+
 
     @Column(length = 50 ,name = "product_category")
     private String category;
