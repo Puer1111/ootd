@@ -48,7 +48,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 마이페이지 접근 함수 (JWT 토큰 포함)
     function accessMypage() {
-        const token = localStorage.getItem('auth_token');
+        // ✅ 키 통일: 'token'으로 변경
+        const token = localStorage.getItem('token');
 
         if (!token) {
             alert('로그인이 필요합니다.');
@@ -74,8 +75,9 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => {
                 console.error('Error:', error);
                 alert('마이페이지 접근에 실패했습니다. 다시 로그인해주세요.');
-                localStorage.removeItem('auth_token');
-                window.location.href = 'user/login.html';
+                // ✅ 키 통일: 'token'으로 변경
+                localStorage.removeItem('token');
+                window.location.href = '/login';
             });
     }
 
@@ -105,21 +107,23 @@ document.addEventListener('DOMContentLoaded', function() {
             })
                 .then(response => response.json())
                 .then(data => {
+                    console.log('로그인 응답:', data);
+
                     if (data.success) {
                         // 성공 메시지 표시
-                        formMessage.textContent = '로그인 성공! 마이페이지로 이동합니다.';
+                        formMessage.textContent = '로그인 성공! 메인 페이지로 이동합니다.';
                         formMessage.className = 'form-message success-message';
 
-                        // 토큰 저장
+                        // ✅ 토큰 저장 - 키 통일: 'token'으로 변경
                         if (data.token) {
-                            localStorage.setItem('auth_token', data.token);
+                            localStorage.setItem('token', data.token);
                             console.log('토큰 저장 완료:', data.token);
                         }
 
-                        // 잠시 후 마이페이지로 이동
+                        // ✅ 메인 페이지로 이동 (마이페이지 대신)
                         setTimeout(() => {
-                            accessMypage(); // JWT 토큰과 함께 마이페이지 접근
-                        }, 500);
+                            window.location.href = '/';
+                        }, 1000);
                     } else {
                         // 오류 메시지 표시
                         formMessage.textContent = data.message || '이메일 또는 비밀번호가 올바르지 않습니다.';

@@ -7,7 +7,46 @@
     <link rel="stylesheet" href="/css/common/header.css">
     <link rel="stylesheet" href="/css/common/layout.css">
     <link rel="stylesheet" href="/css/common/reset.css">
-    <link rel="stylesheet" href="/css/static/main.css">
+    <link rel="stylesheet" href="/css/main/main.css">
+    <style>
+        .card-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            padding: 8px 0;
+            border-top: 1px solid #f0f0f0;
+            font-size: 12px;
+            color: #666;
+        }
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .stat-item .icon {
+            font-size: 14px;
+        }
+        .heart-icon {
+            color: #ff6b6b;
+        }
+        .star-icon {
+            color: #ffd43b;
+        }
+        .rating-text {
+            font-weight: 500;
+            color: #333;
+        }
+        .no-reviews {
+            color: #999;
+            font-size: 11px;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+        }
+    </style>
 </head>
 <body>
 <header th:replace="~{common/header.html :: header}"></header>
@@ -24,15 +63,16 @@
                 </div>
 
                 <!-- 상품이 있을 때 -->
-                <div th:if="${products != null and !products.empty}" class="grid-container">
+                <div th:if="${products != null and !products.isEmpty()}" class="grid-container">
                     <div th:each="product : ${products}" class="card"
-                         th:onclick="'location.href=\'/products/\' + ${product.productNo}'">
+                         th:data-product-no="${product.productNo}"
+                         onclick="goToProduct(this)">
 
                         <div class="card-image">
-                            <img th:if="${product.imageUrls != null and !product.imageUrls.empty}"
+                            <img th:if="${product.imageUrls != null and !product.imageUrls.isEmpty()}"
                                  th:src="${product.imageUrls[0]}"
                                  th:alt="${product.productName}">
-                            <span th:if="${product.imageUrls == null or product.imageUrls.empty}">
+                            <span th:if="${product.imageUrls == null or product.imageUrls.isEmpty()}">
                                 이미지 없음
                             </span>
                         </div>
@@ -44,12 +84,31 @@
                             <div class="card-price" th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'">
                                 가격
                             </div>
+
+                            <!-- 좋아요 및 리뷰 통계 -->
+                            <div class="card-stats">
+                                <div class="stat-item">
+                                    <span class="icon heart-icon">♥</span>
+                                    <span th:text="${product.likeCount}">0</span>
+                                </div>
+
+                                <div class="stat-item" th:if="${product.reviewCount > 0}">
+                                    <span class="icon star-icon">★</span>
+                                    <span class="rating-text" th:text="${#numbers.formatDecimal(product.averageRating, 1, 1)}">0.0</span>
+                                    <span>(<span th:text="${product.reviewCount}">0</span>)</span>
+                                </div>
+
+                                <div class="stat-item" th:if="${product.reviewCount == 0}">
+                                    <span class="icon star-icon">☆</span>
+                                    <span class="no-reviews">리뷰없음</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- 상품이 없을 때 -->
-                <div th:if="${products == null or products.empty}" class="empty-state">
+                <div th:if="${products == null or products.isEmpty()}" class="empty-state">
                     <p>등록된 상품이 없습니다.</p>
                     <a href="/enter" class="btn btn-primary">첫 상품 등록하기</a>
                 </div>
@@ -58,5 +117,15 @@
     </div>
 </main>
 <footer th:replace="~{common/footer.html :: footer}"></footer>
+
+<script>
+    function goToProduct(element) {
+        const productNo = element.getAttribute('data-product-no');
+        if (productNo) {
+            location.href = '/products/' + productNo;
+        }
+    }
+</script>
+
 </body>
 </html>

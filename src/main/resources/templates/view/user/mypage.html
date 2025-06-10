@@ -14,8 +14,63 @@
     <link rel="stylesheet" th:href="@{/css/common/footer.css}">
     <link rel="stylesheet" th:href="@{/css/common/header.css}">
     <link rel="stylesheet" th:href="@{/css/common/layout.css}">
+
+    <style>
+        body {
+            visibility: hidden;
+        }
+
+        body.auth-verified {
+            visibility: visible;
+        }
+
+        #auth-loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            visibility: visible !important;
+        }
+
+        .loading-content {
+            text-align: center;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+
+    <!-- 로그인 인증 체크 -->
+    <script src="/js/user/mypageNotLogin.js">
+    </script>
 </head>
 <body>
+
+<!-- 로딩 화면 -->
+<div id="auth-loading">
+    <div class="loading-content">
+        <div class="spinner"></div>
+        <p>로그인 확인 중...</p>
+    </div>
+</div>
 
 <!-- 공통 헤더 -->
 <header th:replace="~{common/header.html :: header}"></header>
@@ -26,7 +81,6 @@
             <h2>마이 페이지</h2>
             <button id="logoutBtn" class="logout-btn">로그아웃</button>
         </div>
-
 
         <div class="user-stats">
             <div class="stat-item">
@@ -151,8 +205,7 @@
 <!-- 공통 푸터 -->
 <footer th:replace="~{common/footer.html :: footer}"></footer>
 
-<script src="/js/user/mypage.js">
-</script>
+<script src="/js/user/mypage.js"></script>
 
 </body>
 </html>

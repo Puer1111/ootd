@@ -1,7 +1,14 @@
 package com.ootd.ootd.controller.product;
 
 import com.ootd.ootd.model.dto.product.ProductDTO;
+import com.ootd.ootd.model.entity.like.ProductLike;
 import com.ootd.ootd.model.entity.product_colors.ProductColors;
+import com.ootd.ootd.model.entity.review.ProductReview;
+import com.ootd.ootd.model.entity.user.User;
+import com.ootd.ootd.repository.product.ProductLikeRepository;
+import com.ootd.ootd.repository.product.ProductRepository;
+import com.ootd.ootd.repository.product.ProductReviewRepository;
+import com.ootd.ootd.repository.user.UserRepository;
 import com.ootd.ootd.service.colors.ColorsService;
 import com.ootd.ootd.service.product.ProductService;
 import com.ootd.ootd.utils.service.GoogleCloudStorageService;
@@ -9,6 +16,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +42,12 @@ public class ProductController {
     ColorsService colorsService;
     @Autowired
     GoogleCloudStorageService googleCloudStorageService;
+    @Autowired
+    ProductReviewRepository productReviewRepository;
+    @Autowired
+    ProductLikeRepository productLikeRepository;
+    @Autowired
+    UserRepository userRepository;
 
 
 
@@ -103,6 +118,161 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    // 좋아요
+    @PostMapping("/products/{productNo}/like")
+    public ResponseEntity<?> toggleLike(@PathVariable Long productNo,
+                                        @AuthenticationPrincipal UserDetails userDetails) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            if (userDetails == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+
+            User user = userRepository.findByEmail(userDetails.getUsername())
+                    .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
+
+            Optional<ProductLike> existingLike = productLikeRepository
+                    .findByProductNoAndUserId(productNo, user.getId());
+
+            boolean isLiked;
+            if (existingLike.isPresent()) {
+                // 좋아요 취소
+                productLikeRepository.delete(existingLike.get());
+                isLiked = false;
+            } else {
+                // 좋아요 추가
+                ProductLike like = new ProductLike(productNo, user.getId());
+                productLikeRepository.save(like);
+                isLiked = true;
+            }
+
+            int likeCount = productLikeRepository.countByProductNo(productNo);
+
+            response.put("success", true);
+            response.put("isLiked", isLiked);
+            response.put("likeCount", likeCount);
+            response.put("message", isLiked ? "좋아요!" : "좋아요 취소");
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    // 내가 한 좋아요인지 체크
+    @GetMapping("/products/{productNo}/like-info")
+    public ResponseEntity<?> getLikeInfo(@PathVariable Long productNo,
+                                         @AuthenticationPrincipal UserDetails userDetails) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            int likeCount = productLikeRepository.countByProductNo(productNo);
+            boolean isLiked = false;
+
+            if (userDetails != null) {
+                User user = userRepository.findByEmail(userDetails.getUsername()).orElse(null);
+                if (user != null) {
+                    isLiked = productLikeRepository.existsByProductNoAndUserId(productNo, user.getId());
+                }
+            }
+
+            response.put("success", true);
+            response.put("likeCount", likeCount);
+            response.put("isLiked", isLiked);
+            response.put("isLoggedIn", userDetails != null);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "정보를 가져오는 중 오류가 발생했습니다");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    // 리뷰 작성
+    @PostMapping("/products/{productNo}/review")
+    public ResponseEntity<?> createReview(@PathVariable Long productNo,
+                                          @RequestBody Map<String, Object> reviewData,
+                                          @AuthenticationPrincipal UserDetails userDetails) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            if (userDetails == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+
+            User user = userRepository.findByEmail(userDetails.getUsername())
+                    .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
+
+            // 이미 리뷰를 작성했는지 확인
+            if (productReviewRepository.existsByProductNoAndUserId(productNo, user.getId())) {
+                response.put("success", false);
+                response.put("message", "이미 리뷰를 작성하셨습니다");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            int rating = Integer.parseInt(reviewData.get("rating").toString());
+            String content = reviewData.get("content").toString();
+
+            if (rating < 1 || rating > 5) {
+                response.put("success", false);
+                response.put("message", "평점은 1-5점 사이여야 합니다");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            ProductReview review = new ProductReview(productNo, user.getId(), rating, content);
+            productReviewRepository.save(review);
+
+            // 업데이트된 통계 정보
+            int reviewCount = productReviewRepository.countByProductNo(productNo);
+            Double avgRating = productReviewRepository.findAverageRatingByProductNo(productNo);
+
+            response.put("success", true);
+            response.put("message", "리뷰가 작성되었습니다");
+            response.put("reviewCount", reviewCount);
+            response.put("avgRating", avgRating != null ? Math.round(avgRating * 10) / 10.0 : 0.0);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "리뷰 작성 중 오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    // 상품의 리뷰 목록 조회
+    @GetMapping("/products/{productNo}/reviews")
+    public ResponseEntity<?> getReviews(@PathVariable Long productNo) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            List<ProductReview> reviews = productReviewRepository.findByProductNoOrderByCreatedAtDesc(productNo);
+            int reviewCount = productReviewRepository.countByProductNo(productNo);
+            Double avgRating = productReviewRepository.findAverageRatingByProductNo(productNo);
+
+            response.put("success", true);
+            response.put("reviews", reviews);
+            response.put("reviewCount", reviewCount);
+            response.put("avgRating", avgRating != null ? Math.round(avgRating * 10) / 10.0 : 0.0);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "리뷰를 가져오는 중 오류가 발생했습니다");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
 
 
 

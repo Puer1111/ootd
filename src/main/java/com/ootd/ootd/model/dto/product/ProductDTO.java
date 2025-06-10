@@ -27,6 +27,11 @@ public class ProductDTO {
     private List<Long> colorsNo;
     private Long productColorsNo;
 
+    // 좋아요 리뷰
+    private int likeCount = 0;
+    private int reviewCount = 0;
+    private double averageRating = 0.0;
+
 
     public static ProductDTO convertToDTO(Product entity) {
         ProductDTO dto = new ProductDTO();

@@ -85,7 +85,9 @@ public class LoginController {
     }
 
     @GetMapping("/mypage")
-    public String goPage() {
+    public String goPage(Model model) {
+        // ✅ JWT 토큰 체크 제거 - JavaScript에서 처리
+        System.out.println("마이페이지 접근 - 페이지 로드");
         return "view/user/mypage";
     }
 

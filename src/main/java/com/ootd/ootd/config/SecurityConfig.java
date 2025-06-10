@@ -61,6 +61,7 @@ public class SecurityConfig {
                                 "/main",
                                 "/mypage",
                                 // 상품
+                                "/products/**",
                                 "/enter",              // 상품 등록
                                 "/enter/product",       // 상품- 등록 후 페이지
                                 "/api/register/colors", // 상품-색깔 등록
@@ -75,11 +76,23 @@ public class SecurityConfig {
                                 "/validation/{imp_uid}", // 결제 검증
                                 "/api/getImpUid",        // 고객 번호 조회
                                 "/payments/cancel/{imp_uid}" // 결제 취소
+
+
+
                         ).permitAll()                // 인증 없이 접근 허용
-                        // /api/auth/mypage와 /mypage는 인증이 필요하도록 변경
+
+                        // ✅ 로그인이 필요한 경로들
+                        .requestMatchers(
+                                "/api/auth/mypage",
+                                "/api/auth/change-password",
+                                "/products/*/like-info",
+                                "/products/*/reviews",
+                                "/products/*/review",
+                                "/products/*/like"
+                        ).authenticated()           // JWT 인증 필요
+
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 )
-
                 // 기본 로그인/HTTP Basic 인증 비활성화
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
