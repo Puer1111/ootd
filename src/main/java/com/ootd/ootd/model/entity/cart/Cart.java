@@ -1,13 +1,7 @@
 package com.ootd.ootd.model.entity.cart;
 
-import com.ootd.ootd.utils.StringToListConverter;
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
-
-import java.util.List;
 
 @Entity
 @Getter
@@ -19,6 +13,9 @@ import java.util.List;
 public class Cart {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long identificationNo;
+
     @Column(name="cart_Id")
     String cartId;
 
@@ -31,7 +28,6 @@ public class Cart {
     @Column(name="product_Quantity", nullable=false)
     int quantity;
     @Column(name="product_image_url", nullable=false)
-    @Convert(converter = StringToListConverter.class)
     String imageUrls;
 
 //    public String getFirstImageUrl() {

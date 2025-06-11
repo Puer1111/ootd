@@ -1,23 +1,39 @@
 document.addEventListener('DOMContentLoaded', function () {
     const quantity = document.getElementById('quantity');
     const addCartBtn = document.getElementById('add-cart-btn');
-    addCartBtn.addEventListener('click', function () {
+
+    addCartBtn.addEventListener('click', function (e) {
+        e.preventDefault(); // 🚨 기본 동작 방지 (중요!)
+
         const productInfo = extractProductFromDOM();
+
         fetch('/cart/add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    no: productInfo.productNo,
-                    name: productInfo.productName,
-                    price: productInfo.price,
-                    quantity: quantity.value,
-                    imageUrls: productInfo.imageUrl
-                })
-            }
-        )
-    })
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                productNo: productInfo.productNo,
+                // productNo: 1,
+                productName: productInfo.productName,
+                price: productInfo.price,
+                quantity: quantity.value,
+                imageUrls: productInfo.imageUrl
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('장바구니에 추가되었습니다!');
+                } else {
+                    alert('추가 실패: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('오류가 발생했습니다.');
+            });
+    });
 });
 
 function extractProductFromDOM() {
@@ -39,7 +55,7 @@ function getTextById(id) {
 
 function getValueById(id) {
     const element = document.getElementById(id);
-    return element ? element.value : '';
+    return element ? element.innerText : '';
 }
 
 function getImageSrc(id) {

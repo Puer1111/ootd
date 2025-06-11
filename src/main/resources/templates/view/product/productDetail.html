@@ -20,7 +20,6 @@
 <header th:replace="~{common/header.html :: header}"></header>
 <main>
     <div th:fragment="content">
-        <button id="add-cart-btn">장바구니 담기</button>
 
         <div class="product-detail-container">
             <!-- 상품 메인 정보 섹션 -->
@@ -77,10 +76,14 @@
                         <label>상품번호:</label>
                         <span id="product-no" th:text="${product.productNo}">상품번호</span>
                     </div>
-
+                    <div class="product-quantity">
+                        <label for="quantity">수량: </label>
+                        <button id="minus" onClick="changeQuantity();">-</button>
+                        <input type="text" value ="1" id="quantity" style="width:42px; pointer-events:none;"><button id="plus" onClick="changeQuantity();">+</button>
+                    </div>
                     <!-- 구매 버튼들 -->
                     <div class="action-buttons">
-                        <button class="btn btn-primary btn-large">장바구니</button>
+                        <button class="btn btn-primary btn-large" id="add-cart-btn">장바구니</button>
                         <button class="btn btn-secondary btn-large">바로구매</button>
                     </div>
                 </div>
@@ -175,7 +178,11 @@
         <!-- 공통 푸터 -->
         <footer th:replace="~{common/footer.html :: footer}"></footer>
 
+
+        <!--  hidden    -->
+        <input type="hidden"  name="productNo" th:text="${product.productNo}">
         <script src="/js/product/productDetail.js"></script>
+        <script src="/js/api/cart/cartAPI.js"></script>
     </div>
 </main>
 </body>

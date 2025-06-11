@@ -12,11 +12,21 @@
 <header th:replace="~{common/header :: header}"></header>
 <main>
   <div th:fragment="content">
-    <div class="cart-title">장바구니</div>
-    <div class="cart-body">
-
+    <div class="cart-info" th:each="item : ${Cart}">
+      <div class="cart-showProduct">
+        <div class="product-img" style="width:250px; height:300px;">
+          <img th:src="${item.imageUrls}" th:alt="${item.productName}">
+        </div>
+        <div class="product-description">
+          <a th:href="@{|/products/${item.productNo}|}" class="product-productName" th:text="${item.productName}"></a>
+          <div class="product-option"></div>
+          <div class="display-product-price-origin"></div>
+          <div class="display-product-price">
+            <span>[[${item.price}]]</span>
+          </div>
+        </div>
+      </div>
     </div>
-
   </div>
 </main>
 <footer th:replace="~{common/footer :: footer}"></footer>

@@ -75,8 +75,9 @@ public class SecurityConfig {
                                 "/payments/save",   // 결제 저장
                                 "/validation/{imp_uid}", // 결제 검증
                                 "/api/getImpUid",        // 고객 번호 조회
-                                "/payments/cancel/{imp_uid}" // 결제 취소
-
+                                "/payments/cancel/{imp_uid}", // 결제 취소
+                                "/cart" , // 장바구니 페이지
+                                "/cart/add" // 장바구니 담기
 
 
                         ).permitAll()                // 인증 없이 접근 허용

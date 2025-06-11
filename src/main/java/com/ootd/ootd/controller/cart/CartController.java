@@ -33,8 +33,9 @@ public class CartController {
     public String showCartPage(HttpServletRequest request, Model model) {
         String cartId = CookieUtils.getCookieValue(request, "CART_ID");
         List<CartDTO> cartItems = cartService.getCartItems(cartId); // DB 조회
-        model.addAttribute("cartItems", cartItems);
-        return "view/cart/cartDetail";
+        System.out.println("Check CartItems : " + cartItems);
+        model.addAttribute("Cart", cartItems);
+        return "view/cart/cart";
 
     }
 
@@ -43,7 +44,7 @@ public class CartController {
     public ResponseEntity<?> addToCart(@RequestBody CartDTO dto,
                                        HttpServletRequest request,
                                        HttpServletResponse response) {
-
+        System.out.println("Check For CartDTO : " + dto);
         // 기존 쿠키 확인
         String cartId = CookieUtils.getCookieValue(request, "CART_ID");
 

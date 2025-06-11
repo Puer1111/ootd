@@ -7,7 +7,7 @@ let currentProductNo = 0;
 let selectedRating = 0;
 let isLoggedIn = false;
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // 기존 캐러셸 및 탭 초기화
     initializeCarousel();
     initializeTabs();
@@ -142,7 +142,7 @@ function goBack() {
 }
 
 // 키보드 이벤트
-document.addEventListener('keydown', function(e) {
+document.addEventListener('keydown', function (e) {
     if (e.key === 'ArrowLeft') {
         prevSlide();
     } else if (e.key === 'ArrowRight') {
@@ -248,8 +248,7 @@ async function toggleLike() {
         console.log('좋아요 요청 전송:', `/products/${currentProductNo}/like`);
 
         const response = await fetch(`/products/${currentProductNo}/like`, {
-            method: 'POST',
-            headers: {
+            method: 'POST', headers: {
                 'Authorization': 'Bearer ' + token
             }
         });
@@ -356,13 +355,11 @@ function displayReviews(reviews) {
 // HTML 이스케이프 함수
 function escapeHtml(text) {
     const map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
     };
-    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+    return text.replace(/[&<>"']/g, function (m) {
+        return map[m];
+    });
 }
 
 // 리뷰 폼 설정
@@ -436,14 +433,10 @@ async function submitReview() {
         console.log('리뷰 작성 요청:', `/products/${currentProductNo}/review`);
 
         const response = await fetch(`/products/${currentProductNo}/review`, {
-            method: 'POST',
-            headers: {
-                'Authorization': 'Bearer ' + token,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                rating: selectedRating,
-                content: content
+            method: 'POST', headers: {
+                'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'
+            }, body: JSON.stringify({
+                rating: selectedRating, content: content
             })
         });
 
@@ -496,3 +489,22 @@ function resetReviewForm() {
         star.classList.remove('active');
     });
 }
+
+// 수량 조절
+document.addEventListener('DOMContentLoaded', function() {
+    const minusBtn = document.getElementById('minus');
+    const plusBtn = document.getElementById('plus');
+    const quantity = document.getElementById('quantity');
+
+    minusBtn.onclick = function(){
+        let current = parseInt(quantity.value) || 1;
+        if(current > 1){
+            quantity.value = current - 1;
+        }
+    };
+
+    plusBtn.onclick = function(){
+        let current = parseInt(quantity.value) || 1;
+        quantity.value = current + 1;
+    };
+});
