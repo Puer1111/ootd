@@ -1,13 +1,18 @@
 const AuthManager = {
     setToken: function(token) {
-        localStorage.setItem('auth_token', token);
+        // ✅ 키 통일: 'token'으로 변경
+        localStorage.setItem('token', token);
     },
 
     getToken: function() {
-        return localStorage.getItem('auth_token');
+        // ✅ 키 통일: 'token'으로 변경
+        return localStorage.getItem('token');
     },
 
     removeToken: function() {
+        // ✅ 키 통일: 'token'으로 변경
+        localStorage.removeItem('token');
+        // 기존 키도 삭제 (혹시 남아있을 경우)
         localStorage.removeItem('auth_token');
     },
 
@@ -40,6 +45,8 @@ function togglePersonalInfo() {
 function loadUserInfo() {
     const token = AuthManager.getToken();
 
+    console.log('토큰 확인:', token ? '있음' : '없음');
+
     if (!token) {
         alert('로그인이 필요합니다.');
         AuthManager.redirectToLogin();
@@ -62,6 +69,8 @@ function loadUserInfo() {
         }
     })
         .then(response => {
+            console.log('마이페이지 API 응답 상태:', response.status);
+
             if (!response.ok) {
                 if (response.status === 401) {
                     throw new Error('UNAUTHORIZED');
@@ -71,6 +80,7 @@ function loadUserInfo() {
             return response.json();
         })
         .then(data => {
+            console.log('마이페이지 API 응답 데이터:', data);
             loadingDiv.style.display = 'none';
 
             if (data.success && data.user) {
@@ -85,6 +95,7 @@ function loadUserInfo() {
             }
         })
         .catch(error => {
+            console.error('마이페이지 로드 에러:', error);
             loadingDiv.style.display = 'none';
 
             if (error.message === 'UNAUTHORIZED') {
