@@ -4,6 +4,8 @@ package com.ootd.ootd.model.dto.order;
 import com.ootd.ootd.model.entity.order.Order;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @ToString
 @Builder
@@ -11,7 +13,7 @@ import lombok.*;
 public class OrderDTO {
     private Long orderId;
     private Long quantity;
-    private String orderDate;
+    private LocalDateTime orderDate;
     private String merchantUid;
 
     private String username;
@@ -23,7 +25,7 @@ public class OrderDTO {
 
     private String orderStatus;
 
-    public OrderDTO(Long orderId, Long quantity, String orderDate, String merchantUid, String username, String productName, Integer productPrice, Integer salePercent, Long totalPrice, String orderStatus) {
+    public OrderDTO(Long orderId, Long quantity, LocalDateTime orderDate, String merchantUid, String username, String productName, Integer productPrice, Integer salePercent, Long totalPrice, String orderStatus) {
         this.orderId = orderId;
         this.quantity = quantity;
         this.orderDate = orderDate;
@@ -35,6 +37,19 @@ public class OrderDTO {
         this.totalPrice = totalPrice;
         this.orderStatus = orderStatus;
     }
+
+//    public OrderDTO(Long orderId, Long quantity, String orderDate, String merchantUid, String username, String productName, Integer productPrice, Integer salePercent, Long totalPrice, String orderStatus) {
+//        this.orderId = orderId;
+//        this.quantity = quantity;
+//        this.orderDate = orderDate;
+//        this.merchantUid = merchantUid;
+//        this.username = username;
+//        this.productName = productName;
+//        this.productPrice = productPrice;
+//        this.salePercent = salePercent;
+//        this.totalPrice = totalPrice;
+//        this.orderStatus = orderStatus;
+//    }
 
     public static OrderDTO convertToDTO(Order order){
         return OrderDTO.builder().orderId(order.getOrderId()).quantity(order.getQuantity()).orderDate(order.getOrderDate())

@@ -6,8 +6,10 @@ import com.ootd.ootd.repository.cart.CartRepository;
 import com.ootd.ootd.repository.product.ProductRepository;
 import com.ootd.ootd.service.cart.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -69,6 +71,14 @@ public class CartServiceImpl implements CartService {
         } catch (Exception e) {
             throw new RuntimeException("장바구니 추가 실패: " + e.getMessage());
         }
+    }
+
+    // Cart 테이블 쿠키 기준 7일뒤 해당 쿠키 장바구니 데이터 삭제.
+    @Scheduled(cron = "0 0 0 * * *")
+    public void deleteCartData() {
+        LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
+        int deleteCount = cartRepository.deleteByCreatedSevenDays(sevenDaysAgo);
+        System.out.println("삭제된 데이터 수 확인: " + deleteCount);
     }
 
 }

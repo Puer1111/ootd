@@ -18,5 +18,7 @@ public class Category {
     @Column(name = "category_name" , nullable = false )
     private String categoryName;
 
+    @Column(name="category_sizeGroup")
+    private String sizeGroup;
 
 }

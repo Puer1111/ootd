@@ -3,6 +3,8 @@ package com.ootd.ootd.model.entity.cart;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -29,6 +31,9 @@ public class Cart {
     int quantity;
     @Column(name="product_image_url", nullable=false)
     String imageUrls;
+
+    @Column(name="cart_current_time")
+    LocalDateTime currentTime;
 
 //    public String getFirstImageUrl() {
 //        // ✅ JSON 파싱 없이 바로 접근

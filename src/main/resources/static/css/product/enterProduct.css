@@ -8,10 +8,6 @@
     height: 100%;
     /*margin: 0 auto;*/
 }
-.border{
-    height:800px;
-    width:1465px;
-}
 
 .outline {
     width: 100%;
@@ -51,11 +47,10 @@
     min-width: 200px;
     max-width: 250px;
     padding: 10px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
     font-size: 15px;
     color: #333;
-    background-color: #f9f9f9;
     margin-right: 10px;
 
 }
@@ -201,31 +196,58 @@ input[name="productName"]:focus {
 }
 
 .product-img-boundary {
-    width:93.5%;
+    width:100%;
+    transition: all 0.2s ease;
     border: 2px dashed #ddd;
     border-radius: 6px;
     padding: 20px;
     text-align: center;
     background-color: #f9f9f9;
-    transition: all 0.2s ease;
+    position: relative;
+    min-height: 250px;
+    cursor: pointer;
+    overflow: hidden;
 }
 
 .product-img-boundary:hover {
-    border-color: #4a86e8;
-    background-color: #f0f6ff;
+    border-color: #007bff;
+    background-color: #f0f8ff;
 }
 
-#fileInput {
+.product-img-boundary.has-files {
+    width:100%;
+    transition: all 0.2s ease;
+    border: 2px dashed #ddd;
+    border-radius: 6px;
+    padding: 20px;
+    text-align: center;
+    background-color: #f9f9f9;
+    position: relative;
+    min-height: 250px;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.fileInput {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 1;
 }
 
 .preview-ghost {
-    min-height: 150px;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 250px;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+    pointer-events: none; /* input이 클릭되도록 */
 }
 
 #preview-area {
@@ -242,6 +264,67 @@ input[name="productName"]:focus {
     border-radius: 4px;
     border: 1px solid #eee;
 }
+
+.remove-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 30px;
+    height: 30px;
+    background-color: rgba(220, 53, 69, 0.95);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 1;
+    transition: all 0.2s ease;
+
+    /* 최강 우선순위 설정 */
+    z-index: 9999 !important; /* 매우 높은 z-index */
+    pointer-events: all !important; /* 항상 클릭 가능 */
+
+    /* 클릭 영역 확장 */
+    box-shadow: 0 0 0 5px transparent; /* 투명한 클릭 영역 확장 */
+}
+
+/* 삭제 버튼 호버 효과 */
+.remove-btn:hover {
+    background-color: rgba(220, 53, 69, 1);
+    transform: scale(1.15);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+}
+
+.remove-btn:active {
+    transform: scale(0.95);
+}
+
+/* 삭제 버튼 클릭 영역을 더 넓게 (가상 요소로) */
+.remove-btn::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    z-index: -1; /* 버튼 뒤에 위치하되 클릭 영역 확장 */
+}
+
+/* 삭제 버튼이 다른 요소에 가려지지 않도록 */
+.preview-item:hover .remove-btn {
+    z-index: 10000 !important;
+}
+
+/* 파일 input이 삭제 버튼을 방해하지 않도록 */
+.preview-item .fileInput {
+    pointer-events: none !important;
+    z-index: -10 !important;
+}
+
 
 /* 카테고리 선택 */
 #category-select {

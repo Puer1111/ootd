@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -22,7 +24,7 @@ public class Order {
 
     @CreationTimestamp
     @Column(name="orders_Date" , nullable=false)
-    private String orderDate;
+    private LocalDateTime orderDate;
 
     @Column(name="merchant_Uid" , nullable = false)
     private String merchantUid;
@@ -45,7 +47,21 @@ public class Order {
     @Column(name="order_status")
     private String orderStatus = "wait";
 
-    public Order(Long orderId, Long quantity, String orderDate, String merchantUid, String userName, String productName, Integer productPrice, Integer salePercent, Long totalPrice, String orderStatus) {
+//    public Order(Long orderId, Long quantity, String orderDate, String merchantUid, String userName, String productName, Integer productPrice, Integer salePercent, Long totalPrice, String orderStatus) {
+//        this.orderId = orderId;
+//        this.quantity = quantity;
+//        this.orderDate = orderDate;
+//        this.merchantUid = merchantUid;
+//        this.userName = userName;
+//        this.productName = productName;
+//        this.productPrice = productPrice;
+//        this.salePercent = salePercent;
+//        this.totalPrice = totalPrice;
+//        this.orderStatus = "wait";
+//    }
+
+
+    public Order(Long orderId, Long quantity, LocalDateTime orderDate, String merchantUid, String userName, String productName, Integer productPrice, Integer salePercent, Long totalPrice, String orderStatus) {
         this.orderId = orderId;
         this.quantity = quantity;
         this.orderDate = orderDate;
@@ -55,6 +71,6 @@ public class Order {
         this.productPrice = productPrice;
         this.salePercent = salePercent;
         this.totalPrice = totalPrice;
-        this.orderStatus = "wait";
+        this.orderStatus = orderStatus;
     }
 }

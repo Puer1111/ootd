@@ -57,11 +57,7 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public void savePayment(PaymentDTO dto) {
         com.ootd.ootd.model.entity.payment.Payment savedPayment = PaymentDTO.convertToEntity(dto);
-        System.out.println("DTO 확인: " + dto);
         paymentRepository.save(savedPayment);
-//        Order order = orderRepository.findById(dto.getOrderId()).orElse(null);
-//        order.setOrderStatus("success");
-//        orderRepository.save(order);
         orderRepository.changeOrderStatus(dto.getOrderId());
     }
 

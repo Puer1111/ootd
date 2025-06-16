@@ -16,7 +16,10 @@ export const modal = {
             cancelBtn: document.getElementById('cancel-btn'),
             addBrandBtn: document.getElementById('add-brand-btn'),
             addCategoryBtn: document.getElementById('add-category-btn'),
-            addColorBtn: document.getElementById('add-color-btn')
+            addColorBtn: document.getElementById('add-color-btn'),
+            addSizeBtn:document.getElementById('add-size-btn'),
+            addSizeOption: document.getElementById('product-size'),
+            categoryFirst: document.getElementById('categoryChoiceFirst')
         };
     },
 
@@ -26,12 +29,13 @@ export const modal = {
         }
 
         const btnId = event.currentTarget.id;
-        const { modalElement, modalTitle, typeInputTitle, saveBtn,
+        const {categoryFirst, modalElement, modalTitle, typeInputTitle, saveBtn,addSizeOption,
             typeInputContent1,typeInputContent2,typeContentDiv
         } = this.elements;
 
         modalElement.style.display = 'block';
         typeContentDiv.style.display='none';
+        addSizeOption.style.display='none';
         typeInputTitle.value = '';
         typeInputTitle.focus();
 
@@ -48,19 +52,26 @@ export const modal = {
             typeInputContent2.dataset.type='brandWebsite';
             typeInputContent2.name='brandWebsite';
 
-
-
-        } else if (btnId === 'add-category-btn') {
+        }
+        else if (btnId === 'add-category-btn') {
             modalTitle.textContent = '새 카테고리 추가';
             typeInputTitle.placeholder = '카테고리명 입력';
             saveBtn.dataset.type = 'category'; // 제출 버튼에 타입 지정
             typeInputTitle.name = "category";
-        } else if (btnId === 'add-color-btn'){
+            // typeContentDiv.style.display='block';
+            addSizeOption.innerHTML = '<option value="choiceSize">-- 카테고리 선택 --</option>';
+            addSizeOption.style.display='block';
+            Array.from(categoryFirst.options).forEach(option => {
+                const newOption = new Option(option.text, option.value);
+                addSizeOption.appendChild(newOption);
+            });
+
+        }
+        else if (btnId === 'add-color-btn'){
             modalTitle.textContent = '새 색깔 추가';
             typeInputTitle.placeholder = ' 색깔명 입력';
             saveBtn.dataset.type = 'color';
             typeInputTitle.name = "color";
-
         }
     },
 

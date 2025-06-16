@@ -3,6 +3,7 @@ package com.ootd.ootd.model.dto.payment;
 import com.ootd.ootd.model.entity.payment.Payment;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 @Getter
 @NoArgsConstructor
@@ -19,10 +20,25 @@ public class PaymentDTO {
     private String phone;
     private String email;
     private String userName;
-    private String orderDate;
+    private LocalDateTime orderDate;
     private String paymentStatus;
 
-    public PaymentDTO(String impUid, Long orderId, String productName, String payMethod, String merchantUid, Integer totalPrice, String phone, String email, String userName, String orderDate, String paymentStatus) {
+//    public PaymentDTO(String impUid, Long orderId, String productName, String payMethod, String merchantUid, Integer totalPrice, String phone, String email, String userName, String orderDate, String paymentStatus) {
+//        this.impUid = impUid;
+//        this.orderId = orderId;
+//        this.productName = productName;
+//        this.payMethod = payMethod;
+//        this.merchantUid = merchantUid;
+//        this.totalPrice = totalPrice;
+//        this.phone = phone;
+//        this.email = email;
+//        this.userName = userName;
+//        this.orderDate = orderDate;
+//        this.paymentStatus = paymentStatus;
+//    }
+
+
+    public PaymentDTO(String impUid, Long orderId, String productName, String payMethod, String merchantUid, Integer totalPrice, String phone, String email, String userName, LocalDateTime orderDate, String paymentStatus) {
         this.impUid = impUid;
         this.orderId = orderId;
         this.productName = productName;

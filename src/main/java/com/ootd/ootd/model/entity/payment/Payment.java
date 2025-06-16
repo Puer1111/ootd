@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -39,12 +40,12 @@ public class Payment {
     @Column(name="user_Name")
     private String userName;
     @Column(name="orders_Date")
-    private String orderDate;
+    private LocalDateTime orderDate;
 
     @Column(name="payment_status")
     private String paymentStatus = "success";
 
-    public Payment(Long paymentId, String impUid, Long orderId, String productName, String payMethod, String merchantUid, Integer totalPrice, String phone, String email, String userName, String orderDate, String paymentStatus) {
+    public Payment(Long paymentId, String impUid, Long orderId, String productName, String payMethod, String merchantUid, Integer totalPrice, String phone, String email, String userName, LocalDateTime orderDate, String paymentStatus) {
         this.paymentId = paymentId;
         this.impUid = impUid;
         this.orderId = orderId;
@@ -58,4 +59,19 @@ public class Payment {
         this.orderDate = orderDate;
         this.paymentStatus = "success";
     }
+
+//    public Payment(Long paymentId, String impUid, Long orderId, String productName, String payMethod, String merchantUid, Integer totalPrice, String phone, String email, String userName, String orderDate, String paymentStatus) {
+//        this.paymentId = paymentId;
+//        this.impUid = impUid;
+//        this.orderId = orderId;
+//        this.productName = productName;
+//        this.payMethod = payMethod;
+//        this.merchantUid = merchantUid;
+//        this.totalPrice = totalPrice;
+//        this.phone = phone;
+//        this.email = email;
+//        this.userName = userName;
+//        this.orderDate = orderDate;
+//        this.paymentStatus = "success";
+//    }
 }
