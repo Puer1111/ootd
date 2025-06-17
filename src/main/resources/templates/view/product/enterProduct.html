@@ -3,156 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>OOTD</title>
-    <link rel="stylesheet" href="/css/common/footer.css">
-    <link rel="stylesheet" href="/css/common/header.css">
-    <link rel="stylesheet" href="/css/common/layout.css">
-    <link rel="stylesheet" href="/css/common/reset.css">
-    <link rel="stylesheet" href="/css/product/enterProduct.css">
+    <link rel="stylesheet" th:href="@{/css/common/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/common/header.css}">
+    <link rel="stylesheet" th:href="@{/css/common/layout.css}">
+    <link rel="stylesheet" th:href="@{/css/common/reset.css}">
+    <link rel="stylesheet" th:href="@{/css/product/enterProduct.css}">
 
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f5f5;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-        }
-
-        h1 {
-            color: #333;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #555;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e1e5e9;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: #007bff;
-        }
-
-        .fileInput {
-            width: 100%;
-            height: 100%;
-        }
-
-        .sizes-section {
-            margin-top: 30px;
-            border-top: 2px solid #e9ecef;
-            padding-top: 30px;
-        }
-
-        .sizes-section > h4 {
-            margin-bottom: 15px;
-        }
-
-        .size-item, .size-header {
-            display: grid;
-            grid-template-columns: 120px 1fr 100px 120px 50px; /* 사이즈, 가격, 재고, 상태, 삭제 */
-            gap: 15px;
-            align-items: center;
-            padding: 12px;
-            background-color: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-        }
-
-
-        .size-item:hover {
-            background-color: #f1f3f4;
-        }
-
-
-        .btn, .btn-add {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background-color: #007bff;
-            color: white;
-        }
-
-        .btn-add:hover {
-            background-color: #0056b3;
-            transform: translateY(-1px);
-        }
-
-        .btn-add {
-            margin: 20px 0;
-        }
-
-        .form-actions {
-            text-align: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 2px solid #e9ecef;
-        }
-
-        .size-header {
-            display: grid;
-            /*grid-template-columns: 150px 1fr 120px 120px 150px 50px;*/
-            margin-bottom: 15px;
-            font-weight: 600;
-            color: #666;
-            text-align: center;
-            align-items: center;
-            padding: 12px;
-            background-color: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-        }
-
-        .required {
-            color: #dc3545;
-        }
-
-        @media (max-width: 768px) {
-            .size-item, .size-header {
-                grid-template-columns: 1fr;
-            }
-
-            .container {
-                padding: 20px;
-            }
-        }
-    </style>
 </head>
 <body>
 <header th:replace="~{common/header :: header}"></header>
@@ -200,14 +56,14 @@
                         <label for="categoryChoiceFirst">카테고리 <span class="required">*</span></label>
                         <div style="display:flex; gap:20px; width:100%;">
                             <div class="categoryFirst" style="flex:1;">
-                                <select id="categoryChoiceFirst" name="categoryId" required>
-                                    <option value="1">상의</option>
-                                    <option value="2">하의</option>
-                                    <option value="3">신발</option>
+                                <select id="categoryChoiceFirst" name="mainCategory" required>
+                                    <option value="상의">상의</option>
+                                    <option value="하의">하의</option>
+                                    <option value="신발">신발</option>
                                 </select>
                             </div>
                             <div class="categorySecond" style="flex:1;">
-                                <select id="categoryChoiceSecond" name="category" required>
+                                <select id="categoryChoiceSecond" name="subCategory" required>
                                     <option value="">카테고리 선택</option>
                                 </select>
                             </div>
@@ -215,16 +71,16 @@
                         </div>
                     </div>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div class="form-group">
-                        <label for="product-color"><span>색깔 선택</span> <span class="required">*</span></label>
-                        <div class="all-choose">
-                            <select id="product-color" name="colorsNo" multiple size="5"></select>
-                            <div id="selected-info">선택된 항목: <span id="selected-count">0</span>개</div>
-                        </div>
-                        <button type="button" id="add-color-btn">+ 새 색깔 추가</button>
-                    </div>
-                </div>
+<!--                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">-->
+<!--                    <div class="form-group">-->
+<!--                        <label for="product-color"><span>색깔 선택</span> <span class="required">*</span></label>-->
+<!--                        <div class="all-choose">-->
+<!--                            <select id="product-color" name="colorsNo" multiple size="5"></select>-->
+<!--                            <div id="selected-info">선택된 항목: <span id="selected-count">0</span>개</div>-->
+<!--                        </div>-->
+<!--                        <button type="button" id="add-color-btn">+ 새 색깔 추가</button>-->
+<!--                    </div>-->
+<!--                </div>-->
 
                 <!-- 사이즈 등록 섹션 -->
 
@@ -234,7 +90,8 @@
                     </div>
                     <div class="size-header">
                         <div>사이즈</div>
-                        <div style="width:230px; text-align: center">가격(원)</div>
+                        <div style="text-align: center">가격(원)</div>
+                        <div>색깔</div>
                         <div>재고</div>
                         <div>상태</div>
                         <div></div>
@@ -258,7 +115,7 @@
                 <div class="modal-content">
                     <span class="close" id="close-modal">&times;</span>
                     <h3 id="modal-title" style="margin-bottom:10px;"></h3>
-                    <select name="productSize" id="product-size"></select>
+                    <select name="mainCategory" id="Category-main"></select>
                     <div class="type-title-div">
                         <div class="title-input">
                             <input type="text" id="modal-input-title" class="modal-input">

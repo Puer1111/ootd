@@ -24,9 +24,12 @@ export const brandAPI = {
             })
             .then(data => {
                 // 새 브랜드를 선택 옵션에 추가
-                const newOption = document.createElement('option');
                 const brandSelect = this.getBrandSelect();
-                newOption.value = data.brandNo;  // 서버에서 반환된 ID
+                const newOption = document.createElement('option');
+                const brandId = String(data.brandNo);
+
+                newOption.value = brandId;
+                // newOption.value = data.brandNo;  // 서버에서 반환된 ID
                 newOption.textContent = brandName;
                 brandSelect.appendChild(newOption);
 

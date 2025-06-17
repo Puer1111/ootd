@@ -1,32 +1,32 @@
 package com.ootd.ootd.model.dto.category;
 
 import com.ootd.ootd.model.entity.category.Category;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor
 public class CategoryDTO {
     private Long categoryNo;
-    private String categoryName;
-    private String sizeGroup;
+    private String mainCategory;
+    private String subCategory;
 
     public static Category convertToEntity(CategoryDTO dto) {
-      Category category = new Category();
-      category.setCategoryNo(dto.getCategoryNo());
-      category.setCategoryName(dto.getCategoryName());
-      category.setSizeGroup(dto.getSizeGroup());
-      return category;
+        return Category.builder()
+                .categoryNo(dto.getCategoryNo())
+                .subCategory(dto.getSubCategory())
+                .mainCategory(dto.getMainCategory())
+                .build();
     }
+
     public static CategoryDTO convertToDTO(Category category) {
-        CategoryDTO dto = new CategoryDTO();
-        dto.setCategoryNo(category.getCategoryNo());
-        dto.setCategoryName(category.getCategoryName());
-        dto.setSizeGroup(category.getSizeGroup());
-        return dto;
+        return CategoryDTO.builder()
+                .categoryNo(category.getCategoryNo())
+                .subCategory(category.getSubCategory())
+                .mainCategory(category.getMainCategory())
+                .build();
     }
 }

@@ -33,8 +33,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public ProductDTO insertProduct(ProductDTO dto) {
-        Long productNo = Long.parseLong(RandomGenerate.generateRandom10Digits());
-        dto.setProductNo(productNo);
+//        Long productNo = Long.parseLong(RandomGenerate.generateRandom10Digits());
+//        dto.setProductNo(productNo);
         try{
             Product productEntity = ProductDTO.convertToEntity(dto);
             Product product = productRepository.save(productEntity);

@@ -42,7 +42,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public List<String> getAllCategoryNames() {
         List<String> categoryNames = new ArrayList<>();
-        categoryRepository.findAll().forEach(category -> categoryNames.add(category.getCategoryName()));
+        categoryRepository.findAll().forEach(category -> categoryNames.add(category.getSubCategory()));
         return categoryNames;
     }
 }

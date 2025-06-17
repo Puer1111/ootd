@@ -34,21 +34,22 @@ export const colors ={
             });
     },
 
-    lookupColors(){
-        const colorSelect = this.getColorSelect();
-        fetch("/api/lookup/colors")
-            .then(response => response.json())
-                .then(colors => {
-                    // 카테고리 옵션 추가
-                    colors.forEach(color => {
-                        const option = document.createElement('option');
-                        option.value = color.colorNo;
-                        option.textContent = color.colorName;
-                        colorSelect.appendChild(option);
-                    });
-                })
-                .catch(error => console.error('색깔 목록을 가져오는 중 오류 발생:', error));
-    },
+        lookupColors(){
+            const colorSelect = this.getColorSelect();
+            fetch("/api/lookup/colors")
+                .then(response => response.json())
+                    .then(colors => {
+                        // 카테고리 옵션 추가
+                        colors.forEach(color => {
+                            const option = document.createElement('option');
+                            option.value = color.colorNo;
+                            option.textContent = color.colorName;
+                            colorSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('색깔 목록을 가져오는 중 오류 발생:', error));
+        },
+
     getColorSelect() {
         return document.getElementById('product-color');
     },
@@ -59,9 +60,9 @@ export const colors ={
         document.getElementById('selected-count').textContent = colorSelect.selectedOptions.length;
     },
 
-    checkColorCount() {
-        const select = this.getColorSelect();
-        // bind를 사용하여 this 컨텍스트 유지
-        select.addEventListener('change', this.updateSelectedInfo.bind(this));
-    },
+    // checkColorCount() {
+    //     const select = this.getColorSelect();
+    //     // bind를 사용하여 this 컨텍스트 유지
+    //     select.addEventListener('change', this.updateSelectedInfo.bind(this));
+    // },
 }

@@ -1,59 +1,58 @@
 export const categoryAPI = {
-
-    // // category 등록 함수
-    // register(category,sizeGroup) {
-    //     const categorySelect = this.getCategorySelect();
-    //     fetch('/api/register/category', {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //         },
-    //         body: JSON.stringify({
-    //             categoryName: category,
-    //             sizeGroup: sizeGroup
-    //         })
-    //     })
-    //         .then(response => {
-    //             if (!response.ok) {
-    //                 throw new Error('서버 응답이 올바르지 않습니다.');
-    //             }
-    //             return response.json();
-    //         })
-    //         .then(data => {
-    //             // 새 카테고리 선택 옵션에 추가
-    //             const newOption = document.createElement('option');
-    //             newOption.value = data.categoryName;  // 서버에서 반환된 ID
-    //             newOption.textContent = data.categoryName;
-    //             categorySelect.appendChild(newOption);
-    //
-    //             // 새로 추가된 카테고리 선택
-    //             categorySelect.value = data.categoryName;
-    //
-    //             // 성공 메시지
-    //             alert(`'${data.categoryName}' 카테고리가 추가되었습니다.`);
-    //         })
-    //         .catch(error => {
-    //             alert('카테고리 추가 중 오류가 발생했습니다: ' + error.message);
-    //         });
-    // },
-
     getCategorySelect() {
         return {
             first: document.getElementById('categoryChoiceFirst'),
             second: document.getElementById('categoryChoiceSecond')
         }
     },
+    // category 등록 함수
+    register(mainCategory,subCategory) {
+        const categorySelect = this.getCategorySelect().second;
+        fetch('/api/register/category', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                mainCategory: mainCategory,
+                subCategory: subCategory
+            })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('서버 응답이 올바르지 않습니다.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // 새 카테고리 선택 옵션에 추가
+                const newOption = document.createElement('option');
+                newOption.value = data.categoryNo;  // 서버에서 반환된 ID
+                newOption.textContent = data.subCategory;
+                categorySelect.appendChild(newOption);
+
+                // 새로 추가된 카테고리 선택
+                categorySelect.value = data.categoryNo;
+
+                // 성공 메시지
+                alert(`'${data.subCategory}' 카테고리가 추가되었습니다.`);
+            })
+            .catch(error => {
+                alert('카테고리 추가 중 오류가 발생했습니다: ' + error.message);
+            });
+    },
+
 
     lookupCategory() {
         const categorySelect = this.getCategorySelect().second;
         fetch('/api/lookup/category')
             .then(response => response.json())
-            .then(categoryNames => {
+            .then(subCategories => {
                 // 카테고리 옵션 추가
-                categoryNames.forEach(categoryName => {
+                subCategories.forEach(subCategory => {
                     const option = document.createElement('option');
-                    option.value = categoryName;
-                    option.textContent = categoryName;
+                    option.value = subCategory;
+                    option.textContent = subCategory;
                     categorySelect.appendChild(option);
                 });
             })

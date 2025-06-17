@@ -25,8 +25,8 @@ public class BrandServiceImpl implements BrandService {
     @Override
     @Transactional
     public BrandDTO insertBrand(BrandDTO dto) {
-        Long BrandNo = Long.parseLong(RandomGenerate.generateRandom10Digits());
-        dto.setBrandNo(BrandNo);
+//        Long BrandNo = Long.parseLong(RandomGenerate.generateRandom10Digits());
+//        dto.setBrandNo(BrandNo);
         try{
             Brand brandEntity = BrandDTO.convertToEntity(dto);
             Brand brand = brandRepository.save(brandEntity);

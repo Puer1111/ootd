@@ -18,7 +18,7 @@ export const modal = {
             addCategoryBtn: document.getElementById('add-category-btn'),
             addColorBtn: document.getElementById('add-color-btn'),
             addSizeBtn:document.getElementById('add-size-btn'),
-            addSizeOption: document.getElementById('product-size'),
+            CategoryMain: document.getElementById('Category-main'),
             categoryFirst: document.getElementById('categoryChoiceFirst')
         };
     },
@@ -29,13 +29,13 @@ export const modal = {
         }
 
         const btnId = event.currentTarget.id;
-        const {categoryFirst, modalElement, modalTitle, typeInputTitle, saveBtn,addSizeOption,
+        const {categoryFirst, modalElement, modalTitle, typeInputTitle, saveBtn,CategoryMain,
             typeInputContent1,typeInputContent2,typeContentDiv
         } = this.elements;
 
         modalElement.style.display = 'block';
         typeContentDiv.style.display='none';
-        addSizeOption.style.display='none';
+        CategoryMain.style.display='none';
         typeInputTitle.value = '';
         typeInputTitle.focus();
 
@@ -43,7 +43,7 @@ export const modal = {
             modalTitle.textContent = '새 브랜드 추가';
             typeInputTitle.placeholder = '브랜드명 입력';
             saveBtn.dataset.type = 'brand'; // 제출 버튼에 타입 지정
-            typeInputTitle.name = "brand";
+            typeInputTitle.name = "brandName";
             typeContentDiv.style.display='block';
             typeInputContent1.placeholder= '브랜드 로고 등록'
             typeInputContent1.dataset.type='brandLogoUrl';
@@ -57,13 +57,13 @@ export const modal = {
             modalTitle.textContent = '새 카테고리 추가';
             typeInputTitle.placeholder = '카테고리명 입력';
             saveBtn.dataset.type = 'category'; // 제출 버튼에 타입 지정
-            typeInputTitle.name = "category";
+            typeInputTitle.name = "subCategory";
             // typeContentDiv.style.display='block';
-            addSizeOption.innerHTML = '<option value="choiceSize">-- 카테고리 선택 --</option>';
-            addSizeOption.style.display='block';
+            CategoryMain.innerHTML = '<option value="choiceCategory">-- 카테고리 선택 --</option>';
+            CategoryMain.style.display='block';
             Array.from(categoryFirst.options).forEach(option => {
                 const newOption = new Option(option.text, option.value);
-                addSizeOption.appendChild(newOption);
+                CategoryMain.appendChild(newOption);
             });
 
         }
@@ -131,7 +131,7 @@ export const modal = {
             this.initElements();
         }
 
-        const { typeInputTitle, saveBtn, typeInputContent1,typeInputContent2 } = this.elements;
+        const {CategoryMain,typeInputTitle, saveBtn, typeInputContent1,typeInputContent2 } = this.elements;
         const inputTitleValue = typeInputTitle.value.trim();
         const inputContentValue1 = typeInputContent1.value.trim();
         const inputContentValue2 = typeInputContent2.value.trim();
@@ -145,7 +145,8 @@ export const modal = {
         if (type === 'brand') {
             window.api.brand.register(inputTitleValue,inputContentValue1,inputContentValue2)
         } else if (type === 'category') {
-            window.api.category.register(inputTitleValue)
+            const selectedMainCategory = CategoryMain.value;
+            window.api.category.register(selectedMainCategory,inputTitleValue)
         } else if( type === 'color'){
             window.api.colors.register(inputTitleValue)
         }

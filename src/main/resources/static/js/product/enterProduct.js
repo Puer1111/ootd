@@ -11,20 +11,20 @@ document.addEventListener('DOMContentLoaded', function () {
             // brand 카테고리 가져오기.
             window.api.brand.lookupBrand();
 
+            // 사이즈
+            window.api.size.init();
+            window.api.size.bindAddSizeButton();
+
             // category 가져오기
             window.api.category.init();
-            // window.api.category.lookupCategory();
+            window.api.category.lookupCategory();
 
             // product-color 가져오기
             window.api.colors.lookupColors();
-            window.api.colors.checkColorCount();
 
             // 이미지 업로드
             window.api.utils.init('fileInput', 'preview-area');
 
-            // 사이즈
-            window.api.size.init();
-            window.api.size.bindAddSizeButton();
             // 폼 제출
             document.getElementById('submit-btn').addEventListener('click', function (e) {
                 submitFormWithAjax(); // Ajax 함수 호출
@@ -39,10 +39,11 @@ function submitFormWithAjax() {
 
     // 일반 필드들 추가
     formData.append('brandName', document.getElementById('brand-select').value);
-    formData.append('productName', document.getElementById('product-input').value);
-    formData.append('category', document.getElementById('category-select').value);
+    formData.append('productName', document.getElementById('productName').value);
+    formData.append('subCategory', document.getElementById('categoryChoiceSecond').value);
     formData.append('price', document.getElementById('product-price').value);
-
+    formData.append('description',document.getElementById('description').value);
+    formData.append('')
     // Multiple select 처리
     const colorSelect = document.getElementById('product-color');
     Array.from(colorSelect.selectedOptions).forEach(option => {

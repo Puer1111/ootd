@@ -25,6 +25,7 @@ public class BrandController {
     public ResponseEntity<?> insertBrand(@RequestBody BrandDTO dto) {
         try {
             BrandDTO brandDto = brandService.insertBrand(dto);
+            System.out.println("brandName = : " + dto.getBrandName());
             return ResponseEntity.ok(brandDto);
         } catch (Exception e) {
             System.out.println("Insert brand error : " + e.getMessage());

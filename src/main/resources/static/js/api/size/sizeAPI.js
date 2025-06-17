@@ -47,6 +47,10 @@ export const size = {
         sizeItem.innerHTML = this._generateSizeItemHTML(itemId);
         container.appendChild(sizeItem);
 
+        if (window.colorManager) {
+            window.colorManager.lookupColors(itemId);
+        }
+
         return itemId;
     },
     bindAddSizeButton() {
@@ -98,8 +102,8 @@ export const size = {
 
         sizeItems.forEach(item => {
             const itemId = item.dataset.itemId;
-            const sizeId = item.querySelector(`select[name="sizeId${itemId}"]`)?.value;
-            const price = item.querySelector(`input[name="price${itemId}"]`)?.value;
+            const sizeId = item.querySelector(`select[name="size"]`)?.value;
+            const price = item.querySelector(`input[name="product-price"]`)?.value;
             const stock = item.querySelector(`input[name="stock${itemId}"]`)?.value;
             const status = item.querySelector(`select[name="status${itemId}"]`)?.value;
 
@@ -195,8 +199,8 @@ export const size = {
 
             // 값 설정
             setTimeout(() => {
-                const sizeSelect = document.querySelector(`select[name="sizeId${itemId}"]`);
-                const priceInput = document.querySelector(`input[name="price${itemId}"]`);
+                const sizeSelect = document.querySelector(`select[name="size"]`);
+                const priceInput = document.querySelector(`input[name="product-price"]`);
                 const stockInput = document.querySelector(`input[name="stock${itemId}"]`);
                 const statusSelect = document.querySelector(`select[name="status${itemId}"]`);
 
@@ -237,38 +241,44 @@ export const size = {
     },
 
     // HTML 생성 함수 (SKU 제거, 4개 컬럼 정렬)
-    _generateSizeItemHTML(itemId) {
-        const sizeOptions = this.availableSizes
-            .map(size => `<option value="${size.id}">${size.name}</option>`)
-            .join('');
+        _generateSizeItemHTML(itemId) {
+            const sizeOptions = this.availableSizes
+                .map(size => `<option value="${size.id}">${size.name}</option>`)
+                .join('');
 
-        return `
-            <div>
-                <select name="sizeId${itemId}" required>
-                    <option value="">선택</option>
-                    ${sizeOptions}
-                </select>
-            </div>
-            <div>
-                <input type="number" name="price${itemId}" placeholder="29000" min="0" required>
-            </div>
-            <div>
-                <input type="number" name="stock${itemId}" placeholder="10" min="0" required>
-            </div>
-            <div>
-                <select name="status${itemId}">
-                    <option value="available">판매중</option>
-                    <option value="unavailable">품절</option>
-                    <option value="discontinued">단종</option>
-                </select>
-            </div>
-            <div>
-                <button type="button" class="btn btn-danger size-remove-btn" 
-                        onclick="Size.removeSizeItem(${itemId})" title="삭제">
-                    🗑️
-                </button>
-            </div>
-        `;
+            return `
+        <div>
+            <select name="size" required>
+                <option value="">선택</option>
+                ${sizeOptions}
+            </select>
+        </div>
+        <div>
+            <input type="number" name="price" placeholder="29000" min="0" required>
+        </div>
+        <div>
+            <select name="colorsNo" id="product-color">
+                <option value="ChoiceColor">-- 색깔 선택 --</option>
+            </select>
+        </div>
+        <div>
+            <input type="number" name="stock${itemId}" placeholder="10" min="0" required>
+        </div>
+        <div>
+            <select name="status${itemId}">
+                <option value="available">판매중</option>
+                <option value="unavailable">품절</option>
+                <option value="discontinued">단종</option>
+            </select>
+        </div>
+        <div>
+            <button type="button" class="size-remove-btn" 
+                    onclick="size.removeSizeItem(${itemId})" title="삭제">
+                🗑️
+            </button>
+        </div>
+    `;
+
     },
 
     // 리셋

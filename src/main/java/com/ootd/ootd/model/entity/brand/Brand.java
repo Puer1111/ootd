@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 public class Brand {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "brand_no" , unique = true  )
     private Long brandNo;
 
