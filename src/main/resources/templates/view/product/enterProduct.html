@@ -25,6 +25,7 @@
                     <label for="description">상품 설명</label>
                     <textarea id="description" name="description" rows="4"></textarea>
                 </div>
+
                 <div class="form-group">
                     <div class="all-Label">
                         <label for="fileInput"><span>이미지</span> <span class="required">*</span></label>
@@ -42,7 +43,7 @@
                         <label for="brand-select">브랜드 <span class="required">*</span></label>
                         <div style="display:flex; gap:20px; width:100%;">
                             <div style="flex:1;">
-                                <select id="brand-select" name="brandName" required>
+                                <select id="brand-select" name="brandNo" required>
                                     <option value="">-- 브랜드 선택 --</option>
                                 </select>
                             </div>
@@ -57,13 +58,13 @@
                         <div style="display:flex; gap:20px; width:100%;">
                             <div class="categoryFirst" style="flex:1;">
                                 <select id="categoryChoiceFirst" name="mainCategory" required>
-                                    <option value="상의">상의</option>
-                                    <option value="하의">하의</option>
-                                    <option value="신발">신발</option>
+                                    <option value="top">상의</option>
+                                    <option value="bottom">하의</option>
+                                    <option value="shoes">신발</option>
                                 </select>
                             </div>
                             <div class="categorySecond" style="flex:1;">
-                                <select id="categoryChoiceSecond" name="subCategory" required>
+                                <select id="categoryChoiceSecond" name="categoryNo" required>
                                     <option value="">카테고리 선택</option>
                                 </select>
                             </div>

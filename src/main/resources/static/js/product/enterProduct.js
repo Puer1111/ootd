@@ -38,12 +38,12 @@ function submitFormWithAjax() {
     const formData = new FormData();
 
     // 일반 필드들 추가
-    formData.append('brandName', document.getElementById('brand-select').value);
+    formData.append('brandNo', document.getElementById('brand-select').value);
     formData.append('productName', document.getElementById('productName').value);
-    formData.append('subCategory', document.getElementById('categoryChoiceSecond').value);
+    formData.append('categoryNo', document.getElementById('categoryChoiceSecond').value);
     formData.append('price', document.getElementById('product-price').value);
     formData.append('description',document.getElementById('description').value);
-    formData.append('')
+
     // Multiple select 처리
     const colorSelect = document.getElementById('product-color');
     Array.from(colorSelect.selectedOptions).forEach(option => {

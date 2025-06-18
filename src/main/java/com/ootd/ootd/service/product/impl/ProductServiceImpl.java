@@ -23,13 +23,6 @@ public class ProductServiceImpl implements ProductService {
         this.productRepository = productRepository;
     }
 
-//    @Override
-//    public List<ProductDTO> searchProducts(String category) {
-//        List<Product> productList = productRepository.findByKeyword(category);
-//        return ProductDTO.fromEntityList(productList);
-//    }
-
-
     @Override
     @Transactional
     public ProductDTO insertProduct(ProductDTO dto) {

@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class BrandServiceImpl implements BrandService {
@@ -38,9 +40,14 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     @Transactional
-    public List<String> getAllBrand() {
-        List<String> brandNames = new ArrayList<>();
-        brandRepository.findAll().forEach(brand -> brandNames.add(brand.getBrandName()));
-        return brandNames;
+    public List<Map<String, Object>> getAllBrand() {
+        List<Map<String, Object>> brandList = new ArrayList<>();
+        brandRepository.findNoAndName().forEach(brand -> {
+            Map<String, Object> brandMap = new HashMap<>();
+            brandMap.put("brandNo", brand[1]);     // 첫 번째 값이 No
+            brandMap.put("brandName", brand[0]);   // 두 번째 값이 Name
+            brandList.add(brandMap);
+        });
+        return brandList;
     }
 }

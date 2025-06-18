@@ -47,12 +47,12 @@ export const brandAPI = {
         const brandSelect = this.getBrandSelect();
         fetch('/api/lookup/brands')
             .then(response => response.json())
-            .then(brandNames => {
+            .then(brandList => {
                 // 브랜드 옵션 추가
-                brandNames.forEach(brandName => {
+                brandList.forEach(brand => {
                     const option = document.createElement('option');
-                    option.value = brandName;
-                    option.textContent = brandName;
+                    option.value = brand.brandNo;
+                    option.textContent = brand.brandName;
                     brandSelect.appendChild(option);
                 });
             })
