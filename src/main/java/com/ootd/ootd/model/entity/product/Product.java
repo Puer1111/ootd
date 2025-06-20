@@ -2,6 +2,7 @@ package com.ootd.ootd.model.entity.product;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.ootd.ootd.model.entity.product_colors.ProductColors;
 import com.ootd.ootd.utils.StringToListConverter;
 import jakarta.persistence.*;
@@ -38,7 +39,7 @@ public class Product {
     private Long brandNo;
 
     @Column(nullable = false ,name="product_price")
-    private int price;
+    private Integer price;
 
     @Column(name = "product_image_url", length = 500 , columnDefinition = "TEXT")
     @Convert(converter = StringToListConverter.class)

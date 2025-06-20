@@ -6,8 +6,7 @@
     <title th:text="${product.productName} + ' - OOTD'">상품 상세</title>
 
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
-          rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 
     <!-- CSS 파일들 -->
     <link rel="stylesheet" th:href="@{/css/common/footer.css}">
@@ -18,173 +17,188 @@
 <body>
 
 <header th:replace="~{common/header.html :: header}"></header>
-<main>
-    <div th:fragment="content">
 
-        <div class="product-detail-container">
-            <!-- 상품 메인 정보 섹션 -->
-            <div class="product-main-section">
+<div class="product-detail-container">
+    <!-- 상품 메인 정보 섹션 -->
+    <div class="product-main-section">
 
-                <!-- 단일 이미지 -->
-                <div class="product-images">
-                    <div class="single-image">
-                        <!-- 첫 번째 이미지만 표시 -->
-                        <div th:if="${product.imageUrls != null and product.imageUrls.size() > 0}"
-                             class="product-image-container">
-                            <img id="product-image"
-                                 th:src="${product.imageUrls[0]}"
-                                 th:alt="${product.productName}"
-                                 class="product-image">
-                        </div>
-
-                        <!-- 이미지가 없는 경우 -->
-                        <div th:if="${product.imageUrls == null or product.imageUrls.size() == 0}"
-                             class="no-image">
-                            <span>이미지 없음</span>
-                        </div>
+        <div class="product-images">
+            <!-- 이미지가 여러 개인 경우 캐러셸 -->
+            <div th:if="${product.imageUrls != null and product.imageUrls.size() > 1}"
+                 class="carousel-container">
+                <div class="carousel-slides">
+                    <div th:each="imageUrl, iterStat : ${product.imageUrls}"
+                         class="carousel-slide"
+                         th:classappend="${iterStat.first} ? 'active' : ''"
+                         th:data-slide="${iterStat.index}">
+                        <img th:src="${imageUrl}"
+                             th:alt="${product.productName}"
+                             class="product-image">
                     </div>
                 </div>
 
-                <!-- 상품 정보 -->
-                <div class="product-info">
-                    <div class="product-header">
-                        <h1 id="product-name" class="product-name" th:text="${product.productName}">상품명</h1>
-
-                        <!-- 좋아요 버튼 -->
-                        <div class="like-container">
-                            <button id="like-btn" class="like-btn" onclick="toggleLike()">
-                                <span id="heart-icon" class="heart">♡</span>
-                                <span id="like-count" class="like-count">0</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="product-meta">
-<!--                        <div class="brand" th:text="${product.brandName}">브랜드명</div>-->
-<!--                        <div class="category" th:text="${product.category}">카테고리</div>-->
-                    </div>
-
-                    <div class="price-section">
-                <span id="product-price" class="price"
-                      th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'">
-                    가격
-                </span>
-                    </div>
-
-                    <!-- 상품번호 -->
-                    <div class="product-number">
-                        <label>상품번호:</label>
-                        <span id="product-no" th:text="${product.productNo}">상품번호</span>
-                    </div>
-                    <div class="product-quantity">
-                        <label for="quantity">수량: </label>
-                        <button id="minus" onClick="changeQuantity();">-</button>
-                        <input type="text" value ="1" id="quantity" style="width:42px; pointer-events:none;"><button id="plus" onClick="changeQuantity();">+</button>
-                    </div>
-                    <!-- 구매 버튼들 -->
-                    <div class="action-buttons">
-                        <button class="btn btn-primary btn-large" id="add-cart-btn">장바구니</button>
-                        <button class="btn btn-secondary btn-large">바로구매</button>
-                    </div>
+                <!-- 캐러셸 컨트롤 버튼 -->
+                <div class="carousel-controls">
+                    <button class="carousel-btn prev-btn" onclick="prevSlide()">‹</button>
+                    <button class="carousel-btn next-btn" onclick="nextSlide()">›</button>
                 </div>
 
-            </div>
-
-            <!-- 상품 상세 탭 -->
-            <div class="product-tabs">
-                <div class="tab-menu">
-                    <button class="tab-btn active" onclick="showTab('info')">상품정보</button>
-                    <button class="tab-btn" onclick="showTab('reviews')">
-                        리뷰 (<span id="review-count-tab">0</span>)
-                    </button>
-                </div>
-
-                <!-- 상품정보 탭 -->
-                <div id="info-tab" class="tab-content active">
-                    <div class="product-details">
-                        <h3>상품 상세 정보</h3>
-                        <table class="info-table">
-                            <tr>
-                                <td>상품번호</td>
-                                <td th:text="${product.productNo}">상품번호</td>
-                            </tr>
-                            <tr>
-                                <td>상품명</td>
-                                <td th:text="${product.productName}">상품명</td>
-                            </tr>
-                            <tr>
-                                <td>가격</td>
-                                <td th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'">가격</td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- 리뷰 탭 -->
-                <div id="reviews-tab" class="tab-content">
-                    <div class="reviews-section">
-                        <div class="reviews-header">
-                            <h3>리뷰 (<span id="review-count">0</span>개)</h3>
-                            <div id="average-rating">평점: <span id="avg-rating">0.0</span>★</div>
-                        </div>
-
-                        <!-- 리뷰 작성 폼 (로그인한 사용자만) -->
-                        <div id="review-form-container" style="display: none;">
-                            <div class="review-form">
-                                <h4>리뷰 작성</h4>
-                                <div class="rating-input">
-                                    <span class="star" data-rating="1">★</span>
-                                    <span class="star" data-rating="2">★</span>
-                                    <span class="star" data-rating="3">★</span>
-                                    <span class="star" data-rating="4">★</span>
-                                    <span class="star" data-rating="5">★</span>
-                                </div>
-                                <textarea id="review-content" placeholder="리뷰를 작성해주세요..." rows="4"
-                                          class="review-textarea"></textarea>
-                                <div class="review-form-buttons">
-                                    <button id="submit-review-btn" class="btn btn-primary">리뷰 작성</button>
-                                    <button id="cancel-review-btn" class="btn btn-outline">취소</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 로그인하지 않은 사용자용 -->
-                        <div id="login-required-message" class="login-required" style="display: none;">
-                            <p>리뷰를 작성하려면 <a href="/login">로그인</a>이 필요합니다.</p>
-                        </div>
-
-                        <!-- 리뷰 작성 버튼 (로그인한 사용자만) -->
-                        <div id="write-review-btn-container" class="write-review-container">
-                            <button id="write-review-btn" class="btn btn-primary" style="display: none;">리뷰 작성</button>
-                        </div>
-
-                        <!-- 리뷰 목록 -->
-                        <div id="reviews-list">
-                            <div id="no-reviews" class="no-reviews">
-                                <p>아직 작성된 리뷰가 없습니다.</p>
-                                <p>첫 번째 리뷰를 작성해보세요!</p>
-                            </div>
-                        </div>
+                <!-- 썸네일 -->
+                <div class="image-thumbnails">
+                    <div th:each="imageUrl, iterStat : ${product.imageUrls}"
+                         class="thumbnail"
+                         th:classappend="${iterStat.first} ? 'active' : ''"
+                         th:data-slide="${iterStat.index}"
+                         onclick="goToSlideFromThumbnail(this)">
+                        <img th:src="${imageUrl}" th:alt="썸네일">
                     </div>
                 </div>
             </div>
 
-            <!-- 뒤로가기 버튼 -->
-            <div class="back-button">
-                <button class="btn btn-outline" onclick="goBack()">← 목록으로 돌아가기</button>
+            <!-- 이미지가 1개인 경우 단일 이미지 -->
+            <div th:if="${product.imageUrls != null and product.imageUrls.size() == 1}"
+                 class="single-image">
+                <div class="product-image-container">
+                    <img th:src="${product.imageUrls[0]}"
+                         th:alt="${product.productName}"
+                         class="product-image">
+                </div>
+            </div>
+
+            <!-- 이미지가 없는 경우 -->
+            <div th:if="${product.imageUrls == null or product.imageUrls.size() == 0}"
+                 class="no-image">
+                <span>이미지 없음</span>
             </div>
         </div>
 
-        <!-- 공통 푸터 -->
-        <footer th:replace="~{common/footer.html :: footer}"></footer>
+        <!-- 상품 정보 -->
+        <div class="product-info">
+            <div class="product-header">
+                <h1 id="product-name" class="product-name" th:text="${product.productName}">상품명</h1>
 
+                <!-- 좋아요 버튼 -->
+                <div class="like-container">
+                    <button id="like-btn" class="like-btn" onclick="toggleLike()">
+                        <span id="heart-icon" class="heart">♡</span>
+                        <span id="like-count" class="like-count">0</span>
+                    </button>
+                </div>
+            </div>
 
-        <!--  hidden    -->
-        <input type="hidden"  name="productNo" th:text="${product.productNo}">
-        <script src="/js/product/productDetail.js"></script>
-        <script src="/js/api/cart/cartAPI.js"></script>
+            <div class="product-meta">
+<!--                <div class="brand" th:text="${product.brandName}">브랜드명</div>-->
+<!--                <div class="category" th:text="${product.category}">카테고리</div>-->
+            </div>
+
+            <div class="price-section">
+                <span id="product-price" class="price" th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'">
+                    가격
+                </span>
+            </div>
+
+            <!-- 상품번호 -->
+            <div class="product-number">
+                <label>상품번호:</label>
+                <span id="product-no" th:text="${product.productNo}">상품번호</span>
+            </div>
+
+            <!-- 구매 버튼들 -->
+            <div class="action-buttons">
+                <button class="btn btn-primary btn-large">장바구니</button>
+                <button class="btn btn-secondary btn-large">바로구매</button>
+            </div>
+        </div>
     </div>
-</main>
-</body>
 
+    <!-- 상품 상세 탭 -->
+    <div class="product-tabs">
+        <div class="tab-menu">
+            <button class="tab-btn active" onclick="showTab('info')">상품정보</button>
+            <button class="tab-btn" onclick="showTab('reviews')">
+                리뷰 (<span id="review-count-tab">0</span>)
+            </button>
+        </div>
+
+        <!-- 상품정보 탭 -->
+        <div id="info-tab" class="tab-content active">
+            <div class="product-details">
+                <h3>상품 상세 정보</h3>
+                <table class="info-table">
+                    <tr>
+                        <td>상품번호</td>
+                        <td th:text="${product.productNo}">상품번호</td>
+                    </tr>
+                    <tr>
+                        <td>상품명</td>
+                        <td th:text="${product.productName}">상품명</td>
+                    </tr>
+                    <tr>
+                        <td>가격</td>
+                        <td th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'">가격</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- 리뷰 탭 -->
+        <div id="reviews-tab" class="tab-content">
+            <div class="reviews-section">
+                <div class="reviews-header">
+                    <h3>리뷰 (<span id="review-count">0</span>개)</h3>
+                    <div id="average-rating">평점: <span id="avg-rating">0.0</span>★</div>
+                </div>
+
+                <!-- 리뷰 작성 폼 (로그인한 사용자만) -->
+                <div id="review-form-container" style="display: none;">
+                    <div class="review-form">
+                        <h4>리뷰 작성</h4>
+                        <div class="rating-input">
+                            <span class="star" data-rating="1">★</span>
+                            <span class="star" data-rating="2">★</span>
+                            <span class="star" data-rating="3">★</span>
+                            <span class="star" data-rating="4">★</span>
+                            <span class="star" data-rating="5">★</span>
+                        </div>
+                        <textarea id="review-content" placeholder="리뷰를 작성해주세요..." rows="4" class="review-textarea"></textarea>
+                        <div class="review-form-buttons">
+                            <button id="submit-review-btn" class="btn btn-primary">리뷰 작성</button>
+                            <button id="cancel-review-btn" class="btn btn-outline">취소</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 로그인하지 않은 사용자용 -->
+                <div id="login-required-message" class="login-required" style="display: none;">
+                    <p>리뷰를 작성하려면 <a href="/login">로그인</a>이 필요합니다.</p>
+                </div>
+
+                <!-- 리뷰 작성 버튼 (로그인한 사용자만) -->
+                <div id="write-review-btn-container" class="write-review-container">
+                    <button id="write-review-btn" class="btn btn-primary" style="display: none;">리뷰 작성</button>
+                </div>
+
+                <!-- 리뷰 목록 -->
+                <div id="reviews-list">
+                    <div id="no-reviews" class="no-reviews">
+                        <p>아직 작성된 리뷰가 없습니다.</p>
+                        <p>첫 번째 리뷰를 작성해보세요!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 뒤로가기 버튼 -->
+    <div class="back-button">
+        <button class="btn btn-outline" onclick="goBack()">← 목록으로 돌아가기</button>
+    </div>
+</div>
+
+<!-- 공통 푸터 -->
+<footer th:replace="~{common/footer.html :: footer}"></footer>
+
+<script src="/js/product/productDetail.js"></script>
+
+</body>
 </html>

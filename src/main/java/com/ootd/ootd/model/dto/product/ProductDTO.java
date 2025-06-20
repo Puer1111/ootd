@@ -14,17 +14,34 @@ import java.util.stream.Collectors;
 @ToString
 @Builder
 @AllArgsConstructor
+@Data
 public class ProductDTO {
     private Long productNo;
     private String productName;
+    private Integer price;
+    private String description;
+    private String brandName;
     private Long brandNo;
-    private int price;
     private MultipartFile[] images;
     private List<String> imageUrls;
     private Long categoryNo;
+    private String subCategory;
+    private Long subCategoryNo;
     private List<Long> colorsNo;
     private Long productColorsNo;
-    private String description;
+
+
+    public ProductDTO(Long productNo, String productName, Integer price, String description, String brandName, Long brandNo, List<String> imageUrls, Long categoryNo,String subCategory) {
+        this.productNo = productNo;
+        this.productName = productName;
+        this.price = price;
+        this.description = description;
+        this.brandName = brandName;
+        this.brandNo = brandNo;
+        this.imageUrls = imageUrls;
+        this.categoryNo = categoryNo;
+        this.subCategory = subCategory;
+    }
 
     // 좋아요 리뷰
     private int likeCount = 0;
