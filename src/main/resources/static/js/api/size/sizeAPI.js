@@ -150,42 +150,42 @@ export const size = {
         return sizesData;
     },
 
-    // // 유효성 검증
-    // validateSizes() {
-    //     const sizesData = this.collectSizeData();
-    //     const errors = [];
-    //
-    //     // 최소 개수 체크
-    //     if (sizesData.length < this.config.minSizeItems) {
-    //         errors.push(`최소 ${this.config.minSizeItems}개의 사이즈를 등록해주세요.`);
-    //     }
-    //
-    //     // 중복 사이즈 체크
-    //     const sizeIds = sizesData.map(item => item.size_id);
-    //     const duplicates = sizeIds.filter((item, index) => sizeIds.indexOf(item) !== index);
-    //     if (duplicates.length > 0) {
-    //         errors.push('중복된 사이즈가 있습니다.');
-    //     }
-    //
-    //     // 필수 필드 체크
-    //     sizesData.forEach((item, index) => {
-    //         if (!item.size_id) {
-    //             errors.push(`${index + 1}번째 사이즈를 선택해주세요.`);
-    //         }
-    //         if (!item.price || item.price <= 0) {
-    //             errors.push(`${index + 1}번째 가격을 입력해주세요.`);
-    //         }
-    //         if (item.stock_quantity === undefined || item.stock_quantity < 0) {
-    //             errors.push(`${index + 1}번째 재고를 입력해주세요.`);
-    //         }
-    //     });
-    //
-    //     return {
-    //         isValid: errors.length === 0,
-    //         errors: errors,
-    //         data: sizesData
-    //     };
-    // },
+    // 유효성 검증
+    validateSizes() {
+        const sizesData = this.collectSizeData();
+        const errors = [];
+
+        // 최소 개수 체크
+        if (sizesData.length < this.config.minSizeItems) {
+            errors.push(`최소 ${this.config.minSizeItems}개의 사이즈를 등록해주세요.`);
+        }
+
+        // 중복 사이즈 체크
+        const sizeIds = sizesData.map(item => item.size_id);
+        const duplicates = sizeIds.filter((item, index) => sizeIds.indexOf(item) !== index);
+        if (duplicates.length > 0) {
+            errors.push('중복된 사이즈가 있습니다.');
+        }
+
+        // 필수 필드 체크
+        sizesData.forEach((item, index) => {
+            if (!item.size_id) {
+                errors.push(`${index + 1}번째 사이즈를 선택해주세요.`);
+            }
+            if (!item.price || item.price <= 0) {
+                errors.push(`${index + 1}번째 가격을 입력해주세요.`);
+            }
+            if (item.stock_quantity === undefined || item.stock_quantity < 0) {
+                errors.push(`${index + 1}번째 재고를 입력해주세요.`);
+            }
+        });
+
+        return {
+            isValid: errors.length === 0,
+            errors: errors,
+            data: sizesData
+        };
+    },
 
     // 중복 사이즈 체크 및 UI 업데이트
     checkDuplicateSizes() {
@@ -272,10 +272,13 @@ export const size = {
 
     // HTML 생성 함수 (SKU 제거, 4개 컬럼 정렬)
         _generateSizeItemHTML(itemId) {
-            const sizeOptions = this.availableSizes
+            // const sizeOptions = this.availableSizes
+            //     .map(size => `<option value="${size.id}">${size.name}</option>`)
+            //     .join('');
+            const category = 'top'; // 또는 다른 로직으로 결정
+            const sizeOptions = this.availableSizes[category]
                 .map(size => `<option value="${size.id}">${size.name}</option>`)
                 .join('');
-
             return `
         <div>
             <select name="size" required>
