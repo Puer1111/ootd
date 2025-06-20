@@ -2,6 +2,7 @@ package com.ootd.ootd.model.entity.product;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.ootd.ootd.model.entity.product_colors.ProductColors;
 import com.ootd.ootd.utils.StringToListConverter;
 import jakarta.persistence.*;

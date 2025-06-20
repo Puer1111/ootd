@@ -86,21 +86,18 @@
                             </div>
 
                             <!-- 좋아요 및 리뷰 통계 -->
+                            <!-- index.html의 card-stats 부분 수정 -->
                             <div class="card-stats">
+                                <!-- 좋아요 개수 -->
                                 <div class="stat-item">
                                     <span class="icon heart-icon">♥</span>
                                     <span th:text="${product.likeCount}">0</span>
                                 </div>
 
-                                <div class="stat-item" th:if="${product.reviewCount > 0}">
+                                <!-- 리뷰 개수만 (평점 없이) -->
+                                <div class="stat-item">
                                     <span class="icon star-icon">★</span>
-                                    <span class="rating-text" th:text="${#numbers.formatDecimal(product.averageRating, 1, 1)}">0.0</span>
-                                    <span>(<span th:text="${product.reviewCount}">0</span>)</span>
-                                </div>
-
-                                <div class="stat-item" th:if="${product.reviewCount == 0}">
-                                    <span class="icon star-icon">☆</span>
-                                    <span class="no-reviews">리뷰없음</span>
+                                    <span th:text="'리뷰 ' + ${product.reviewCount} + '개'">리뷰 0개</span>
                                 </div>
                             </div>
                         </div>
