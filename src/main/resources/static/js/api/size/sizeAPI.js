@@ -271,12 +271,15 @@ export const size = {
     },
 
     // HTML 생성 함수 (SKU 제거, 4개 컬럼 정렬)
-        _generateSizeItemHTML(itemId) {
-            const sizeOptions = this.availableSizes
-                .map(size => `<option value="${size.id}">${size.name}</option>`)
-                .join('');
-
-            return `
+    _generateSizeItemHTML(itemId) {
+        // const sizeOptions = this.availableSizes
+        //     .map(size => <option value="${size.id}">${size.name}</option>)
+        //     .join('');
+        const category = 'top'; // 또는 다른 로직으로 결정
+        const sizeOptions = this.availableSizes[category]
+            .map(size => `<option value="${size.id}">${size.name}</option>`)
+            .join('');
+        return`
         <div>
             <select name="size" required>
                 <option value="">선택</option>

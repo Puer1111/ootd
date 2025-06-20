@@ -22,23 +22,53 @@
     <!-- 상품 메인 정보 섹션 -->
     <div class="product-main-section">
 
-        <!-- 단일 이미지 -->
         <div class="product-images">
-            <div class="single-image">
-                <!-- 첫 번째 이미지만 표시 -->
-                <div th:if="${product.imageUrls != null and product.imageUrls.size() > 0}"
-                     class="product-image-container">
-                    <img id="product-image"
-                         th:src="${product.imageUrls[0]}"
+            <!-- 이미지가 여러 개인 경우 캐러셸 -->
+            <div th:if="${product.imageUrls != null and product.imageUrls.size() > 1}"
+                 class="carousel-container">
+                <div class="carousel-slides">
+                    <div th:each="imageUrl, iterStat : ${product.imageUrls}"
+                         class="carousel-slide"
+                         th:classappend="${iterStat.first} ? 'active' : ''"
+                         th:data-slide="${iterStat.index}">
+                        <img th:src="${imageUrl}"
+                             th:alt="${product.productName}"
+                             class="product-image">
+                    </div>
+                </div>
+
+                <!-- 캐러셸 컨트롤 버튼 -->
+                <div class="carousel-controls">
+                    <button class="carousel-btn prev-btn" onclick="prevSlide()">‹</button>
+                    <button class="carousel-btn next-btn" onclick="nextSlide()">›</button>
+                </div>
+
+                <!-- 썸네일 -->
+                <div class="image-thumbnails">
+                    <div th:each="imageUrl, iterStat : ${product.imageUrls}"
+                         class="thumbnail"
+                         th:classappend="${iterStat.first} ? 'active' : ''"
+                         th:data-slide="${iterStat.index}"
+                         onclick="goToSlideFromThumbnail(this)">
+                        <img th:src="${imageUrl}" th:alt="썸네일">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 이미지가 1개인 경우 단일 이미지 -->
+            <div th:if="${product.imageUrls != null and product.imageUrls.size() == 1}"
+                 class="single-image">
+                <div class="product-image-container">
+                    <img th:src="${product.imageUrls[0]}"
                          th:alt="${product.productName}"
                          class="product-image">
                 </div>
+            </div>
 
-                <!-- 이미지가 없는 경우 -->
-                <div th:if="${product.imageUrls == null or product.imageUrls.size() == 0}"
-                     class="no-image">
-                    <span>이미지 없음</span>
-                </div>
+            <!-- 이미지가 없는 경우 -->
+            <div th:if="${product.imageUrls == null or product.imageUrls.size() == 0}"
+                 class="no-image">
+                <span>이미지 없음</span>
             </div>
         </div>
 
@@ -57,8 +87,8 @@
             </div>
 
             <div class="product-meta">
-                <div class="brand" th:text="${product.brandName}">브랜드명</div>
-                <div class="category" th:text="${product.category}">카테고리</div>
+<!--                <div class="brand" th:text="${product.brandName}">브랜드명</div>-->
+<!--                <div class="category" th:text="${product.category}">카테고리</div>-->
             </div>
 
             <div class="price-section">

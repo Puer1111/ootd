@@ -1,6 +1,7 @@
 package com.ootd.ootd.service.product.impl;
 
 import com.ootd.ootd.model.dto.product.ProductDTO;
+import com.ootd.ootd.model.dto.product.ProductDetailDTO;
 import com.ootd.ootd.model.entity.product.Product;
 import com.ootd.ootd.repository.product.ProductLikeRepository;
 import com.ootd.ootd.repository.product.ProductRepository;
@@ -48,14 +49,18 @@ public class ProductServiceImpl implements ProductService {
     // ProductServiceImpl에 추가
     @Override
     public List<ProductDTO> getAllProducts() {
-        List<Product> products = productRepository.findAll();
+        List<ProductDTO> productDTOs = productRepository.findAllandBrandName();
 
-        return products.stream()
-                .map(product -> {
-                    ProductDTO dto = ProductDTO.convertToDTO(product);
 
-                    // 각 상품의 좋아요 수와 리뷰 수만 조회
-                    Long productNo = product.getProductNo();
+        return productDTOs.stream()
+                .map(dto -> {
+                    // DTO 변환 과정은 필요 없음 - 이미 DTO임
+                    // ProductDTO dto = ProductDTO.convertToDTO(product); // 제거!
+
+                    // ProductNo는 DTO에서 가져옴
+                    Long productNo = dto.getProductNo(); // 또는 dto.getId() 등
+
+                    // 좋아요 수와 리뷰 수만 추가 설정
                     dto.setLikeCount(productLikeRepository.countByProductNo(productNo));
                     dto.setReviewCount(productReviewRepository.countByProductNo(productNo));
 

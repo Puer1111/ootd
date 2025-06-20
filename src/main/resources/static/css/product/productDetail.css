@@ -14,9 +14,14 @@
 
 /* 이미지 캐러셸 */
 .product-images {
+    width:700px;
     position: sticky;
     top: 100px;
     height: fit-content;
+    object-fit: cover;
+}
+.product-images>img{
+    object-fit: cover;
 }
 
 .carousel-container {
@@ -51,7 +56,7 @@
 .product-image {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
 }
 
 .no-image {
