@@ -2,40 +2,40 @@ export const size = {
     // 사용 가능한 사이즈 목록
     availableSizes: {
         top: [
-            { id: 1, name: 'XS' },
-            { id: 2, name: 'S' },
-            { id: 3, name: 'M' },
-            { id: 4, name: 'L' },
-            { id: 5, name: 'XL' },
-            { id: 6, name: 'XXL' }
+            {id: 1, name: 'XS'},
+            {id: 2, name: 'S'},
+            {id: 3, name: 'M'},
+            {id: 4, name: 'L'},
+            {id: 5, name: 'XL'},
+            {id: 6, name: 'XXL'}
         ],
         shoes: [
-            { id: 7, name: '220' },
-            { id: 8, name: '225' },
-            { id: 9, name: '230' },
-            { id: 10, name: '235' },
-            { id: 11, name: '240' },
-            { id: 12, name: '245' },
-            { id: 13, name: '250' },
-            { id: 14, name: '255' },
-            { id: 15, name: '260' },
-            { id: 16, name: '265' },
-            { id: 17, name: '270' },
-            { id: 18, name: '275' },
-            { id: 19, name: '280' }
+            {id: 7, name: '220'},
+            {id: 8, name: '225'},
+            {id: 9, name: '230'},
+            {id: 10, name: '235'},
+            {id: 11, name: '240'},
+            {id: 12, name: '245'},
+            {id: 13, name: '250'},
+            {id: 14, name: '255'},
+            {id: 15, name: '260'},
+            {id: 16, name: '265'},
+            {id: 17, name: '270'},
+            {id: 18, name: '275'},
+            {id: 19, name: '280'}
         ],
-        pants: [
-            { id: 20, name: '26' },
-            { id: 21, name: '27' },
-            { id: 22, name: '28' },
-            { id: 23, name: '29' },
-            { id: 24, name: '30' },
-            { id: 25, name: '31' },
-            { id: 26, name: '32' },
-            { id: 27, name: '33' },
-            { id: 28, name: '34' },
-            { id: 29, name: '36' },
-            { id: 30, name: '38' }
+        bottom: [
+            {id: 20, name: '26'},
+            {id: 21, name: '27'},
+            {id: 22, name: '28'},
+            {id: 23, name: '29'},
+            {id: 24, name: '30'},
+            {id: 25, name: '31'},
+            {id: 26, name: '32'},
+            {id: 27, name: '33'},
+            {id: 28, name: '34'},
+            {id: 29, name: '36'},
+            {id: 30, name: '38'}
         ]
     },
 
@@ -48,16 +48,26 @@ export const size = {
         minSizeItems: 1
     },
 
+
     // 초기화 함수
     init(containerSelector = '#sizesContainer') {
         this.config.containerSelector = containerSelector;
         this._sizeItemCount = 0;
+        const mainCategory = document.getElementById('categoryChoiceFirst');
+
+        mainCategory.addEventListener('change', (e) => {
+            this.updateAllSizeSelects();
+        });
 
         // 첫 번째 사이즈 아이템 추가
         this.addSizeItem();
 
+        // html 생성.
+        this._generateSizeItemHTML();
+
         // 이벤트 위임으로 동적 이벤트 처리
         this._setupEventDelegation();
+
     },
 
     // 사이즈 아이템 추가
@@ -67,7 +77,7 @@ export const size = {
             console.error('Size container not found:', this.config.containerSelector);
             return null;
         }
-
+        // size div 를 생성함.
         const itemId = ++this._sizeItemCount;
         const sizeItem = document.createElement('div');
         sizeItem.className = 'size-item';
@@ -125,67 +135,31 @@ export const size = {
         return true;
     },
 
-    // 모든 사이즈 데이터 수집
-    collectSizeData() {
-        const sizeItems = document.querySelectorAll('.size-item');
-        const sizesData = [];
-
-        sizeItems.forEach(item => {
-            const itemId = item.dataset.itemId;
-            const sizeId = item.querySelector(`select[name="size"]`)?.value;
-            const price = item.querySelector(`input[name="product-price"]`)?.value;
-            const stock = item.querySelector(`input[name="stock${itemId}"]`)?.value;
-            const status = item.querySelector(`select[name="status${itemId}"]`)?.value;
-
-            if (sizeId && price && stock) {
-                sizesData.push({
-                    size_id: parseInt(sizeId),
-                    price: parseFloat(price),
-                    stock_quantity: parseInt(stock),
-                    status: status || 'available'
-                });
-            }
-        });
-
-        return sizesData;
-    },
-
-    // // 유효성 검증
-    // validateSizes() {
-    //     const sizesData = this.collectSizeData();
-    //     const errors = [];
+    // // 모든 사이즈 데이터 수집
+    // collectSizeData() {
+    //     const sizeItems = document.querySelectorAll('.size-item');
+    //     const sizesData = [];
     //
-    //     // 최소 개수 체크
-    //     if (sizesData.length < this.config.minSizeItems) {
-    //         errors.push(`최소 ${this.config.minSizeItems}개의 사이즈를 등록해주세요.`);
-    //     }
+    //     sizeItems.forEach(item => {
+    //         const itemId = item.dataset.itemId;
+    //         const sizeId = item.querySelector(`select[name="size"]`)?.value;
+    //         const price = item.querySelector(`input[name="product-price"]`)?.value;
+    //         const stock = item.querySelector(`input[name="stock${itemId}"]`)?.value;
+    //         const status = item.querySelector(`select[name="status${itemId}"]`)?.value;
     //
-    //     // 중복 사이즈 체크
-    //     const sizeIds = sizesData.map(item => item.size_id);
-    //     const duplicates = sizeIds.filter((item, index) => sizeIds.indexOf(item) !== index);
-    //     if (duplicates.length > 0) {
-    //         errors.push('중복된 사이즈가 있습니다.');
-    //     }
-    //
-    //     // 필수 필드 체크
-    //     sizesData.forEach((item, index) => {
-    //         if (!item.size_id) {
-    //             errors.push(`${index + 1}번째 사이즈를 선택해주세요.`);
-    //         }
-    //         if (!item.price || item.price <= 0) {
-    //             errors.push(`${index + 1}번째 가격을 입력해주세요.`);
-    //         }
-    //         if (item.stock_quantity === undefined || item.stock_quantity < 0) {
-    //             errors.push(`${index + 1}번째 재고를 입력해주세요.`);
+    //         if (sizeId && price && stock) {
+    //             sizesData.push({
+    //                 size_id: parseInt(sizeId),
+    //                 price: parseFloat(price),
+    //                 stock_quantity: parseInt(stock),
+    //                 status: status || 'available'
+    //             });
     //         }
     //     });
     //
-    //     return {
-    //         isValid: errors.length === 0,
-    //         errors: errors,
-    //         data: sizesData
-    //     };
+    //     return sizesData;
     // },
+
 
     // 중복 사이즈 체크 및 UI 업데이트
     checkDuplicateSizes() {
@@ -207,40 +181,6 @@ export const size = {
 
         return !hasDuplicate;
     },
-
-    // // 사이즈 데이터 로드 (편집 모드)
-    // loadSizeData(sizesData) {
-    //     // 기존 사이즈 아이템들 제거
-    //     const container = document.querySelector(this.config.containerSelector);
-    //     if (!container) return;
-    //
-    //     container.innerHTML = '';
-    //     this._sizeItemCount = 0;
-    //
-    //     // 데이터가 없으면 빈 아이템 하나 추가
-    //     if (!sizesData || sizesData.length === 0) {
-    //         this.addSizeItem();
-    //         return;
-    //     }
-    //
-    //     // 데이터 기반으로 사이즈 아이템들 생성
-    //     sizesData.forEach(sizeData => {
-    //         const itemId = this.addSizeItem();
-    //
-    //         // 값 설정
-    //         setTimeout(() => {
-    //             const sizeSelect = document.querySelector(`select[name="size"]`);
-    //             const priceInput = document.querySelector(`input[name="product-price"]`);
-    //             const stockInput = document.querySelector(`input[name="stock${itemId}"]`);
-    //             const statusSelect = document.querySelector(`select[name="status${itemId}"]`);
-    //
-    //             if (sizeSelect) sizeSelect.value = sizeData.size_id;
-    //             if (priceInput) priceInput.value = sizeData.price;
-    //             if (stockInput) stockInput.value = sizeData.stock_quantity;
-    //             if (statusSelect) statusSelect.value = sizeData.status || 'available';
-    //         }, 0);
-    //     });
-    // },
 
     // 이벤트 위임 설정 (동적 요소 처리)
     _setupEventDelegation() {
@@ -270,21 +210,33 @@ export const size = {
         });
     },
 
-    // HTML 생성 함수 (SKU 제거, 4개 컬럼 정렬)
-    _generateSizeItemHTML(itemId) {
-        // const sizeOptions = this.availableSizes
-        //     .map(size => <option value="${size.id}">${size.name}</option>)
-        //     .join('');
-        const category = 'top'; // 또는 다른 로직으로 결정
-        const sizeOptions = this.availableSizes[category]
+    updateSizeOptions() {
+        const categorySelect = document.getElementById('categoryChoiceFirst');
+        const mainCategory = categorySelect.value;
+
+        if (!mainCategory || !this.availableSizes[mainCategory]) {
+            return '';
+        }
+
+        return this.availableSizes[mainCategory]
             .map(size => `<option value="${size.id}">${size.name}</option>`)
             .join('');
-        return`
+    },
+
+    updateAllSizeSelects() {
+        const sizeOptions = this.updateSizeOptions(); // HTML 문자열 받기
+        const sizeSelects = document.querySelectorAll('select[name="size"]');
+        sizeSelects.forEach(select => {
+            select.innerHTML = `<option value="">선택</option>${sizeOptions}`;
+        });
+    },
+
+    // HTML 생성 함수 (SKU 제거, 4개 컬럼 정렬)
+    _generateSizeItemHTML(itemId) {
+        const sizeOptions = this.updateSizeOptions();
+        return `
         <div>
-            <select name="size" required>
-                <option value="">선택</option>
-                ${sizeOptions}
-            </select>
+            <select name="size" required></select>
         </div>
         <div>
             <input type="number" name="price" id="product-price" placeholder="가격을 입력해주세요" min="0" required>
@@ -324,20 +276,4 @@ export const size = {
         }
     },
 
-    // // 유틸리티: 사이즈 이름으로 ID 찾기
-    // getSizeIdByName(sizeName) {
-    //     const size = this.availableSizes.find(s => s.name === sizeName);
-    //     return size ? size.id : null;
-    // },
-    //
-    // // 유틸리티: 사이즈 ID로 이름 찾기
-    // getSizeNameById(sizeId) {
-    //     const size = this.availableSizes.find(s => s.id == sizeId);
-    //     return size ? size.name : null;
-    // },
-    //
-    // // 설정 변경
-    // setConfig(newConfig) {
-    //     this.config = { ...this.config, ...newConfig };
-    // }
 };

@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -25,6 +27,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
+    //TODO 등록시 : 중복 체크 확인 안했음.
     public CategoryDTO registerCategory(CategoryDTO dto) {
         try{
             Long categoryNo = Long.parseLong(RandomGenerate.generateRandom10Digits());
@@ -40,9 +43,15 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<String> getAllCategoryNames() {
-        List<String> categoryNames = new ArrayList<>();
-        categoryRepository.findAll().forEach(category -> categoryNames.add(category.getSubCategory()));
-        return categoryNames;
+    @Transactional
+    public List<Map<String, Object>> getCategoryNoAndName() {
+        List<Map<String, Object>> categoryList = new ArrayList<>();
+        categoryRepository.findNoAndName().forEach(category -> {
+            Map<String, Object> categoryMap = new HashMap<>();
+            categoryMap.put("categoryNo" , category[0]);
+            categoryMap.put("subCategory", category[1]);
+            categoryList.add(categoryMap);
+        });
+        return categoryList;
     }
 }

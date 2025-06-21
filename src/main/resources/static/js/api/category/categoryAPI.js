@@ -49,10 +49,10 @@ export const categoryAPI = {
             .then(response => response.json())
             .then(subCategories => {
                 // 카테고리 옵션 추가
-                subCategories.forEach(subCategory => {
+                subCategories.forEach(Category => {
                     const option = document.createElement('option');
-                    option.value = subCategory;
-                    option.textContent = subCategory;
+                    option.value = Category.categoryNo;
+                    option.textContent = Category.subCategory;
                     categorySelect.appendChild(option);
                 });
             })
