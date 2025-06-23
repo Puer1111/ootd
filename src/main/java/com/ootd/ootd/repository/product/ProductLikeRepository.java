@@ -29,6 +29,11 @@ public interface ProductLikeRepository extends JpaRepository<ProductLike, Long> 
             "GROUP BY pl.productNo")
     List<Map<String, Object>> countLikesByProductNos(@Param("productNos") List<Long> productNos);
 
+    @Query("SELECT pl.productNo FROM ProductLike pl WHERE pl.userId = :userId ORDER BY pl.createdAt DESC")
+    List<Long> findProductNosByUserId(@Param("userId") Long userId);
+
+    int countByUserId(Long userId);
+
     // 사용자가 좋아요한 상품 목록
     List<ProductLike> findByUserId(Long userId);
 }

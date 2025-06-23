@@ -60,6 +60,7 @@ public class SecurityConfig {
                                 "/error",             // 에러 페이지
                                 "/main",
                                 "/mypage",
+                                "/liked-products",    // 좋아요 상품목록 페이지
                                 // 상품
                                 "/products/**",
                                 "/enter",              // 상품 등록
@@ -89,7 +90,8 @@ public class SecurityConfig {
                                 "/products/*/like-info",
                                 "/products/*/reviews",
                                 "/products/*/review",
-                                "/products/*/like"
+                                "/products/*/like",
+                                "/api/auth/liked-products"
                         ).authenticated()           // JWT 인증 필요
 
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
