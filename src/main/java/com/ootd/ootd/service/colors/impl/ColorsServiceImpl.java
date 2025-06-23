@@ -4,7 +4,7 @@ import com.ootd.ootd.model.dto.colors.ColorsDTO;
 import com.ootd.ootd.model.entity.colors.Colors;
 import com.ootd.ootd.model.entity.product_colors.ProductColors;
 import com.ootd.ootd.repository.colors.ColorsRepository;
-import com.ootd.ootd.repository.product_colors.ProductColorsRepository;
+import com.ootd.ootd.repository.product.ProductColorsRepository;
 import com.ootd.ootd.service.colors.ColorsService;
 import com.ootd.ootd.utils.RandomGenerate;
 import org.springframework.beans.factory.annotation.Autowired;

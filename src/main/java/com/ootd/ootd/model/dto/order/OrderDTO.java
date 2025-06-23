@@ -63,4 +63,6 @@ public class OrderDTO {
                 .userName(dto.getUsername()).productName(dto.getProductName()).productPrice(dto.getProductPrice()).salePercent(dto.getSalePercent())
                 .totalPrice(dto.getTotalPrice()).orderStatus(dto.getOrderStatus()).build();
     }
+
+
 }

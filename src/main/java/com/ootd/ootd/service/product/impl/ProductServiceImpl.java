@@ -2,8 +2,11 @@ package com.ootd.ootd.service.product.impl;
 
 import com.ootd.ootd.model.dto.product.ProductDTO;
 import com.ootd.ootd.model.dto.product.ProductDetailDTO;
+import com.ootd.ootd.model.dto.product.ProductOptionDTO;
 import com.ootd.ootd.model.entity.product.Product;
+import com.ootd.ootd.model.entity.productOption.ProductOption;
 import com.ootd.ootd.repository.product.ProductLikeRepository;
+import com.ootd.ootd.repository.product.ProductOptionRepository;
 import com.ootd.ootd.repository.product.ProductRepository;
 import com.ootd.ootd.repository.product.ProductReviewRepository;
 import com.ootd.ootd.service.product.ProductService;
@@ -28,6 +31,9 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private ProductReviewRepository productReviewRepository;    // 추가
 
+    @Autowired
+    private ProductOptionRepository productOptionRepository;
+
     public ProductServiceImpl(ProductRepository productRepository) {
         this.productRepository = productRepository;
     }
@@ -37,9 +43,16 @@ public class ProductServiceImpl implements ProductService {
     public ProductDTO insertProduct(ProductDTO dto) {
 //        Long productNo = Long.parseLong(RandomGenerate.generateRandom10Digits());
 //        dto.setProductNo(productNo);
+        System.out.println("Null Check : " + dto);
         try{
             Product productEntity = ProductDTO.convertToEntity(dto);
             Product product = productRepository.save(productEntity);
+            Long productId = product.getProductNo();
+
+            ProductOption productOption = ProductOptionDTO.convertToEntity(dto);
+            productOption.setProductNo(productId);
+
+            productOptionRepository.save(productOption);
             return ProductDTO.convertToDTO(product);
         }catch(Exception e){
             throw new RuntimeException();

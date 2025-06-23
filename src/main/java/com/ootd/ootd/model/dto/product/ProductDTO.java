@@ -26,9 +26,16 @@ public class ProductDTO {
     private List<String> imageUrls;
     private Long categoryNo;
     private String subCategory;
-    private Long subCategoryNo;
     private List<Long> colorsNo;
     private Long productColorsNo;
+
+    private ProductOptionDTO productOption;
+
+    // 좋아요 리뷰
+    private int likeCount = 0;
+    private int reviewCount = 0;
+    private double averageRating = 0.0;
+
 
 
     public ProductDTO(Long productNo, String productName, Integer price, String description, String brandName, Long brandNo, List<String> imageUrls, Long categoryNo,String subCategory) {
@@ -42,12 +49,6 @@ public class ProductDTO {
         this.categoryNo = categoryNo;
         this.subCategory = subCategory;
     }
-
-    // 좋아요 리뷰
-    private int likeCount = 0;
-    private int reviewCount = 0;
-    private double averageRating = 0.0;
-
 
     public static ProductDTO convertToDTO(Product entity) {
         return ProductDTO.builder()

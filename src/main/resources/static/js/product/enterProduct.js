@@ -41,9 +41,25 @@ function submitFormWithAjax() {
     formData.append('brandNo', document.getElementById('brand-select').value);
     formData.append('productName', document.getElementById('productName').value);
     formData.append('categoryNo', document.getElementById('categoryChoiceSecond').value);
+
+    const selectElement = document.getElementById('categoryChoiceSecond');
+    const selectedText = selectElement.selectedOptions[0].textContent;
+    formData.append('subCategory', selectedText);
     formData.append('price', document.getElementById('product-price').value);
     formData.append('description',document.getElementById('description').value);
 
+    const sizeSelects = document.querySelectorAll('select[name="size"]');
+    sizeSelects.forEach(select => {
+        if (select.value) {
+            formData.append('productOption.size', select.value);
+        }
+    });
+    formData.append('productOption.inventory',document.getElementById('inventory').value);
+
+    const statuses = document.querySelectorAll('select[name="status"]')
+    statuses.forEach(status=>{
+        formData.append('productOption.status',status.value);
+    })
     // Multiple select 처리
     const colorSelect = document.getElementById('product-color');
     Array.from(colorSelect.selectedOptions).forEach(option => {

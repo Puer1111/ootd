@@ -1,4 +1,4 @@
-package com.ootd.ootd.repository.product_colors;
+package com.ootd.ootd.repository.product;
 
 import com.ootd.ootd.model.entity.product_colors.ProductColors;
 import org.springframework.data.jpa.repository.JpaRepository;

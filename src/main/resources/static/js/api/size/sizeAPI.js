@@ -2,40 +2,40 @@ export const size = {
     // 사용 가능한 사이즈 목록
     availableSizes: {
         top: [
-            {id: 1, name: 'XS'},
-            {id: 2, name: 'S'},
-            {id: 3, name: 'M'},
-            {id: 4, name: 'L'},
-            {id: 5, name: 'XL'},
-            {id: 6, name: 'XXL'}
+            {id: 'XS', name: 'XS'},
+            {id: 'S', name: 'S'},
+            {id: 'M', name: 'M'},
+            {id: 'L', name: 'L'},
+            {id: 'XL', name: 'XL'},
+            {id: 'XXL', name: 'XXL'}
         ],
         shoes: [
-            {id: 7, name: '220'},
-            {id: 8, name: '225'},
-            {id: 9, name: '230'},
-            {id: 10, name: '235'},
-            {id: 11, name: '240'},
-            {id: 12, name: '245'},
-            {id: 13, name: '250'},
-            {id: 14, name: '255'},
-            {id: 15, name: '260'},
-            {id: 16, name: '265'},
-            {id: 17, name: '270'},
-            {id: 18, name: '275'},
-            {id: 19, name: '280'}
+            {id: 220, name: '220'},
+            {id: 225, name: '225'},
+            {id: 230, name: '230'},
+            {id: 235, name: '235'},
+            {id: 240, name: '240'},
+            {id: 245, name: '245'},
+            {id: 250, name: '250'},
+            {id: 255, name: '255'},
+            {id: 260, name: '260'},
+            {id: 265, name: '265'},
+            {id: 270, name: '270'},
+            {id: 275, name: '275'},
+            {id: 280, name: '280'}
         ],
         bottom: [
-            {id: 20, name: '26'},
-            {id: 21, name: '27'},
-            {id: 22, name: '28'},
-            {id: 23, name: '29'},
-            {id: 24, name: '30'},
-            {id: 25, name: '31'},
-            {id: 26, name: '32'},
-            {id: 27, name: '33'},
-            {id: 28, name: '34'},
-            {id: 29, name: '36'},
-            {id: 30, name: '38'}
+            {id: 26, name: '26'},
+            {id: 27, name: '27'},
+            {id: 28, name: '28'},
+            {id: 29, name: '29'},
+            {id: 30, name: '30'},
+            {id: 31, name: '31'},
+            {id: 32, name: '32'},
+            {id: 33, name: '33'},
+            {id: 34, name: '34'},
+            {id: 36, name: '36'},
+            {id: 38, name: '38'}
         ]
     },
 
@@ -68,6 +68,8 @@ export const size = {
         // 이벤트 위임으로 동적 이벤트 처리
         this._setupEventDelegation();
 
+        this.updateAllSizeSelects();
+
     },
 
     // 사이즈 아이템 추가
@@ -82,13 +84,16 @@ export const size = {
         const sizeItem = document.createElement('div');
         sizeItem.className = 'size-item';
         sizeItem.id = `sizeItem${itemId}`;
-        sizeItem.dataset.itemId = itemId;
+        sizeItem.dataset.itemId = itemId.toString();
 
         sizeItem.innerHTML = this._generateSizeItemHTML(itemId);
         container.appendChild(sizeItem);
 
-        if (window.colorManager) {
-            window.colorManager.lookupColors(itemId);
+        this.updateAllSizeSelects();
+        this.updateAllColorSelects();
+
+        if (window.api.colors) {
+            window.api.colors.lookupColors();
         }
 
         return itemId;
@@ -231,6 +236,10 @@ export const size = {
         });
     },
 
+    updateAllColorSelects(){
+        window.api.colors.lookupColors();
+    },
+
     // HTML 생성 함수 (SKU 제거, 4개 컬럼 정렬)
     _generateSizeItemHTML(itemId) {
         const sizeOptions = this.updateSizeOptions();
@@ -247,10 +256,10 @@ export const size = {
             </select>
         </div>
         <div>
-            <input type="number" name="stock${itemId}" placeholder="10" min="0" required>
+            <input type="number" name="inventory" placeholder="10" min="0" required id="inventory">
         </div>
         <div>
-            <select name="status${itemId}">
+            <select name="status">
                 <option value="available">판매중</option>
                 <option value="unavailable">품절</option>
                 <option value="discontinued">단종</option>
