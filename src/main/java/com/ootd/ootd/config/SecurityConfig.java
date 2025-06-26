@@ -67,7 +67,7 @@ public class SecurityConfig {
                                 "/api/register/colors", // 상품-색깔 등록
                                 "/api/lookup/colors",  // 상품-색깔 조회
                                 "/api/register/category", // 상품-카테고리-등록
-                                "/api/lookup/category", // 상품-카테고리-조회
+                                "/api/search/category", // 상품-카테고리-조회
                                 "/api/register/brands", // 상품-브랜드-등록
                                 "/api/lookup/brands", // 상품-브랜드-조회
                                 "/goPay",                // 결제 테스트

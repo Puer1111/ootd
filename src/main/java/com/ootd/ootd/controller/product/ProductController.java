@@ -81,16 +81,17 @@ public class ProductController {
     public ResponseEntity<?> insertProduct(@ModelAttribute ProductDTO dto,
                                            HttpServletRequest request
     )  {
-        String[] rawColors = request.getParameterValues("colorsNo");
+//        String[] rawColors = request.getParameterValues("colorsNo");
+//        System.out.println("rawColors: " + Arrays.toString(rawColors));
         ProductDTO productDTO;
 
         try {
-            if (rawColors != null && rawColors.length > 0) {
-                List<Long> colorsNoList = Arrays.stream(rawColors)
-                        .map(Long::parseLong)
-                        .collect(Collectors.toList());
-                dto.setColorsNo(colorsNoList);
-            }
+//            if (rawColors != null && rawColors.length > 0) {
+//                List<Long> colorsNoList = Arrays.stream(rawColors)
+//                        .map(Long::parseLong)
+//                        .collect(Collectors.toList());
+//                dto.setColorsNo(colorsNoList);
+//            }
 
             if (dto.getImages() != null && dto.getImages().length > 0) {
                 // 배열 전체를 한 번에 전달
@@ -104,8 +105,8 @@ public class ProductController {
             }
 
             // 상품색깔 테이블에 들어가는 데이터
-            ProductColors productColors = colorsService.initToProductColor(dto.getColorsNo());
-            dto.setProductColorsNo(productColors.getProductColorsNo());
+//            ProductColors productColors = colorsService.initToProductColor(dto.getColorsNo());
+//            dto.setProductColorsNo(productColors.getProductColorsNo());
             productDTO = productService.insertProduct(dto);
 
         } catch (IOException e) {

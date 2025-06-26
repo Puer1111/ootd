@@ -361,11 +361,6 @@ input[name="productName"]:focus {
     display: inline-block;
 }
 
-/*!* color *!*/
-/*.product-color-selection{*/
-/*    display: flex;*/
-/*    align-items: center;*/
-/*}*/
 
 #add-color-btn{
     background-color: #f1f1f1;
@@ -377,17 +372,7 @@ input[name="productName"]:focus {
     cursor: pointer;
     transition: all 0.2s ease;
 }
-/*#product-color{*/
-/*    padding: 12px 15px;*/
-/*    border: 1px solid #ddd;*/
-/*    border-radius: 4px;*/
-/*    font-size: 15px;*/
-/*    color: #333;*/
-/*    background-color: #f9f9f9;*/
-/*    margin-right: 10px;*/
-/*    min-width: 200px;*/
-/*    width: 200px;*/
-/*}*/
+
 /* 등록 버튼 */
 .register {
     background-color: #4a86e8;

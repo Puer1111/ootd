@@ -42,11 +42,24 @@ public class CategoryServiceImpl implements CategoryService {
         }
     }
 
+//    @Override
+//    @Transactional
+//    public List<Map<String, Object>> getCategoryNoAndName() {
+//        List<Map<String, Object>> categoryList = new ArrayList<>();
+//        categoryRepository.mainCategory(mainCategory).forEach(category -> {
+//            Map<String, Object> categoryMap = new HashMap<>();
+//            categoryMap.put("categoryNo" , category[0]);
+//            categoryMap.put("subCategory", category[1]);
+//            categoryList.add(categoryMap);
+//        });
+//        return categoryList;
+//    }
+
     @Override
     @Transactional
-    public List<Map<String, Object>> getCategoryNoAndName() {
+    public List<Map<String, Object>> findByMainCategory(String mainCategory) {
         List<Map<String, Object>> categoryList = new ArrayList<>();
-        categoryRepository.findNoAndName().forEach(category -> {
+        categoryRepository.findByMain(mainCategory).forEach(category -> {
             Map<String, Object> categoryMap = new HashMap<>();
             categoryMap.put("categoryNo" , category[0]);
             categoryMap.put("subCategory", category[1]);

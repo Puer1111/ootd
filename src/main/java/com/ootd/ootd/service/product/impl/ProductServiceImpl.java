@@ -44,17 +44,19 @@ public class ProductServiceImpl implements ProductService {
 //        Long productNo = Long.parseLong(RandomGenerate.generateRandom10Digits());
 //        dto.setProductNo(productNo);
         System.out.println("Null Check : " + dto);
-        try{
+        try {
             Product productEntity = ProductDTO.convertToEntity(dto);
             Product product = productRepository.save(productEntity);
             Long productId = product.getProductNo();
 
-            ProductOption productOption = ProductOptionDTO.convertToEntity(dto);
-            productOption.setProductNo(productId);
+            List<ProductOption> productOptions = ProductOptionDTO.convertToEntityList(dto.getProductOption(), productId);
 
-            productOptionRepository.save(productOption);
+            // 🔥 변경: save → saveAll로 여러 옵션을 각각 별도 row로 저장
+
+            List<ProductOption> savedOption = productOptionRepository.saveAll(productOptions);
+
             return ProductDTO.convertToDTO(product);
-        }catch(Exception e){
+        } catch (Exception e) {
             throw new RuntimeException();
         }
     }

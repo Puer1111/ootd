@@ -25,6 +25,9 @@ public class ProductOption {
     @Column(name="option_product_status" , nullable = false)
     private String status;
 
-    @Column(name="option_product_productNo")
+    @Column(name="option_product_color", nullable = false)
+    private Long colorNo;
+
+    @Column(name="option_product_no")
     private Long productNo;
 }

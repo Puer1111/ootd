@@ -6,7 +6,7 @@ export const categoryAPI = {
         }
     },
     // category 등록 함수
-    register(mainCategory,subCategory) {
+    register(mainCategory, subCategory) {
         const categorySelect = this.getCategorySelect().second;
         fetch('/api/register/category', {
             method: 'POST',
@@ -43,11 +43,36 @@ export const categoryAPI = {
     },
 
 
-    lookupCategory() {
+    // lookupAllCategory() {
+    //     const categorySelect = this.getCategorySelect().second;
+    //     fetch('/api/lookup/category')
+    //         .then(response => response.json())
+    //         .then(subCategories => {
+    //             // 카테고리 옵션 추가
+    //             subCategories.forEach(Category => {
+    //                 const option = document.createElement('option');
+    //                 option.value = Category.categoryNo;
+    //                 option.textContent = Category.subCategory;
+    //                 categorySelect.appendChild(option);
+    //             });
+    //         })
+    //         .catch(error => console.error('카테고리 목록을 가져오는 중 오류 발생:', error));
+    // },
+
+    lookupByMain() {
+        const mainCategory = this.getCategorySelect().first.value;
         const categorySelect = this.getCategorySelect().second;
-        fetch('/api/lookup/category')
+        const formData = new FormData();
+
+        formData.append('mainCategory',mainCategory);
+        fetch('/api/search/category', {
+            method: 'POST',
+            body: formData
+        })
             .then(response => response.json())
             .then(subCategories => {
+                this.clearSecondCategory();
+
                 // 카테고리 옵션 추가
                 subCategories.forEach(Category => {
                     const option = document.createElement('option');
@@ -58,26 +83,7 @@ export const categoryAPI = {
             })
             .catch(error => console.error('카테고리 목록을 가져오는 중 오류 발생:', error));
     },
-    categoryData: {
-        1: [ // 상의
-            {value: 't-shirt', text: '티셔츠'},
-            {value: 'shirt', text: '셔츠'},
-            {value: 'hoodie', text: '후드티'},
-            {value: 'sweater', text: '스웨터'}
-        ],
-        2: [ // 하의
-            {value: 'jeans', text: '청바지'},
-            {value: 'slacks', text: '슬랙스'},
-            {value: 'shorts', text: '반바지'},
-            {value: 'skirt', text: '스커트'}
-        ],
-        3: [ // 신발
-            {value: 'sneakers', text: '운동화'},
-            {value: 'dress_shoes', text: '구두'},
-            {value: 'boots', text: '부츠'},
-            {value: 'sandals', text: '샌들'}
-        ]
-    },
+
 
     // 첫 번째 카테고리 변경 이벤트 바인딩
     bindCategoryChange() {
@@ -95,20 +101,10 @@ export const categoryAPI = {
         // 두 번째 카테고리 초기화
         this.clearSecondCategory();
 
-        // if (selectedValue) {
-        //     // 서버에서 하위 카테고리 가져오기
-        //     fetch(`/api/categories/${selectedValue}/subcategories`)
-        //         .then(response => response.json())
-        //         .then(subcategories => {
-        //             this.populateSecondCategory(subcategories);
-        //         })
-        //         .catch(error => {
-        //             console.error('하위 카테고리를 가져오는 중 오류 발생:', error);
-        //         });
-        // }
         // 선택된 첫 번째 카테고리에 따라 두 번째 카테고리 옵션 생성
-        if (selectedValue && this.categoryData[selectedValue]) {
-            this.populateSecondCategory(this.categoryData[selectedValue]);
+        if (selectedValue) {
+            this.lookupByMain()
+            // this.populateSecondCategory(this.categoryData[selectedValue]);
         }
     },
 
@@ -120,16 +116,16 @@ export const categoryAPI = {
     },
 
 // 두 번째 카테고리 옵션 추가
-    populateSecondCategory(categories) {
-        const secondSelect = this.getCategorySelect().second;
-
-        categories.forEach(category => {
-            const option = document.createElement('option');
-            option.value = category.value;
-            option.textContent = category.text;
-            secondSelect.appendChild(option);
-        });
-    },
+//     populateSecondCategory(categories) {
+//         const secondSelect = this.getCategorySelect().second;
+//
+//         categories.forEach(category => {
+//             const option = document.createElement('option');
+//             option.value = category.value;
+//             option.textContent = category.text;
+//             secondSelect.appendChild(option);
+//         });
+//     },
 
 // 초기화
     init() {

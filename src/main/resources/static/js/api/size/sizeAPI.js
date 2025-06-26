@@ -140,32 +140,6 @@ export const size = {
         return true;
     },
 
-    // // 모든 사이즈 데이터 수집
-    // collectSizeData() {
-    //     const sizeItems = document.querySelectorAll('.size-item');
-    //     const sizesData = [];
-    //
-    //     sizeItems.forEach(item => {
-    //         const itemId = item.dataset.itemId;
-    //         const sizeId = item.querySelector(`select[name="size"]`)?.value;
-    //         const price = item.querySelector(`input[name="product-price"]`)?.value;
-    //         const stock = item.querySelector(`input[name="stock${itemId}"]`)?.value;
-    //         const status = item.querySelector(`select[name="status${itemId}"]`)?.value;
-    //
-    //         if (sizeId && price && stock) {
-    //             sizesData.push({
-    //                 size_id: parseInt(sizeId),
-    //                 price: parseFloat(price),
-    //                 stock_quantity: parseInt(stock),
-    //                 status: status || 'available'
-    //             });
-    //         }
-    //     });
-    //
-    //     return sizesData;
-    // },
-
-
     // 중복 사이즈 체크 및 UI 업데이트
     checkDuplicateSizes() {
         const sizeSelects = document.querySelectorAll('select[name^="sizeId"]');

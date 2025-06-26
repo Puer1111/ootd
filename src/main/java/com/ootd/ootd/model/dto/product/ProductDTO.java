@@ -26,7 +26,7 @@ public class ProductDTO {
     private List<String> imageUrls;
     private Long categoryNo;
     private String subCategory;
-    private List<Long> colorsNo;
+//    private List<Long> colorsNo;
     private Long productColorsNo;
 
     private ProductOptionDTO productOption;

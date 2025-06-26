@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // api 전역 호출
     window.api = window.api || {};
     import('../api/app.js')
-        .then( module => {
+        .then(module => {
             window.api = module.api;
             // modal initial
             window.api.modal.init();
@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // category 가져오기
             window.api.category.init();
-            window.api.category.lookupCategory();
+            window.api.category.lookupByMain();
 
             // product-color 가져오기
             window.api.colors.lookupColors();
@@ -46,7 +46,7 @@ function submitFormWithAjax() {
     const selectedText = selectElement.selectedOptions[0].textContent;
     formData.append('subCategory', selectedText);
     formData.append('price', document.getElementById('product-price').value);
-    formData.append('description',document.getElementById('description').value);
+    formData.append('description', document.getElementById('description').value);
 
     const sizeSelects = document.querySelectorAll('select[name="size"]');
     sizeSelects.forEach(select => {
@@ -54,16 +54,20 @@ function submitFormWithAjax() {
             formData.append('productOption.size', select.value);
         }
     });
-    formData.append('productOption.inventory',document.getElementById('inventory').value);
+    const inventories = document.querySelectorAll('input[name=inventory]');
+    inventories.forEach(inventory => {
+        formData.append('productOption.inventory', inventory.value);
+    })
 
     const statuses = document.querySelectorAll('select[name="status"]')
-    statuses.forEach(status=>{
-        formData.append('productOption.status',status.value);
+    statuses.forEach(status => {
+        formData.append('productOption.status', status.value);
     })
+
     // Multiple select 처리
-    const colorSelect = document.getElementById('product-color');
-    Array.from(colorSelect.selectedOptions).forEach(option => {
-        formData.append('colorsNo', option.value);
+    const colorSelects = document.querySelectorAll('select[name="colorsNo"]')
+    colorSelects.forEach(colorSelect => {
+        formData.append('productOption.colorsNo', colorSelect.value);
     });
 
     // 파일들 추가
