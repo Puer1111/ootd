@@ -16,6 +16,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import com.ootd.ootd.repository.order.UserOrderRepository;
+import com.ootd.ootd.model.entity.order.UserOrder;
+import com.ootd.ootd.repository.order.UserOrderRepository;
+
+
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,6 +49,11 @@ public class LoginController {
 
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private UserOrderRepository userOrderRepository;
+
+
 
     // 로그인 페이지 보여주기
     @GetMapping("/login")
@@ -251,4 +262,156 @@ public class LoginController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
+    // 주문 내역 페이지
+    @GetMapping("/order-history")
+    public String orderHistory() {
+        return "view/user/orderHistory";
+    }
+
+    // 주문 내역 API (좋아요 목록과 완전히 동일)
+    @GetMapping("/api/auth/order-history")
+    @ResponseBody
+    public ResponseEntity<?> getUserOrderHistory(@AuthenticationPrincipal UserDetails userDetails) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            if (userDetails == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+
+            User user = userRepository.findByEmail(userDetails.getUsername())
+                    .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
+
+            // 주문한 상품 번호 목록 (좋아요와 완전히 동일)
+            List<Long> orderedProductNos = userOrderRepository.findProductNosByUserId(user.getId());
+
+            List<ProductDTO> orderedProducts = new ArrayList<>();
+            for (Long productNo : orderedProductNos) {
+                ProductDTO product = productService.getProductById(productNo);
+                if (product != null) {
+                    product.setLikeCount(productLikeRepository.countByProductNo(productNo));
+                    if (productReviewRepository != null) {
+                        product.setReviewCount(productReviewRepository.countByProductNo(productNo));
+                        Double avgRating = productReviewRepository.findAverageRatingByProductNo(productNo);
+                        product.setAverageRating(avgRating != null ? avgRating : 0.0);
+                    }
+                    orderedProducts.add(product);
+                }
+            }
+
+            response.put("success", true);
+            response.put("orderedProducts", orderedProducts);
+            response.put("totalCount", orderedProducts.size());
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "주문 내역을 가져오는 중 오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    // 취소 내역 페이지
+    @GetMapping("/cancel-history")
+    public String cancelHistory() {
+        return "view/user/cancelHistory";
+    }
+
+    // 취소 내역 API
+    @GetMapping("/api/auth/cancel-history")
+    @ResponseBody
+    public ResponseEntity<?> getUserCancelHistory(@AuthenticationPrincipal UserDetails userDetails) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            if (userDetails == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+
+            User user = userRepository.findByEmail(userDetails.getUsername())
+                    .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
+
+            // 취소한 상품 번호 목록
+            List<Long> cancelledProductNos = userOrderRepository.findCancelledProductNosByUserId(user.getId());
+
+            List<ProductDTO> cancelledProducts = new ArrayList<>();
+            for (Long productNo : cancelledProductNos) {
+                ProductDTO product = productService.getProductById(productNo);
+                if (product != null) {
+                    product.setLikeCount(productLikeRepository.countByProductNo(productNo));
+                    if (productReviewRepository != null) {
+                        product.setReviewCount(productReviewRepository.countByProductNo(productNo));
+                        Double avgRating = productReviewRepository.findAverageRatingByProductNo(productNo);
+                        product.setAverageRating(avgRating != null ? avgRating : 0.0);
+                    }
+                    cancelledProducts.add(product);
+                }
+            }
+
+            response.put("success", true);
+            response.put("cancelledProducts", cancelledProducts);
+            response.put("totalCount", cancelledProducts.size());
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "취소 내역을 가져오는 중 오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    // 주문 취소 API (주문내역에서)
+    @PostMapping("/api/auth/cancel-order/{orderId}")
+    @ResponseBody
+    public ResponseEntity<?> cancelOrderById(@PathVariable Long orderId,
+                                             @AuthenticationPrincipal UserDetails userDetails) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            if (userDetails == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+
+            User user = userRepository.findByEmail(userDetails.getUsername())
+                    .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
+
+            Optional<UserOrder> orderOpt = userOrderRepository.findByIdAndUserId(orderId, user.getId());
+
+            if (orderOpt.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "주문을 찾을 수 없습니다");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            UserOrder order = orderOpt.get();
+            if (order.getStatus() != UserOrder.OrderStatus.ORDERED) {
+                response.put("success", false);
+                response.put("message", "이미 처리된 주문입니다");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            order.cancel();
+            userOrderRepository.save(order);
+
+            response.put("success", true);
+            response.put("message", "주문이 취소되었습니다");
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "주문 취소 중 오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
 }

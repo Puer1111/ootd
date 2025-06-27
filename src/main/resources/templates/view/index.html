@@ -21,7 +21,28 @@
 <main>
     <div th:fragment="content">
         <div class="main-container">
-            <h1 class="main-title">OOTD</h1>
+            <!-- 메인 타이틀과 로그인 섹션 -->
+            <div class="main-header">
+                <h1 class="main-title">OOTD</h1>
+
+                <!-- 로그인 상태에 따른 UI -->
+                <div class="auth-section">
+                    <!-- 비로그인 상태 -->
+                    <div id="not-logged-in" class="auth-buttons">
+                        <a href="/login" class="btn btn-primary">로그인</a>
+                        <a href="/signup" class="btn btn-outline">회원가입</a>
+                    </div>
+
+                    <!-- 로그인 상태 -->
+                    <div id="logged-in" class="user-welcome" style="display: none;">
+                        <span class="welcome-text">안녕하세요, <span id="username">사용자</span>님!</span>
+                        <div class="user-actions">
+                            <a href="/mypage" class="btn btn-outline">마이페이지</a>
+                            <button onclick="logout()" class="btn btn-secondary">로그아웃</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- 상품 섹션 -->
             <div class="section">

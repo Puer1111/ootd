@@ -61,6 +61,8 @@ public class SecurityConfig {
                                 "/main",
                                 "/mypage",
                                 "/liked-products",    // 좋아요 상품목록 페이지
+                                "/order-history",      // 가벼운 주문하기
+                                "/cancel-history",    // 취소 내역 페이지
                                 // 상품
                                 "/products/**",
                                 "/enter",              // 상품 등록
@@ -91,7 +93,13 @@ public class SecurityConfig {
                                 "/products/*/reviews",
                                 "/products/*/review",
                                 "/products/*/like",
-                                "/api/auth/liked-products"
+                                "/products/*/order",          // 주문하기 API
+                                "/products/*/order-status",   // 주문 상태 확인 API
+                                "/products/*/cancel-order",   // 주문 취소 API
+                                "/api/auth/liked-products",
+                                "/api/auth/order-history",    // 주문 내역 API
+                                "/api/auth/cancel-history",   // 취소 내역 API
+                                "/api/auth/cancel-order/*"    // 주문 취소 API (ID별)
                         ).authenticated()           // JWT 인증 필요
 
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요

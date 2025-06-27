@@ -6,6 +6,11 @@ const AuthManager = {
 
     isLoggedIn: function() {
         return this.getToken() !== null;
+    },
+
+    removeToken: function() {
+        localStorage.removeItem('token');
+        sessionStorage.removeItem('token');
     }
 };
 
@@ -13,8 +18,75 @@ let showLikedOnly = false;
 let userLikedProducts = new Set(); // 사용자가 좋아요한 상품 ID들
 
 document.addEventListener('DOMContentLoaded', function() {
+    checkLoginStatus(); // 로그인 상태 확인
     loadUserLikedProducts();
 });
+
+// 로그인 상태 확인 및 UI 업데이트
+function checkLoginStatus() {
+    const token = AuthManager.getToken();
+    const notLoggedIn = document.getElementById('not-logged-in');
+    const loggedIn = document.getElementById('logged-in');
+
+    if (token) {
+        // 로그인 상태
+        if (notLoggedIn) notLoggedIn.style.display = 'none';
+        if (loggedIn) loggedIn.style.display = 'flex';
+
+        // 사용자 정보 가져오기
+        getUserInfo(token);
+    } else {
+        // 비로그인 상태
+        if (notLoggedIn) notLoggedIn.style.display = 'flex';
+        if (loggedIn) loggedIn.style.display = 'none';
+    }
+}
+
+// 사용자 정보 가져오기
+async function getUserInfo(token) {
+    try {
+        const response = await fetch('/api/auth/mypage', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            const usernameSpan = document.getElementById('username');
+            if (usernameSpan && data.user) {
+                usernameSpan.textContent = data.user.name || data.user.username || '사용자';
+            }
+        } else if (response.status === 401) {
+            // 토큰이 만료된 경우
+            AuthManager.removeToken();
+            checkLoginStatus();
+        }
+    } catch (error) {
+        console.error('사용자 정보 로드 실패:', error);
+    }
+}
+
+// 로그아웃 함수
+function logout() {
+    if (confirm('로그아웃 하시겠습니까?')) {
+        AuthManager.removeToken();
+        alert('로그아웃되었습니다.');
+
+        // UI 업데이트
+        checkLoginStatus();
+
+        // 좋아요 상태 초기화
+        userLikedProducts.clear();
+        updateLikeButtons();
+
+        // 필터링 상태 초기화
+        if (showLikedOnly) {
+            toggleLikedFilter();
+        }
+    }
+}
 
 // 사용자가 좋아요한 상품들 불러오기
 function loadUserLikedProducts() {
@@ -195,7 +267,7 @@ function checkIfNoLikedProducts() {
     }
 }
 
-// 기존 goToProduct 함수 (상품 상세 페이지로 이동)
+// 상품 상세 페이지로 이동
 function goToProduct(element) {
     const productNo = element.getAttribute('data-product-no');
     if (productNo) {

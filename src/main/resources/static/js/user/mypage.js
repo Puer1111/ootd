@@ -234,3 +234,10 @@ function goToLikedProducts() {
     window.location.href = '/liked-products';
 }
 
+function goToOrderHistory() {
+    window.location.href = '/order-history';
+}
+
+function goToCancelHistory() {
+    window.location.href = '/cancel-history';
+}
