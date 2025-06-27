@@ -22,6 +22,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
+import com.ootd.ootd.model.entity.order.UserOrder;
+import com.ootd.ootd.repository.order.UserOrderRepository;
 
 import java.io.IOException;
 import java.util.*;
@@ -48,7 +50,8 @@ public class ProductController {
     ProductLikeRepository productLikeRepository;
     @Autowired
     UserRepository userRepository;
-
+    @Autowired
+    private UserOrderRepository userOrderRepository;
 
 
     public ProductController(ProductService productService, GoogleCloudStorageService googleCloudStorageService, ColorsService colorsService) {
@@ -274,6 +277,128 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
+    // 주문하기 (중복 주문 체크 추가)
+    @PostMapping("/products/{productNo}/order")
+    public ResponseEntity<?> orderProduct(@PathVariable Long productNo,
+                                          @AuthenticationPrincipal UserDetails userDetails) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            if (userDetails == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+
+            User user = userRepository.findByEmail(userDetails.getUsername())
+                    .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
+
+            // 이미 주문했는지 확인
+            boolean alreadyOrdered = userOrderRepository.existsByUserIdAndProductNoAndStatus(
+                    user.getId(), productNo, UserOrder.OrderStatus.ORDERED);
+
+            if (alreadyOrdered) {
+                response.put("success", false);
+                response.put("message", "이미 주문하신 상품입니다");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            // 주문 추가
+            UserOrder order = new UserOrder(productNo, user.getId());
+            userOrderRepository.save(order);
+
+            response.put("success", true);
+            response.put("message", "주문이 완료되었습니다!");
+            response.put("isOrdered", true);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "주문 처리 중 오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    // 주문 상태 확인 API
+    @GetMapping("/products/{productNo}/order-status")
+    public ResponseEntity<?> getOrderStatus(@PathVariable Long productNo,
+                                            @AuthenticationPrincipal UserDetails userDetails) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            boolean isOrdered = false;
+            Long orderId = null;
+
+            if (userDetails != null) {
+                User user = userRepository.findByEmail(userDetails.getUsername()).orElse(null);
+                if (user != null) {
+                    Optional<UserOrder> order = userOrderRepository.findByUserIdAndProductNoAndStatus(
+                            user.getId(), productNo, UserOrder.OrderStatus.ORDERED);
+                    if (order.isPresent()) {
+                        isOrdered = true;
+                        orderId = order.get().getId();
+                    }
+                }
+            }
+
+            response.put("success", true);
+            response.put("isOrdered", isOrdered);
+            response.put("orderId", orderId);
+            response.put("isLoggedIn", userDetails != null);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "주문 상태를 확인하는 중 오류가 발생했습니다");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    // 주문 취소 API
+    @PostMapping("/products/{productNo}/cancel-order")
+    public ResponseEntity<?> cancelOrder(@PathVariable Long productNo,
+                                         @AuthenticationPrincipal UserDetails userDetails) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            if (userDetails == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+
+            User user = userRepository.findByEmail(userDetails.getUsername())
+                    .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
+
+            Optional<UserOrder> orderOpt = userOrderRepository.findByUserIdAndProductNoAndStatus(
+                    user.getId(), productNo, UserOrder.OrderStatus.ORDERED);
+
+            if (orderOpt.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "주문을 찾을 수 없습니다");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            UserOrder order = orderOpt.get();
+            order.cancel();
+            userOrderRepository.save(order);
+
+            response.put("success", true);
+            response.put("message", "주문이 취소되었습니다");
+            response.put("isOrdered", false);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "주문 취소 중 오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
 
 
 

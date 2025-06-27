@@ -165,6 +165,159 @@ function initializeProductInteraction() {
     loadLikeInfo();
     loadReviews();
     setupReviewForm();
+    loadOrderStatus();
+}
+// 주문 상태 로드
+async function loadOrderStatus() {
+    try {
+        const token = getJwtToken();
+        const headers = {};
+        if (token) {
+            headers['Authorization'] = 'Bearer ' + token;
+        }
+
+        console.log('주문 상태 로드 시작:', `/products/${currentProductNo}/order-status`);
+
+        const response = await fetch(`/products/${currentProductNo}/order-status`, {
+            headers: headers
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log('주문 상태:', data);
+            updateOrderButtons(data.isOrdered, data.isLoggedIn);
+        }
+    } catch (error) {
+        console.error('주문 상태 로드 실패:', error);
+    }
+}
+
+// 주문 버튼 상태 업데이트
+function updateOrderButtons(isOrdered, isLoggedIn) {
+    const orderBtn = document.getElementById('order-btn');
+    const cancelBtn = document.getElementById('cancel-order-btn');
+
+    if (!isLoggedIn) {
+        // 비로그인: 주문하기 버튼만 표시
+        if (orderBtn) {
+            orderBtn.style.display = 'inline-block';
+            orderBtn.textContent = '주문하기';
+            orderBtn.className = 'btn btn-secondary btn-large';
+        }
+        if (cancelBtn) cancelBtn.style.display = 'none';
+    } else if (isOrdered) {
+        // 이미 주문함: 주문완료 + 취소 버튼
+        if (orderBtn) {
+            orderBtn.style.display = 'inline-block';
+            orderBtn.textContent = '주문완료';
+            orderBtn.className = 'btn btn-success btn-large';
+            orderBtn.onclick = null; // 클릭 비활성화
+        }
+        if (cancelBtn) cancelBtn.style.display = 'inline-block';
+    } else {
+        // 로그인했지만 주문안함: 주문하기 버튼만
+        if (orderBtn) {
+            orderBtn.style.display = 'inline-block';
+            orderBtn.textContent = '주문하기';
+            orderBtn.className = 'btn btn-secondary btn-large';
+            orderBtn.onclick = orderProduct;
+        }
+        if (cancelBtn) cancelBtn.style.display = 'none';
+    }
+}
+
+// 주문하기 함수 수정
+async function orderProduct() {
+    console.log('주문하기 버튼 클릭, 로그인 상태:', isLoggedIn);
+
+    if (!isLoggedIn) {
+        alert('로그인 후 주문해주세요!');
+        window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+        return;
+    }
+
+    // 주문 확인
+    const productName = document.getElementById('product-name').textContent;
+
+    if (!confirm(`${productName}\n\n주문하시겠습니까?`)) {
+        return;
+    }
+
+    try {
+        const token = getJwtToken();
+        console.log('주문 요청 전송:', `/products/${currentProductNo}/order`);
+
+        const response = await fetch(`/products/${currentProductNo}/order`, {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        console.log('주문 응답 상태:', response.status);
+
+        if (response.status === 401) {
+            alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+            localStorage.removeItem('token');
+            sessionStorage.removeItem('token');
+            window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log('주문 응답 데이터:', data);
+            alert(data.message);
+
+            // 버튼 상태 업데이트
+            updateOrderButtons(true, true);
+
+            // 주문 완료 후 주문 내역으로 이동할지 묻기
+            if (confirm('주문 내역을 확인하시겠습니까?')) {
+                window.location.href = '/order-history';
+            }
+        } else {
+            alert(data.message || '주문 처리에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('주문 실패:', error);
+        alert('오류가 발생했습니다. 다시 시도해주세요.');
+    }
+}
+
+// 주문 취소 함수
+async function cancelOrder() {
+    if (!confirm('주문을 취소하시겠습니까?')) {
+        return;
+    }
+
+    try {
+        const token = getJwtToken();
+        console.log('주문 취소 요청:', `/products/${currentProductNo}/cancel-order`);
+
+        const response = await fetch(`/products/${currentProductNo}/cancel-order`, {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alert(data.message);
+            // 버튼 상태 업데이트
+            updateOrderButtons(false, true);
+        } else {
+            alert(data.message || '주문 취소에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('주문 취소 실패:', error);
+        alert('오류가 발생했습니다. 다시 시도해주세요.');
+    }
 }
 
 // JWT 토큰 가져오기
@@ -192,7 +345,66 @@ function initializePage() {
         console.log('로그인 메시지 표시');
     }
 }
+// 주문하기 함수 수정
+async function orderProduct() {
+    console.log('주문하기 버튼 클릭, 로그인 상태:', isLoggedIn);
 
+    // 로그인 체크를 함수 내부에서 처리
+    if (!isLoggedIn) {
+        alert('로그인 후 주문해주세요!');
+        window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+        return;
+    }
+
+    // 주문 확인
+    const productName = document.getElementById('product-name').textContent;
+
+    if (!confirm(`${productName}\n\n주문하시겠습니까?`)) {
+        return;
+    }
+
+    try {
+        const token = getJwtToken();
+        console.log('주문 요청 전송:', `/products/${currentProductNo}/order`);
+
+        const response = await fetch(`/products/${currentProductNo}/order`, {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        console.log('주문 응답 상태:', response.status);
+
+        if (response.status === 401) {
+            alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+            localStorage.removeItem('token');
+            sessionStorage.removeItem('token');
+            window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+            return;
+        }
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log('주문 응답 데이터:', data);
+
+            alert(data.message);
+
+            // 주문 완료 후 주문 내역으로 이동할지 묻기
+            if (confirm('주문 내역을 확인하시겠습니까?')) {
+                window.location.href = '/order-history';
+            }
+        } else {
+            const errorData = await response.text();
+            console.error('주문 실패:', response.status, errorData);
+            alert('주문 처리에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('주문 실패:', error);
+        alert('오류가 발생했습니다. 다시 시도해주세요.');
+    }
+}
 // 좋아요 정보 로드
 async function loadLikeInfo() {
     try {

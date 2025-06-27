@@ -612,4 +612,24 @@
         align-items: flex-start;
         gap: 0.25rem;
     }
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+    .btn-danger:hover {
+        background-color: #c82333;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        color: white;
+        cursor: default;
+    }
+
+    .btn-success:hover {
+        background-color: #28a745;
+    }
+
 }

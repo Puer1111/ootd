@@ -3,70 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <title>OOTD</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <!-- CSS 파일들 -->
     <link rel="stylesheet" href="/css/common/footer.css">
     <link rel="stylesheet" href="/css/common/header.css">
     <link rel="stylesheet" href="/css/common/layout.css">
     <link rel="stylesheet" href="/css/common/reset.css">
     <link rel="stylesheet" href="/css/main/main.css">
-    <style>
-        .card-stats {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 8px;
-            padding: 8px 0;
-            border-top: 1px solid #f0f0f0;
-            font-size: 12px;
-            color: #666;
-        }
-        .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .stat-item .icon {
-            font-size: 14px;
-        }
-        .heart-icon {
-            color: #ff6b6b;
-        }
-        .star-icon {
-            color: #ffd43b;
-        }
-        .rating-text {
-            font-weight: 500;
-            color: #333;
-        }
-        .no-reviews {
-            color: #999;
-            font-size: 11px;
-        }
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            transition: all 0.2s ease;
-        }
-    </style>
 </head>
 <body>
+
 <header th:replace="~{common/header.html :: header}"></header>
+
 <main>
     <div th:fragment="content">
         <div class="main-container">
-            <h1 class="main-title">OOTD</h1>
+            <!-- 메인 타이틀과 로그인 섹션 -->
+            <div class="main-header">
+                <h1 class="main-title">OOTD</h1>
+
+                <!-- 로그인 상태에 따른 UI -->
+                <div class="auth-section">
+                    <!-- 비로그인 상태 -->
+                    <div id="not-logged-in" class="auth-buttons">
+                        <a href="/login" class="btn btn-primary">로그인</a>
+                        <a href="/signup" class="btn btn-outline">회원가입</a>
+                    </div>
+
+                    <!-- 로그인 상태 -->
+                    <div id="logged-in" class="user-welcome" style="display: none;">
+                        <span class="welcome-text">안녕하세요, <span id="username">사용자</span>님!</span>
+                        <div class="user-actions">
+                            <a href="/mypage" class="btn btn-outline">마이페이지</a>
+                            <button onclick="logout()" class="btn btn-secondary">로그아웃</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- 상품 섹션 -->
             <div class="section">
                 <div class="section-header">
                     <h2 class="section-title">상품</h2>
-                    <a href="/enter" class="section-link">상품 등록하기</a>
+                    <div class="section-controls">
+                        <button id="filter-liked-btn" class="filter-btn" onclick="toggleLikedFilter()">
+                            <span class="heart-icon">♥</span> 좋아요만 보기
+                        </button>
+                        <a href="/enter" class="section-link">상품 등록하기</a>
+                    </div>
                 </div>
 
                 <!-- 상품이 있을 때 -->
-                <div th:if="${products != null and !products.isEmpty()}" class="grid-container">
+                <div th:if="${products != null and !products.isEmpty()}" class="grid-container" id="products-grid">
                     <div th:each="product : ${products}" class="card"
                          th:data-product-no="${product.productNo}"
                          onclick="goToProduct(this)">
+
+                        <!-- 좋아요 버튼 -->
+                        <button class="like-btn-card" th:data-product-no="${product.productNo}" onclick="toggleLikeFromMain(event, this)">
+                            <span class="heart">♡</span>
+                        </button>
 
                         <div class="card-image">
                             <img th:if="${product.imageUrls != null and !product.imageUrls.isEmpty()}"
@@ -80,21 +79,16 @@
                         <div class="card-content">
                             <div class="card-subtitle" th:text="${product.brandName}">브랜드명</div>
                             <div class="card-title" th:text="${product.productName}">상품명</div>
-                            <div class="card-tag" th:text="${product.subCategory}">카테고리</div>
+                            <div class="card-tag" th:text="${product.subCategory != null ? product.subCategory : '카테고리'}">카테고리</div>
                             <div class="card-price" th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'">
                                 가격
                             </div>
 
-                            <!-- 좋아요 및 리뷰 통계 -->
-                            <!-- index.html의 card-stats 부분 수정 -->
                             <div class="card-stats">
-                                <!-- 좋아요 개수 -->
                                 <div class="stat-item">
                                     <span class="icon heart-icon">♥</span>
                                     <span th:text="${product.likeCount}">0</span>
                                 </div>
-
-                                <!-- 리뷰 개수만 (평점 없이) -->
                                 <div class="stat-item">
                                     <span class="icon star-icon">★</span>
                                     <span th:text="'리뷰 ' + ${product.reviewCount} + '개'">리뷰 0개</span>
@@ -102,6 +96,12 @@
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- 좋아요 필터링 시 빈 상태 -->
+                <div id="no-liked-products" class="empty-state" style="display: none;">
+                    <p>좋아요한 상품이 없습니다.</p>
+                    <button class="btn btn-primary" onclick="toggleLikedFilter()">전체 상품 보기</button>
                 </div>
 
                 <!-- 상품이 없을 때 -->
@@ -113,16 +113,11 @@
         </div>
     </div>
 </main>
+
 <footer th:replace="~{common/footer.html :: footer}"></footer>
 
-<script>
-    function goToProduct(element) {
-        const productNo = element.getAttribute('data-product-no');
-        if (productNo) {
-            location.href = '/products/' + productNo;
-        }
-    }
-</script>
+<!-- JavaScript 파일 -->
+<script src="/js/main/main.js"></script>
 
 </body>
 </html>

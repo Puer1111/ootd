@@ -106,7 +106,9 @@
             <!-- 구매 버튼들 -->
             <div class="action-buttons">
                 <button class="btn btn-primary btn-large">장바구니</button>
-                <button class="btn btn-secondary btn-large">바로구매</button>
+                <!-- 주문 상태에 따라 다른 버튼 표시 -->
+                <button id="order-btn" class="btn btn-secondary btn-large" onclick="orderProduct()">주문하기</button>
+                <button id="cancel-order-btn" class="btn btn-danger btn-large" onclick="cancelOrder()" style="display: none;">주문취소</button>
             </div>
         </div>
     </div>

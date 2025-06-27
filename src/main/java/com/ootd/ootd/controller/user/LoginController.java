@@ -1,8 +1,12 @@
 package com.ootd.ootd.controller.user;
 
+import com.ootd.ootd.model.dto.product.ProductDTO;
 import com.ootd.ootd.model.entity.user.User;
+import com.ootd.ootd.repository.product.ProductLikeRepository;
+import com.ootd.ootd.repository.product.ProductReviewRepository;
 import com.ootd.ootd.repository.user.UserRepository;
 import com.ootd.ootd.security.JwtTokenProvider;
+import com.ootd.ootd.service.product.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +16,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import com.ootd.ootd.repository.order.UserOrderRepository;
+import com.ootd.ootd.model.entity.order.UserOrder;
+import com.ootd.ootd.repository.order.UserOrderRepository;
+
+
+
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -27,6 +40,20 @@ public class LoginController {
 
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
+
+    @Autowired
+    private ProductLikeRepository productLikeRepository;
+
+    @Autowired
+    private ProductReviewRepository productReviewRepository;
+
+    @Autowired
+    private ProductService productService;
+
+    @Autowired
+    private UserOrderRepository userOrderRepository;
+
+
 
     // 로그인 페이지 보여주기
     @GetMapping("/login")
@@ -45,15 +72,12 @@ public class LoginController {
             String email = loginRequest.get("email");
             String password = loginRequest.get("password");
 
-            // 이메일로 사용자 찾기
             Optional<User> userOptional = userRepository.findByEmail(email);
 
             if (userOptional.isPresent()) {
                 User user = userOptional.get();
 
-                // 비밀번호 검증
                 if (passwordEncoder.matches(password, user.getPassword())) {
-                    // JWT 토큰 생성 (email 기준)
                     String token = jwtTokenProvider.createToken(user.getEmail(), user.getRoles());
 
                     response.put("success", true);
@@ -86,12 +110,17 @@ public class LoginController {
 
     @GetMapping("/mypage")
     public String goPage(Model model) {
-        // ✅ JWT 토큰 체크 제거 - JavaScript에서 처리
         System.out.println("마이페이지 접근 - 페이지 로드");
         return "view/user/mypage";
     }
 
+    @GetMapping("/liked-products")
+    public String likedProducts() {
+        return "view/product/likedProducts";
+    }
+
     @GetMapping("/api/auth/mypage")
+    @ResponseBody
     public ResponseEntity<?> myPage(@AuthenticationPrincipal UserDetails userDetails) {
         try {
             if (userDetails == null) {
@@ -99,9 +128,7 @@ public class LoginController {
                         .body(Map.of("success", false, "message", "인증되지 않은 사용자입니다."));
             }
 
-            // 실제 사용자 정보 조회 (email로 검색)
-            User user = userRepository.findByEmail(userDetails.getUsername())
-                    .orElse(null);
+            User user = userRepository.findByEmail(userDetails.getUsername()).orElse(null);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -116,7 +143,7 @@ public class LoginController {
                 userInfo.put("username", userDetails.getUsername());
                 userInfo.put("email", userDetails.getUsername());
                 userInfo.put("name", "사용자");
-                userInfo.put("phone", user.getPhone());
+                userInfo.put("phone", "정보 없음");
             }
 
             response.put("user", userInfo);
@@ -127,8 +154,6 @@ public class LoginController {
                     .body(Map.of("success", false, "message", "서버 오류가 발생했습니다."));
         }
     }
-
-    // LoginController.java에 추가할 메서드
 
     @PostMapping("/api/auth/change-password")
     @ResponseBody
@@ -141,27 +166,12 @@ public class LoginController {
                 response.put("success", false);
                 response.put("message", "인증되지 않은 사용자입니다.");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-                // ← 여기서 메서드 종료 아래 코드는 실행 안 됨
             }
 
-//            1. 사용자가 토큰 없이 /api/auth/change-password 호출
-//            2. Spring Security가 userDetails를 null로 설정
-//            3. if (userDetails == null) ← true
-//            4. response에 {"success": false, "message": "인증되지 않은 사용자입니다."} 넣음
-//            5. 401 Unauthorized 응답하고 메서드 종료
-            // 위는 실패 아래는 성공
-//            1. 사용자가 JWT 토큰과 함께 요청
-//            2. Spring Security가 토큰 검증 후 userDetails 객체 생성
-//            3. if (userDetails == null) ← false
-//            4. 아래 비밀번호 변경 로직 계속 실행
-//            5. 성공하면 {"success": true, "message": "성공"} 응답
-
-            // ← userDetails가 null이 아니면 여기부터 계속 실행
             String currentPassword = passwordRequest.get("currentPassword");
             String newPassword = passwordRequest.get("newPassword");
             String confirmPassword = passwordRequest.get("confirmPassword");
 
-            // 입력값 검증
             if (currentPassword == null || newPassword == null || confirmPassword == null) {
                 response.put("success", false);
                 response.put("message", "모든 필드를 입력해주세요.");
@@ -180,9 +190,7 @@ public class LoginController {
                 return ResponseEntity.badRequest().body(response);
             }
 
-            // 현재 사용자 조회
-            User user = userRepository.findByEmail(userDetails.getUsername())
-                    .orElse(null);
+            User user = userRepository.findByEmail(userDetails.getUsername()).orElse(null);
 
             if (user == null) {
                 response.put("success", false);
@@ -190,14 +198,12 @@ public class LoginController {
                 return ResponseEntity.badRequest().body(response);
             }
 
-            // 현재 비밀번호 확인
             if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
                 response.put("success", false);
                 response.put("message", "현재 비밀번호가 올바르지 않습니다.");
                 return ResponseEntity.badRequest().body(response);
             }
 
-            // 새 비밀번호 암호화 및 저장
             String encodedNewPassword = passwordEncoder.encode(newPassword);
             user.setPassword(encodedNewPassword);
             userRepository.save(user);
@@ -212,4 +218,200 @@ public class LoginController {
             return ResponseEntity.internalServerError().body(response);
         }
     }
+
+    @GetMapping("/api/auth/liked-products")
+    @ResponseBody
+    public ResponseEntity<?> getUserLikedProducts(@AuthenticationPrincipal UserDetails userDetails) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            if (userDetails == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+
+            User user = userRepository.findByEmail(userDetails.getUsername())
+                    .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
+
+            List<Long> likedProductNos = productLikeRepository.findProductNosByUserId(user.getId());
+
+            List<ProductDTO> likedProducts = new ArrayList<>();
+            for (Long productNo : likedProductNos) {
+                ProductDTO product = productService.getProductById(productNo);
+                if (product != null) {
+                    product.setLikeCount(productLikeRepository.countByProductNo(productNo));
+                    if (productReviewRepository != null) {
+                        product.setReviewCount(productReviewRepository.countByProductNo(productNo));
+                        Double avgRating = productReviewRepository.findAverageRatingByProductNo(productNo);
+                        product.setAverageRating(avgRating != null ? avgRating : 0.0);
+                    }
+                    likedProducts.add(product);
+                }
+            }
+
+            response.put("success", true);
+            response.put("likedProducts", likedProducts);
+            response.put("totalCount", likedProducts.size());
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "좋아요 상품 목록을 가져오는 중 오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    // 주문 내역 페이지
+    @GetMapping("/order-history")
+    public String orderHistory() {
+        return "view/user/orderHistory";
+    }
+
+    // 주문 내역 API (좋아요 목록과 완전히 동일)
+    @GetMapping("/api/auth/order-history")
+    @ResponseBody
+    public ResponseEntity<?> getUserOrderHistory(@AuthenticationPrincipal UserDetails userDetails) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            if (userDetails == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+
+            User user = userRepository.findByEmail(userDetails.getUsername())
+                    .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
+
+            // 주문한 상품 번호 목록 (좋아요와 완전히 동일)
+            List<Long> orderedProductNos = userOrderRepository.findProductNosByUserId(user.getId());
+
+            List<ProductDTO> orderedProducts = new ArrayList<>();
+            for (Long productNo : orderedProductNos) {
+                ProductDTO product = productService.getProductById(productNo);
+                if (product != null) {
+                    product.setLikeCount(productLikeRepository.countByProductNo(productNo));
+                    if (productReviewRepository != null) {
+                        product.setReviewCount(productReviewRepository.countByProductNo(productNo));
+                        Double avgRating = productReviewRepository.findAverageRatingByProductNo(productNo);
+                        product.setAverageRating(avgRating != null ? avgRating : 0.0);
+                    }
+                    orderedProducts.add(product);
+                }
+            }
+
+            response.put("success", true);
+            response.put("orderedProducts", orderedProducts);
+            response.put("totalCount", orderedProducts.size());
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "주문 내역을 가져오는 중 오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    // 취소 내역 페이지
+    @GetMapping("/cancel-history")
+    public String cancelHistory() {
+        return "view/user/cancelHistory";
+    }
+
+    // 취소 내역 API
+    @GetMapping("/api/auth/cancel-history")
+    @ResponseBody
+    public ResponseEntity<?> getUserCancelHistory(@AuthenticationPrincipal UserDetails userDetails) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            if (userDetails == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+
+            User user = userRepository.findByEmail(userDetails.getUsername())
+                    .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
+
+            // 취소한 상품 번호 목록
+            List<Long> cancelledProductNos = userOrderRepository.findCancelledProductNosByUserId(user.getId());
+
+            List<ProductDTO> cancelledProducts = new ArrayList<>();
+            for (Long productNo : cancelledProductNos) {
+                ProductDTO product = productService.getProductById(productNo);
+                if (product != null) {
+                    product.setLikeCount(productLikeRepository.countByProductNo(productNo));
+                    if (productReviewRepository != null) {
+                        product.setReviewCount(productReviewRepository.countByProductNo(productNo));
+                        Double avgRating = productReviewRepository.findAverageRatingByProductNo(productNo);
+                        product.setAverageRating(avgRating != null ? avgRating : 0.0);
+                    }
+                    cancelledProducts.add(product);
+                }
+            }
+
+            response.put("success", true);
+            response.put("cancelledProducts", cancelledProducts);
+            response.put("totalCount", cancelledProducts.size());
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "취소 내역을 가져오는 중 오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    // 주문 취소 API (주문내역에서)
+    @PostMapping("/api/auth/cancel-order/{orderId}")
+    @ResponseBody
+    public ResponseEntity<?> cancelOrderById(@PathVariable Long orderId,
+                                             @AuthenticationPrincipal UserDetails userDetails) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            if (userDetails == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+
+            User user = userRepository.findByEmail(userDetails.getUsername())
+                    .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
+
+            Optional<UserOrder> orderOpt = userOrderRepository.findByIdAndUserId(orderId, user.getId());
+
+            if (orderOpt.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "주문을 찾을 수 없습니다");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            UserOrder order = orderOpt.get();
+            if (order.getStatus() != UserOrder.OrderStatus.ORDERED) {
+                response.put("success", false);
+                response.put("message", "이미 처리된 주문입니다");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            order.cancel();
+            userOrderRepository.save(order);
+
+            response.put("success", true);
+            response.put("message", "주문이 취소되었습니다");
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "주문 취소 중 오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
 }

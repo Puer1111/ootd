@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>좋아요 상품목록 - OOTD</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <!-- CSS 파일들 -->
+  <link rel="stylesheet" th:href="@{/css/common/footer.css}">
+  <link rel="stylesheet" th:href="@{/css/common/header.css}">
+  <link rel="stylesheet" th:href="@{/css/common/layout.css}">
+  <link rel="stylesheet" th:href="@{/css/product/likedProducts.css}">
+
+  <!-- 로그인 인증 체크 -->
+  <script src="/js/user/mypageNotLogin.js"></script>
+</head>
+<body>
+
+<!-- 로딩 화면 -->
+<div id="auth-loading">
+  <div class="loading-content">
+    <div class="spinner"></div>
+    <p>로그인 확인 중...</p>
+  </div>
+</div>
+
+<!-- 공통 헤더 -->
+<header th:replace="~{common/header.html :: header}"></header>
+
+<div class="liked-products-container">
+  <!-- 페이지 헤더 -->
+  <div class="page-header">
+    <h1 class="page-title">좋아요 상품목록</h1>
+    <p class="page-subtitle">내가 좋아요를 누른 상품들을 모아보세요</p>
+    <div class="stats-info">
+      <span class="total-count">총 <span id="total-count">0</span>개의 상품</span>
+    </div>
+  </div>
+
+  <!-- 로딩 상태 -->
+  <div id="loading-state" class="loading">
+    <div class="spinner"></div>
+    <p>좋아요 상품을 불러오는 중...</p>
+  </div>
+
+  <!-- 상품 목록 -->
+  <div id="products-container" style="display: none;">
+    <div id="products-grid" class="products-grid">
+      <!-- 상품들이 여기에 동적으로 추가됩니다 -->
+    </div>
+  </div>
+
+  <!-- 빈 상태 -->
+  <div id="empty-state" class="empty-state" style="display: none;">
+    <div class="empty-icon">♡</div>
+    <h2 class="empty-title">좋아요한 상품이 없습니다</h2>
+    <p class="empty-message">마음에 드는 상품에 좋아요를 눌러보세요!</p>
+    <a href="/" class="btn btn-primary">상품 둘러보기</a>
+  </div>
+
+  <!-- 에러 상태 -->
+  <div id="error-state" class="empty-state" style="display: none;">
+    <div class="empty-icon">⚠️</div>
+    <h2 class="empty-title">오류가 발생했습니다</h2>
+    <p class="empty-message">좋아요 상품을 불러올 수 없습니다.</p>
+    <button class="btn btn-primary" onclick="loadLikedProducts()">다시 시도</button>
+  </div>
+
+  <!-- 뒤로가기 버튼 -->
+  <div class="back-button">
+    <a href="/mypage" class="btn btn-outline">← 마이페이지로 돌아가기</a>
+  </div>
+</div>
+
+<!-- 공통 푸터 -->
+<footer th:replace="~{common/footer.html :: footer}"></footer>
+
+<script src="/js/product/likedProducts.js"></script>
+
+</body>
+</html>

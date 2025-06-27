@@ -210,4 +210,34 @@ window.onclick = function(event) {
     if (event.target === modal) {
         closePasswordModal();
     }
+
+
+}
+document.addEventListener('DOMContentLoaded', function() {
+    loadUserInfo();
+    document.getElementById('logoutBtn').addEventListener('click', logout);
+    document.getElementById('passwordChangeForm').addEventListener('submit', changePassword);
+
+    // ✅ 좋아요 상품목록 이벤트 리스너 추가
+    const likedProductsMenu = document.querySelector('.menu-item[onclick="goToLikedProducts()"]');
+    if (likedProductsMenu) {
+        likedProductsMenu.addEventListener('click', function() {
+            console.log('좋아요 상품목록 클릭됨!');
+            goToLikedProducts();
+        });
+        // onclick 속성 제거 (중복 방지)
+        likedProductsMenu.removeAttribute('onclick');
+    }
+});
+
+function goToLikedProducts() {
+    window.location.href = '/liked-products';
+}
+
+function goToOrderHistory() {
+    window.location.href = '/order-history';
+}
+
+function goToCancelHistory() {
+    window.location.href = '/cancel-history';
 }
