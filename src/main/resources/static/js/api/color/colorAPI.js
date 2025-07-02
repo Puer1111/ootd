@@ -55,7 +55,7 @@ export const colors ={
         },
 
     getColorSelect() {
-        return document.querySelectorAll('select[name="colorsNo"]');  // name으로 변경
+        return document.querySelector('select[name="colorsNo"]');  // name으로 변경
     },
 
 }

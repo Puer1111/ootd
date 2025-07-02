@@ -79,10 +79,11 @@ public class SecurityConfig {
                                 "/validation/{imp_uid}", // 결제 검증
                                 "/api/getImpUid",        // 고객 번호 조회
                                 "/payments/cancel/{imp_uid}", // 결제 취소
-                                "/cart" , // 장바구니 페이지
-                                "/cart/add" // 장바구니 담기
-
-
+                                "/cart", // 장바구니 페이지
+                                "/cart/add", // 장바구니 담기
+                                "/admin/coupon", // 관리자 쿠폰
+                                "/api/coupon/insert" , // 쿠폰 등록 api
+                                "/api/categories" // 카테고리 전체 조회
                         ).permitAll()                // 인증 없이 접근 허용
 
                         // ✅ 로그인이 필요한 경로들

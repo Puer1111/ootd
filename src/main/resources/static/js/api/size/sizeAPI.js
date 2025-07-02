@@ -226,8 +226,9 @@ export const size = {
         </div>
         <div>
             <select name="colorsNo" id="product-color">
-                <option value="ChoiceColor">-- 색깔 선택 --</option>
+                <option value="ChoiceColor"> 색깔 선택 </option>
             </select>
+            <span style="margin-left:5px; flex:2;"><button type="button" id="add-color-btn" style="width:30px; height:30px;">+</button></span>
         </div>
         <div>
             <input type="number" name="inventory" placeholder="10" min="0" required id="inventory">

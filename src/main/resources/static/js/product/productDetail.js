@@ -1,3 +1,5 @@
+
+
 // 기존 캐러셸 관련 변수들
 let currentSlide = 0;
 let totalSlides = 0;
@@ -702,21 +704,21 @@ function resetReviewForm() {
     });
 }
 
-// 수량 조절
-document.addEventListener('DOMContentLoaded', function() {
-    const minusBtn = document.getElementById('minus');
-    const plusBtn = document.getElementById('plus');
-    const quantity = document.getElementById('quantity');
-
-    minusBtn.onclick = function(){
-        let current = parseInt(quantity.value) || 1;
-        if(current > 1){
-            quantity.value = current - 1;
-        }
-    };
-
-    plusBtn.onclick = function(){
-        let current = parseInt(quantity.value) || 1;
-        quantity.value = current + 1;
-    };
-});
+// // 수량 조절
+// document.addEventListener('DOMContentLoaded', function() {
+//     const minusBtn = document.getElementById('minus');
+//     const plusBtn = document.getElementById('plus');
+//     const quantity = document.getElementById('quantity');
+//
+//     minusBtn.onclick = function(){
+//         let current = parseInt(quantity.value) || 1;
+//         if(current > 1){
+//             quantity.value = current - 1;
+//         }
+//     };
+//
+//     plusBtn.onclick = function(){
+//         let current = parseInt(quantity.value) || 1;
+//         quantity.value = current + 1;
+//     };
+// });

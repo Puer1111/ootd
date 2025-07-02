@@ -105,7 +105,7 @@
 
             <!-- 구매 버튼들 -->
             <div class="action-buttons">
-                <button class="btn btn-primary btn-large">장바구니</button>
+                <button class="btn btn-primary btn-large" id="add-cart-btn">장바구니</button>
                 <!-- 주문 상태에 따라 다른 버튼 표시 -->
                 <button id="order-btn" class="btn btn-secondary btn-large" onclick="orderProduct()">주문하기</button>
                 <button id="cancel-order-btn" class="btn btn-danger btn-large" onclick="cancelOrder()" style="display: none;">주문취소</button>
@@ -201,6 +201,6 @@
 <footer th:replace="~{common/footer.html :: footer}"></footer>
 
 <script src="/js/product/productDetail.js"></script>
-
+<script src="/js/api/cart/cartAPI.js"></script>
 </body>
 </html>

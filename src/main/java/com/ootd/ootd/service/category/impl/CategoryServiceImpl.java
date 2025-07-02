@@ -18,8 +18,7 @@ import java.util.Map;
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
-    @Autowired
-    private CategoryRepository categoryRepository;
+    private final CategoryRepository categoryRepository;
 
     public CategoryServiceImpl(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
@@ -66,5 +65,10 @@ public class CategoryServiceImpl implements CategoryService {
             categoryList.add(categoryMap);
         });
         return categoryList;
+    }
+
+    @Override
+    public List<Category> getAllCategories() {
+        return categoryRepository.findAll();
     }
 }

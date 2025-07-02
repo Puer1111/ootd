@@ -362,16 +362,16 @@ input[name="productName"]:focus {
 }
 
 
-#add-color-btn{
-    background-color: #f1f1f1;
-    color: #555;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 10px 15px;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
+/*#add-color-btn{*/
+/*    background-color: #f1f1f1;*/
+/*    color: #555;*/
+/*    border: 1px solid #ddd;*/
+/*    border-radius: 4px;*/
+/*    padding: 10px 15px;*/
+/*    font-size: 13px;*/
+/*    cursor: pointer;*/
+/*    transition: all 0.2s ease;*/
+/*}*/
 
 /* 등록 버튼 */
 .register {
@@ -455,7 +455,7 @@ input:focus, select:focus, textarea:focus {
 
 .size-item, .size-header {
     display: grid;
-    grid-template-columns: 120px 140px 140px 100px 120px 60px; /* 사이즈, 가격, 색깔, 재고, 상태, 삭제 */
+    grid-template-columns: 120px 140px 200px 100px 120px 60px; /* 사이즈, 가격, 색깔, 재고, 상태, 삭제 */
     gap: 15px;
     align-items: center;
     padding: 12px;

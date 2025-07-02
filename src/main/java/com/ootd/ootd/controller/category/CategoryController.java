@@ -48,6 +48,11 @@ public class CategoryController {
 //        }
 //    }
 
+    @GetMapping("/api/categories")
+    public ResponseEntity<List<Category>> getAllCategories() {
+        return ResponseEntity.ok(categoryService.getAllCategories());
+    }
+
     @PostMapping("/api/search/category")
     public ResponseEntity<?> searchByMain(@RequestParam("mainCategory") String mainCategory) {
         List<Map<String, Object>> subCategories = categoryService.findByMainCategory(mainCategory);
