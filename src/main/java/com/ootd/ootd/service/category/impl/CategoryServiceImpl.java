@@ -26,18 +26,22 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    //TODO 등록시 : 중복 체크 확인 안했음.
     public CategoryDTO registerCategory(CategoryDTO dto) {
-        try{
+        try {
+            // 중복 체크: subCategory가 이미 존재하는지 확인
+            if (categoryRepository.findBySubCategory(dto.getSubCategory()).isPresent()) {
+                throw new IllegalArgumentException("SubCategory '" + dto.getSubCategory() + "' already exists.");
+            }
+
             Long categoryNo = Long.parseLong(RandomGenerate.generateRandom10Digits());
             dto.setCategoryNo(categoryNo);
             Category category = CategoryDTO.convertToEntity(dto);
             Category categoryEntity = categoryRepository.save(category);
             return CategoryDTO.convertToDTO(categoryEntity);
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             System.out.println("categoryServiceImpl: " + e.getMessage());
-            return null;
+            throw e; // 예외를 다시 던져서 상위 계층에서 처리할 수 있도록 함
         }
     }
 

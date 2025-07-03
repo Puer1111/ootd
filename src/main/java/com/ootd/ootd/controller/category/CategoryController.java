@@ -24,12 +24,11 @@ public class CategoryController {
 
     @PostMapping("/api/register/category")
     public ResponseEntity<?> registerCategory(@RequestBody CategoryDTO dto) {
-
         try {
             CategoryDTO categoryDTO = categoryService.registerCategory(dto);
             return ResponseEntity.ok(categoryDTO);
         } catch (Exception e) {
-            System.out.println("Insert cateGory error : " + e.getMessage());
+            System.out.println("Insert CateGory error : " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", e.getMessage()));
         }

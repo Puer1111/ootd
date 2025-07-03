@@ -17,7 +17,7 @@ public class Colors {
     @Column(name="colors_no" , length = 255 , nullable = false)
     private Long colorsNo;
 
-    @Column(name ="colors_name" , nullable = false)
+    @Column(name ="colors_name" , nullable = false, unique = true)
     private String colorName;
 }
 //
