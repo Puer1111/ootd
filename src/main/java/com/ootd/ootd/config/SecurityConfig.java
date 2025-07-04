@@ -83,9 +83,7 @@ public class SecurityConfig {
                                 "/cart/add", // 장바구니 담기
                                 "/admin/coupon", // 관리자 쿠폰
                                 "/api/coupon/insert" , // 쿠폰 등록 api
-                                "/api/categories", // 카테고리 전체 조회
-                                "/api/reviews/my-reviews",           // 리뷰 페이지 (페이지 접근)
-                                "/products/*/after-reviews"        // 구매 후기 목록 조회 (누구나 가능)
+                                "/api/categories" // 카테고리 전체 조회
                         ).permitAll()                // 인증 없이 접근 허용
 
                         // ✅ 로그인이 필요한 경로들
@@ -102,12 +100,7 @@ public class SecurityConfig {
                                 "/api/auth/liked-products",
                                 "/api/auth/order-history",    // 주문 내역 API
                                 "/api/auth/cancel-history",   // 취소 내역 API
-                                "/api/auth/cancel-order/*",    // 주문 취소 API (ID별)
-                                "/api/auth/user-stats",              //  사용자 통계 API
-                                "/products/*/after-review",          //  구매 후기 작성 (인증 필요)
-                                "/products/*/after-review-permission", // 구매 후기 권한 확인 (인증 필요)
-                                "/api/reviews/my-reviews-data",      //  리뷰 데이터 API (인증 필요)
-                                "/api/reviews/**"                    //  리뷰 관련 API (인증 필요)
+                                "/api/auth/cancel-order/*"    // 주문 취소 API (ID별)
                         ).authenticated()           // JWT 인증 필요
 
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
