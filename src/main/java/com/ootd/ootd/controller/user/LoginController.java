@@ -1,7 +1,9 @@
 package com.ootd.ootd.controller.user;
 
 import com.ootd.ootd.model.dto.product.ProductDTO;
+import com.ootd.ootd.model.entity.category.Category;
 import com.ootd.ootd.model.entity.user.User;
+import com.ootd.ootd.repository.category.CategoryRepository;
 import com.ootd.ootd.repository.product.ProductLikeRepository;
 import com.ootd.ootd.repository.product.ProductReviewRepository;
 import com.ootd.ootd.repository.user.UserRepository;
@@ -53,6 +55,9 @@ public class LoginController {
 
     @Autowired
     private UserOrderRepository userOrderRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
 
 
 
@@ -288,13 +293,11 @@ public class LoginController {
             User user = userRepository.findByEmail(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
 
-            // Repository 메소드로 주문 정보 조회
             List<UserOrder> userOrders;
             try {
                 userOrders = userOrderRepository.findByUserIdAndStatusOrderByCreatedAtDesc(
                         user.getId(), UserOrder.OrderStatus.ORDERED);
             } catch (Exception e) {
-                // 대안 방법: 모든 주문을 가져와서 필터링
                 userOrders = userOrderRepository.findAll().stream()
                         .filter(order -> order.getUserId().equals(user.getId()) &&
                                 order.getStatus() == UserOrder.OrderStatus.ORDERED)
@@ -307,15 +310,19 @@ public class LoginController {
             for (UserOrder order : userOrders) {
                 ProductDTO product = productService.getProductById(order.getProductNo());
                 if (product != null) {
-                    // 상품 기본 정보 설정
-                    product.setLikeCount(productLikeRepository.countByProductNo(order.getProductNo()));
-                    if (productReviewRepository != null) {
-                        product.setReviewCount(productReviewRepository.countByProductNo(order.getProductNo()));
-                        Double avgRating = productReviewRepository.findAverageRatingByProductNo(order.getProductNo());
-                        product.setAverageRating(avgRating != null ? avgRating : 0.0);
+                    // 🔥 카테고리 정보 조회 추가
+                    String categoryName = "카테고리";
+                    String subCategoryName = "하위카테고리";
+
+                    if (product.getCategoryNo() != null) {
+                        Optional<Category> categoryOpt = categoryRepository.findById(product.getCategoryNo());
+                        if (categoryOpt.isPresent()) {
+                            Category category = categoryOpt.get();
+                            categoryName = category.getMainCategory();
+                            subCategoryName = category.getSubCategory();
+                        }
                     }
 
-                    // 주문 정보와 상품 정보를 합친 Map 생성
                     Map<String, Object> orderWithProduct = new HashMap<>();
 
                     // 상품 정보
@@ -324,10 +331,10 @@ public class LoginController {
                     orderWithProduct.put("price", product.getPrice());
                     orderWithProduct.put("imageUrls", product.getImageUrls());
                     orderWithProduct.put("brandName", product.getBrandName());
-                    orderWithProduct.put("subCategory", product.getSubCategory());
-                    orderWithProduct.put("likeCount", product.getLikeCount());
-                    orderWithProduct.put("reviewCount", product.getReviewCount());
-                    orderWithProduct.put("averageRating", product.getAverageRating());
+
+                    // 🔥 카테고리 정보 추가
+                    orderWithProduct.put("categoryName", categoryName);
+                    orderWithProduct.put("subCategory", subCategoryName);
 
                     // 주문 정보 추가
                     orderWithProduct.put("orderId", order.getId());
