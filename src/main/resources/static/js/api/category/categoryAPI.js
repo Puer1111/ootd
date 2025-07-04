@@ -80,12 +80,9 @@ export const categoryAPI = {
     lookupByMain() {
         const mainCategory = this.getCategorySelect().first.value;
         const categorySelect = this.getCategorySelect().second;
-        const formData = new FormData();
 
-        formData.append('mainCategory',mainCategory);
-        fetch('/api/search/category', {
-            method: 'POST',
-            body: formData
+        fetch(`/api/search/category?mainCategory=${mainCategory}`, {
+            method: 'GET'
         })
             .then(response => response.json())
             .then(subCategories => {

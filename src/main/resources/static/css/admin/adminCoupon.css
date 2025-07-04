@@ -1,0 +1,54 @@
+/* adminCoupon.css */
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* 각 폼 요소들 사이의 간격 */
+    max-width: 500px; /* 폼의 최대 너비 설정 (선택 사항) */
+    margin-bottom: 30px; /* 각 폼 아래 여백 */
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+form div.form-group, /* 필요한 경우 폼 그룹을 위한 스타일 */
+form label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+form label {
+    width: 120px; /* 라벨의 고정 너비 */
+    flex-shrink: 0; /* 라벨이 줄어들지 않도록 */
+    margin-right: 10px; /* 라벨과 입력 필드 사이 간격 */
+    text-align: right; /* 라벨 텍스트 오른쪽 정렬 */
+}
+
+form input[type="text"],
+form input[type="number"],
+form input[type="date"],
+form select {
+    flex-grow: 1; /* 입력 필드가 남은 공간을 채우도록 */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* 패딩과 보더가 너비에 포함되도록 */
+}
+
+form button[type="submit"] {
+    align-self: flex-end; /* 버튼을 오른쪽으로 정렬 */
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+form button[type="submit"]:hover {
+    background-color: #0056b3;
+}

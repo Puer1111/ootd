@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/css/common/admin/admin_footer.css">
+    <link rel="stylesheet" href="/css/common/admin/admin_header.css">
+    <link rel="stylesheet" href="/css/common/admin/admin_layout.css">
+    <link rel="stylesheet" href="/css/common/reset.css">
+    <link rel="stylesheet" href="/css/admin/adminCoupon.css">
+</head>
+<body>
+<header th:replace="~{view/admin/css/admin_header :: admin_header}">
+</header>
+<main>
+    <div class="admin-sidebar">
+        <h2>관리자 메뉴</h2>
+        <ul>
+            <li id="coupon-management-toggle">
+                <span>쿠폰 관리</span>
+                <ul id="coupon-submenu" class="submenu">
+                    <li><a href="#" data-target-section="coupon-register-section">등록</a></li>
+                    <li><a href="#" data-target-section="coupon-modify-section">수정</a></li>
+                    <li><a href="#" data-target-section="coupon-delete-section">삭제</a></li>
+                </ul>
+            </li>
+            <li><a href="/admin/product">상품 관리</a></li>
+        </ul>
+    </div>
+    <div class="admin-content">
+        <div id="coupon-register-section">
+            <h2>쿠폰 등록</h2>
+            <form id="coupon-form">
+                <label for="couponName">쿠폰명:</label>
+                <input type="text" id="couponName" name="couponName" required><br>
+
+                <label for="mainCategory">카테고리:</label>
+                <div style="display:flex; gap:10px; width:100%;">
+                    <select id="mainCategory" name="mainCategory" required>
+                        <option value="">-- 대분류 선택 --</option>
+                        <option value="top">상의</option>
+                        <option value="bottom">하의</option>
+                        <option value="shoes">신발</option>
+                    </select>
+                    <select id="subCategory" name="subCategory" required>
+                        <option value="">-- 소분류 선택 --</option>
+                    </select>
+                </div><br>
+
+                <label for="discountRate">할인율:</label>
+                <input type="number" id="discountRate" name="discountRate" required><br>
+
+                <label for="quantity">수량:</label>
+                <input type="number" id="quantity" name="quantity" required><br>
+
+                <label for="expirationDate">유효 기간:</label>
+                <input type="date" id="expirationDate" name="expirationDate" required><br>
+
+                <label for="receiveLimit">수령 제한:</label>
+                <input type="number" id="receiveLimit" name="receiveLimit" required><br>
+
+                <label for="usageLimit">사용 개수 제한:</label>
+                <input type="number" id="usageLimit" name="usageLimit" required><br>
+
+                <button type="submit">쿠폰 등록</button>
+            </form>
+        </div>
+        <div id="coupon-modify-section" style="display:none;">
+            <h2>쿠폰 수정</h2>
+            <form id="coupon-modify-form">
+                <label for="modifyCouponId">쿠폰 ID:</label>
+                <input type="number" id="modifyCouponId" name="couponId" required><br>
+
+                <label for="modifyCouponName">쿠폰명:</label>
+                <input type="text" id="modifyCouponName" name="couponName" required><br>
+
+                <label for="modifyMainCategory">카테고리:</label>
+                <div style="display:flex; gap:10px; width:100%;">
+                    <select id="modifyMainCategory" name="mainCategory" required>
+                        <option value="">-- 대분류 선택 --</option>
+                        <option value="top">상의</option>
+                        <option value="bottom">하의</option>
+                        <option value="shoes">신발</option>
+                    </select>
+                    <select id="modifySubCategory" name="subCategory" required>
+                        <option value="">-- 소분류 선택 --</option>
+                    </select>
+                </div><br>
+
+                <label for="modifyDiscountRate">할인율:</label>
+                <input type="number" id="modifyDiscountRate" name="discountRate" required><br>
+
+                <label for="modifyQuantity">수량:</label>
+                <input type="number" id="modifyQuantity" name="quantity" required><br>
+
+                <label for="modifyExpirationDate">유효 기간:</label>
+                <input type="date" id="modifyExpirationDate" name="expirationDate" required><br>
+
+                <label for="modifyReceiveLimit">수령 제한:</label>
+                <input type="number" id="modifyReceiveLimit" name="receiveLimit" required><br>
+
+                <label for="modifyUsageLimit">사용 개수 제한:</label>
+                <input type="number" id="modifyUsageLimit" name="usageLimit" required><br>
+
+                <button type="submit">쿠폰 수정</button>
+            </form>
+        </div>
+        <div id="coupon-delete-section" style="display:none;">
+            <h2>쿠폰 삭제</h2>
+            <form id="coupon-delete-form">
+                <label for="deleteCouponId">쿠폰 ID:</label>
+                <input type="number" id="deleteCouponId" name="couponId" required><br>
+
+                <button type="submit">쿠폰 삭제</button>
+            </form>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{view/admin/css/admin_footer :: admin_footer}"></footer>
+
+<script src="/js/admin/adminCoupon.js"></script>
+</body>
+</html>

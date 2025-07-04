@@ -11,6 +11,6 @@ public class AdminController {
     // 쿠폰 관리자 페이지
     @GetMapping("/coupon")
     public String adminCouponPage() {
-        return "view/admin/adminCoupon";
+        return "view/admin/coupon/adminCoupon";
     }
 }

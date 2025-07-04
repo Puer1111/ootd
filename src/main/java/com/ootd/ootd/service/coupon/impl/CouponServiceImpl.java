@@ -1,11 +1,13 @@
 package com.ootd.ootd.service.coupon.impl;
 
 import com.ootd.ootd.model.dto.coupon.InsertCouponDTO;
+import com.ootd.ootd.model.dto.coupon.UpdateCouponDTO;
 import com.ootd.ootd.model.entity.category.Category;
 import com.ootd.ootd.model.entity.coupon.Coupon;
 import com.ootd.ootd.repository.category.CategoryRepository;
 import com.ootd.ootd.repository.coupon.CouponRepository;
 import com.ootd.ootd.service.coupon.CouponService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -31,5 +33,39 @@ public class CouponServiceImpl implements CouponService {
                 .usageLimit(insertCouponDTO.getUsageLimit())
                 .build();
         couponRepository.save(coupon);
+    }
+
+    @Override
+    public void updateCoupon(UpdateCouponDTO updateCouponDTO) {
+        Coupon existingCoupon = couponRepository.findById(updateCouponDTO.getCouponId())
+                .orElseThrow(() -> new EntityNotFoundException("Coupon not found with id: " + updateCouponDTO.getCouponId()));
+
+        Long categoryId = existingCoupon.getCategoryId();
+        if (updateCouponDTO.getSubCategory() != null) {
+            Category category = categoryRepository.findBySubCategory(updateCouponDTO.getSubCategory())
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid subCategory name: " + updateCouponDTO.getSubCategory()));
+            categoryId = category.getCategoryNo();
+        }
+
+        Coupon updatedCoupon = Coupon.builder()
+                .couponId(existingCoupon.getCouponId())
+                .couponName(updateCouponDTO.getCouponName())
+                .categoryId(categoryId)
+                .discountRate(updateCouponDTO.getDiscountRate())
+                .quantity(updateCouponDTO.getQuantity())
+                .receiveLimit(updateCouponDTO.getReceiveLimit())
+                .usageLimit(updateCouponDTO.getUsageLimit())
+                .expirationDate(updateCouponDTO.getExpirationDate())
+                .build();
+
+        couponRepository.save(updatedCoupon);
+    }
+
+    @Override
+    public void deleteCoupon(Long couponId) {
+        if (!couponRepository.existsById(couponId)) {
+            throw new EntityNotFoundException("Coupon not found with id: " + couponId);
+        }
+        couponRepository.deleteById(couponId);
     }
 }
