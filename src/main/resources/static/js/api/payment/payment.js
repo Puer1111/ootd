@@ -63,7 +63,7 @@ async function requestPay() {
             merchant_uid: data.merchantUid,
             name: data.productName,
             // amount:
-            amount: 100,
+            amount: totalPrice,
             buyer_email:"Hello@naver.com" ,
             //  buyer_email: data.email,
             // buyer_name: data.username,
