@@ -30,11 +30,15 @@ public class ColorsServiceImpl implements ColorsService {
 
     @Override
     public ColorsDTO registerColors(ColorsDTO dto) {
+        // 중복 체크: colorName이 이미 존재하는지 확인
+        if (colorsRepository.findByColorName(dto.getColorName()).isPresent()) {
+            throw new IllegalArgumentException(dto.getColorName() + "' already exists.");
+        }
+
         Long colorsNo = Long.parseLong(RandomGenerate.generateRandom10Digits());
         dto.setColorNo(colorsNo);
         Colors colorsEntity = ColorsDTO.convertToEntity(dto);
         colorsRepository.save(colorsEntity);
-//        return dto;
         return dto;
     }
 

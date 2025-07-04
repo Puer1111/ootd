@@ -6,40 +6,58 @@ export const categoryAPI = {
         }
     },
     // category 등록 함수
-    register(mainCategory, subCategory) {
+    async register(mainCategory, subCategory) {
         const categorySelect = this.getCategorySelect().second;
-        fetch('/api/register/category', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                mainCategory: mainCategory,
-                subCategory: subCategory
-            })
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('서버 응답이 올바르지 않습니다.');
-                }
-                return response.json();
-            })
-            .then(data => {
-                // 새 카테고리 선택 옵션에 추가
-                const newOption = document.createElement('option');
-                newOption.value = data.categoryNo;  // 서버에서 반환된 ID
-                newOption.textContent = data.subCategory;
-                categorySelect.appendChild(newOption);
-
-                // 새로 추가된 카테고리 선택
-                categorySelect.value = data.categoryNo;
-
-                // 성공 메시지
-                alert(`'${data.subCategory}' 카테고리가 추가되었습니다.`);
-            })
-            .catch(error => {
-                alert('카테고리 추가 중 오류가 발생했습니다: ' + error.message);
+        try {
+            const response = await fetch('/api/register/category', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    mainCategory: mainCategory,
+                    subCategory: subCategory
+                })
             });
+
+            if (!response.ok) {
+                let errorMessage = '카테고리 추가 중 오류가 발생했습니다.';
+                try {
+                    const errorJson = await response.json();
+                    if (errorJson && errorJson.message) {
+                        errorMessage = errorJson.message;
+                    } else {
+                        errorMessage = '이미 등록 된 카테고리 입니다.';
+                    }
+                } catch (jsonParseError) {
+                    // JSON 파싱 실패 시, 텍스트로 시도
+                    const errorText = await response.text();
+                    if (errorText) {
+                        errorMessage = errorText;
+                    } else {
+                        errorMessage = '서버 응답이 올바르지 않습니다.';
+                    }
+                }
+                throw new Error(errorMessage);
+            }
+
+            const data = await response.json();
+
+            // 새 카테고리 선택 옵션에 추가
+            const newOption = document.createElement('option');
+            newOption.value = data.categoryNo;  // 서버에서 반환된 ID
+            newOption.textContent = data.subCategory;
+            categorySelect.appendChild(newOption);
+
+            // 새로 추가된 카테고리 선택
+            categorySelect.value = data.categoryNo;
+
+            // 성공 메시지
+            alert(`'${data.subCategory}' 카테고리가 추가되었습니다.`);
+
+        } catch (error) {
+            alert(error.message);
+        }
     },
 
 
@@ -62,12 +80,9 @@ export const categoryAPI = {
     lookupByMain() {
         const mainCategory = this.getCategorySelect().first.value;
         const categorySelect = this.getCategorySelect().second;
-        const formData = new FormData();
 
-        formData.append('mainCategory',mainCategory);
-        fetch('/api/search/category', {
-            method: 'POST',
-            body: formData
+        fetch(`/api/search/category?mainCategory=${mainCategory}`, {
+            method: 'GET'
         })
             .then(response => response.json())
             .then(subCategories => {

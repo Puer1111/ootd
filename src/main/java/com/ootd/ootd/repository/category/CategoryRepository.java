@@ -7,10 +7,14 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+import java.util.Optional;
+
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     @Query("SELECT c.categoryNo , c.subCategory from Category c WHERE c.mainCategory=:mainCategory")
     List<Object[]> findByMain(String mainCategory);
+
+    Optional<Category> findBySubCategory(String subCategory);
 
 }

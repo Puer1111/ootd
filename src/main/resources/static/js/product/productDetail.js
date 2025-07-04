@@ -1,3 +1,5 @@
+
+
 // 기존 캐러셸 관련 변수들
 let currentSlide = 0;
 let totalSlides = 0;
@@ -663,6 +665,7 @@ function resetReviewForm() {
     });
 }
 
+
 // === 수량 조절 기능 ===
 
 // 현재 선택된 수량 가져오기
@@ -780,3 +783,6 @@ async function addToCartWithQuantity() {
         alert('오류가 발생했습니다. 다시 시도해주세요.');
     }
 }
+
+
+

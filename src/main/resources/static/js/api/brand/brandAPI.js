@@ -4,45 +4,63 @@ export const brandAPI = {
     },
 
     // brand 등록 함수
-    register(brandName,brandLogo,brandWeb) {
-        fetch('/api/register/brands', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                brandName: brandName,
-                brandLogoUrl: brandLogo,
-                brandWebSite: brandWeb
-            })
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('서버 응답이 올바르지 않습니다.');
-                }
-                return response.json();
-            })
-            .then(data => {
-                // 새 브랜드를 선택 옵션에 추가
-                const brandSelect = this.getBrandSelect();
-                const newOption = document.createElement('option');
-                const brandId = String(data.brandNo);
-
-                newOption.value = brandId;
-                // newOption.value = data.brandNo;  // 서버에서 반환된 ID
-                newOption.textContent = brandName;
-                brandSelect.appendChild(newOption);
-
-                // 새로 추가된 브랜드 선택
-                brandSelect.value = data.brandNo;
-
-                // 성공 메시지
-                alert(`'${brandName}' 브랜드가 추가되었습니다.`);
-            })
-            .catch(error => {
-                alert('브랜드 추가 중 오류가 발생했습니다: ' + error.message);
+    async register(brandName,brandLogo,brandWeb) {
+        const brandSelect = this.getBrandSelect();
+        try {
+            const response = await fetch('/api/register/brands', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    brandName: brandName,
+                    brandLogoUrl: brandLogo,
+                    brandWebSite: brandWeb
+                })
             });
+
+            if (!response.ok) {
+                let errorMessage = '브랜드 추가 중 오류가 발생했습니다.';
+                try {
+                    const errorJson = await response.json();
+                    if (errorJson && errorJson.message) {
+                        errorMessage = errorJson.message;
+                    } else {
+                        errorMessage = '이미 등록 된 브랜드 입니다.';
+                    }
+                } catch (jsonParseError) {
+                    // JSON 파싱 실패 시, 텍스트로 시도
+                    const errorText = await response.text();
+                    if (errorText) {
+                        errorMessage = errorText;
+                    } else {
+                        errorMessage = '서버 응답이 올바르지 않습니다.';
+                    }
+                }
+                throw new Error(errorMessage);
+            }
+
+            const data = await response.json();
+
+            // 새 브랜드를 선택 옵션에 추가
+            const newOption = document.createElement('option');
+            const brandId = String(data.brandNo);
+
+            newOption.value = brandId;
+            newOption.textContent = brandName;
+            brandSelect.appendChild(newOption);
+
+            // 새로 추가된 브랜드 선택
+            brandSelect.value = data.brandNo;
+
+            // 성공 메시지
+            alert(`'${brandName}' 브랜드가 추가되었습니다.`);
+
+        } catch (error) {
+            alert(error.message);
+        }
     },
+
     lookupBrand(){
         const brandSelect = this.getBrandSelect();
         fetch('/api/lookup/brands')

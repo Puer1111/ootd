@@ -5,8 +5,6 @@ document.addEventListener('DOMContentLoaded', function () {
     import('../api/app.js')
         .then(module => {
             window.api = module.api;
-            // modal initial
-            window.api.modal.init();
 
             // brand 카테고리 가져오기.
             window.api.brand.lookupBrand();
@@ -14,6 +12,9 @@ document.addEventListener('DOMContentLoaded', function () {
             // 사이즈
             window.api.size.init();
             window.api.size.bindAddSizeButton();
+
+            // modal initial
+            window.api.modal.init();
 
             // category 가져오기
             window.api.category.init();

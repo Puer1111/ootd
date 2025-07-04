@@ -24,12 +24,11 @@ public class CategoryController {
 
     @PostMapping("/api/register/category")
     public ResponseEntity<?> registerCategory(@RequestBody CategoryDTO dto) {
-
         try {
             CategoryDTO categoryDTO = categoryService.registerCategory(dto);
             return ResponseEntity.ok(categoryDTO);
         } catch (Exception e) {
-            System.out.println("Insert cateGory error : " + e.getMessage());
+            System.out.println("Insert CateGory error : " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", e.getMessage()));
         }
@@ -48,7 +47,12 @@ public class CategoryController {
 //        }
 //    }
 
-    @PostMapping("/api/search/category")
+    @GetMapping("/api/categories")
+    public ResponseEntity<List<Category>> getAllCategories() {
+        return ResponseEntity.ok(categoryService.getAllCategories());
+    }
+
+    @GetMapping("/api/search/category")
     public ResponseEntity<?> searchByMain(@RequestParam("mainCategory") String mainCategory) {
         List<Map<String, Object>> subCategories = categoryService.findByMainCategory(mainCategory);
         System.out.println("subCategories = " + subCategories);

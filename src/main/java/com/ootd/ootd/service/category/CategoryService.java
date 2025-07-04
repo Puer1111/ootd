@@ -12,4 +12,6 @@ public interface CategoryService {
 //    List<Map<String, Object>> getCategoryNoAndName();
 
     List<Map<String, Object>> findByMainCategory(String mainCategory);
+
+    List<Category> getAllCategories();
 }

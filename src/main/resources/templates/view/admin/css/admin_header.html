@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Header</title>
+    <link rel="stylesheet" href="/css/common/admin/admin_header.css">
+</head>
+<body>
+<header th:fragment="admin_header">
+    <div id="header-logo">
+        <a href="/static">OOTD Admin</a>
+    </div>
+    <nav class="admin-nav">
+        <a href="/admin/coupon">쿠폰</a>
+        <a href="/admin/product">상품</a>
+    </nav>
+</header>
+</body>
+</html>

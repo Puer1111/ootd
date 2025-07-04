@@ -27,14 +27,18 @@ public class BrandServiceImpl implements BrandService {
     @Override
     @Transactional
     public BrandDTO insertBrand(BrandDTO dto) {
-//        Long BrandNo = Long.parseLong(RandomGenerate.generateRandom10Digits());
-//        dto.setBrandNo(BrandNo);
         try{
+            // 중복 체크: brandName이 이미 존재하는지 확인
+            if (brandRepository.findByBrandName(dto.getBrandName()).isPresent()) {
+                throw new IllegalArgumentException("Brand '" + dto.getBrandName() + "' already exists.");
+            }
+
             Brand brandEntity = BrandDTO.convertToEntity(dto);
             Brand brand = brandRepository.save(brandEntity);
             return BrandDTO.convertToDTO(brand);
         }catch(Exception e){
-            throw new RuntimeException();
+            System.out.println("BrandServiceImpl: " + e.getMessage());
+            throw e; // 예외를 다시 던져서 상위 계층에서 처리할 수 있도록 함
         }
     }
 
