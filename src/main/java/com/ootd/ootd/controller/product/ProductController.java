@@ -278,9 +278,10 @@ public class ProductController {
         }
     }
 
-    // 주문하기 (중복 주문 체크 추가)
+    // 주문하기 (수량 지원 추가)
     @PostMapping("/products/{productNo}/order")
     public ResponseEntity<?> orderProduct(@PathVariable Long productNo,
+                                          @RequestBody(required = false) Map<String, Object> orderRequest,
                                           @AuthenticationPrincipal UserDetails userDetails) {
         Map<String, Object> response = new HashMap<>();
 
@@ -294,6 +295,27 @@ public class ProductController {
             User user = userRepository.findByEmail(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
 
+            // 요청에서 수량과 총 금액 가져오기 (기본값 설정)
+            Integer quantity = 1;
+            Long totalPrice = 0L;
+
+            // orderRequest가 있는 경우에만 값 추출 (수량 조절 기능 사용 시)
+            if (orderRequest != null) {
+                if (orderRequest.containsKey("quantity")) {
+                    quantity = Integer.parseInt(orderRequest.get("quantity").toString());
+                }
+                if (orderRequest.containsKey("totalPrice")) {
+                    totalPrice = Long.parseLong(orderRequest.get("totalPrice").toString());
+                }
+            }
+
+            // 유효성 검사
+            if (quantity < 1 || quantity > 99) {
+                response.put("success", false);
+                response.put("message", "수량은 1개 이상 99개 이하여야 합니다");
+                return ResponseEntity.badRequest().body(response);
+            }
+
             // 이미 주문했는지 확인
             boolean alreadyOrdered = userOrderRepository.existsByUserIdAndProductNoAndStatus(
                     user.getId(), productNo, UserOrder.OrderStatus.ORDERED);
@@ -304,13 +326,32 @@ public class ProductController {
                 return ResponseEntity.badRequest().body(response);
             }
 
-            // 주문 추가
-            UserOrder order = new UserOrder(productNo, user.getId());
+            // 상품 정보 가져와서 총 금액 계산
+            ProductDTO product = productService.getProductById(productNo);
+            if (product == null) {
+                response.put("success", false);
+                response.put("message", "상품을 찾을 수 없습니다");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            Long expectedTotalPrice = (long) (product.getPrice() * quantity);
+
+            // 클라이언트에서 전송한 총 금액이 없거나 잘못된 경우 서버에서 계산
+            if (totalPrice == 0L || !totalPrice.equals(expectedTotalPrice)) {
+                totalPrice = expectedTotalPrice;
+            }
+
+            // 주문 추가 (수량과 총 금액 포함)
+            // 기존: UserOrder order = new UserOrder(productNo, user.getId());
+            UserOrder order = new UserOrder(productNo, user.getId(), quantity, totalPrice);
             userOrderRepository.save(order);
 
             response.put("success", true);
             response.put("message", "주문이 완료되었습니다!");
             response.put("isOrdered", true);
+            response.put("orderId", order.getId());
+            response.put("quantity", quantity);
+            response.put("totalPrice", totalPrice);
 
             return ResponseEntity.ok(response);
 

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.awt.print.Pageable;
 import java.util.List;
 import java.util.Map;
 
@@ -14,6 +15,9 @@ public interface ProductReviewRepository extends JpaRepository<ProductReview, Lo
 
     // 특정 상품의 리뷰 수 조회
     int countByProductNo(Long productNo);
+
+    // 🆕 특정 사용자가 작성한 리뷰 수 조회 (마이페이지 후기 개수용)
+    int countByUserId(Long userId);
 
     // 특정 상품의 평균 평점 조회
     @Query("SELECT AVG(pr.rating) FROM ProductReview pr WHERE pr.productNo = :productNo")
@@ -36,4 +40,8 @@ public interface ProductReviewRepository extends JpaRepository<ProductReview, Lo
 
     // 사용자가 작성한 리뷰 목록
     List<ProductReview> findByUserIdOrderByCreatedAtDesc(Long userId);
+
+    @Query("SELECT pr FROM ProductReview pr WHERE pr.productNo = :productNo ORDER BY pr.createdAt DESC")
+    List<ProductReview> findTop10ByProductNoOrderByCreatedAtDesc(@Param("productNo") Long productNo, Pageable pageable);
+
 }

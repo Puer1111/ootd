@@ -80,7 +80,8 @@ public class SecurityConfig {
                                 "/api/getImpUid",        // 고객 번호 조회
                                 "/payments/cancel/{imp_uid}", // 결제 취소
                                 "/cart" , // 장바구니 페이지
-                                "/cart/add" // 장바구니 담기
+                                "/cart/add", // 장바구니 담기
+                                "/api/reviews/my-reviews"          // 리뷰 페이지
 
 
                         ).permitAll()                // 인증 없이 접근 허용
@@ -99,7 +100,12 @@ public class SecurityConfig {
                                 "/api/auth/liked-products",
                                 "/api/auth/order-history",    // 주문 내역 API
                                 "/api/auth/cancel-history",   // 취소 내역 API
-                                "/api/auth/cancel-order/*"    // 주문 취소 API (ID별)
+                                "/api/auth/cancel-order/*",    // 주문 취소 API (ID별)
+
+
+                                "/api/reviews/my-reviews-data",      // 리뷰 데이터 API
+                                "/api/reviews/{reviewId}",           // 리뷰 삭제 API
+                                "/api/reviews/**"                     // 리뷰 삭제 등
                         ).authenticated()           // JWT 인증 필요
 
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요

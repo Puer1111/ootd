@@ -84,21 +84,20 @@
 
         <div class="user-stats">
             <div class="stat-item">
-                <div class="stat-label">무신사</div>
-                <div class="stat-value">0<span class="stat-unit">원</span></div>
+                <div class="stat-label">적립금</div>
+                <div class="stat-value"><span id="user-points">0</span><span class="stat-unit">원</span></div>
             </div>
             <div class="stat-item">
                 <div class="stat-label">쿠폰</div>
-                <div class="stat-value">0<span class="stat-unit">장</span></div>
+                <div class="stat-value"><span id="user-coupons">0</span><span class="stat-unit">장</span></div>
             </div>
             <div class="stat-item">
-                <div class="stat-label">무싱사</div>
-                <div class="stat-value">0<span class="stat-unit">개</span></div>
+                <div class="stat-label">후기</div>
+                <div class="stat-value"><span id="user-reviews">0</span><span class="stat-unit">개</span></div>
             </div>
         </div>
 
         <div class="menu-list">
-
             <div class="menu-item" onclick="goToOrderHistory()">
                 <span class="menu-text">주문 내역</span>
                 <span class="menu-arrow">></span>
@@ -109,13 +108,19 @@
                 <span class="menu-arrow">></span>
             </div>
 
-            <div class="menu-item">
-                <span class="menu-text">나의 리스트</span>
+            <div class="menu-item" onclick="goToCart()">
+                <span class="menu-text">장바구니</span>
                 <span class="menu-arrow">></span>
             </div>
 
             <div class="menu-item" onclick="goToLikedProducts()">
                 <span class="menu-text">좋아요 상품목록</span>
+                <span class="menu-arrow">></span>
+            </div>
+
+            <!-- 🆕 리뷰 리스트 메뉴 추가 -->
+            <div class="menu-item" onclick="goToMyReviews()">
+                <span class="menu-text">내가 쓴 리뷰</span>
                 <span class="menu-arrow">></span>
             </div>
 

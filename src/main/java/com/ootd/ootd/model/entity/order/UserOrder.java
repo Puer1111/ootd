@@ -24,6 +24,14 @@ public class UserOrder {
     @Column(nullable = false)
     private Long userId;
 
+    // 수량 필드 추가
+    @Column(nullable = false)
+    private Integer quantity = 1;
+
+    // 총 주문 금액 필드 추가
+    @Column(nullable = false)
+    private Long totalPrice;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OrderStatus status = OrderStatus.ORDERED;
@@ -34,9 +42,20 @@ public class UserOrder {
 
     private LocalDateTime cancelledAt;
 
+    // 기본 생성자 (수량 1개)
     public UserOrder(Long productNo, Long userId) {
         this.productNo = productNo;
         this.userId = userId;
+        this.quantity = 1;
+        this.status = OrderStatus.ORDERED;
+    }
+
+    // 수량과 총 금액을 포함한 생성자
+    public UserOrder(Long productNo, Long userId, Integer quantity, Long totalPrice) {
+        this.productNo = productNo;
+        this.userId = userId;
+        this.quantity = quantity;
+        this.totalPrice = totalPrice;
         this.status = OrderStatus.ORDERED;
     }
 

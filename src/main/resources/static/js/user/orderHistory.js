@@ -1,275 +1,199 @@
-// 토큰 관리 (좋아요와 동일)
+// 토큰 관리
 const AuthManager = {
     getToken: function() {
         return localStorage.getItem('token');
     },
 
-    removeToken: function() {
-        localStorage.removeItem('token');
-        localStorage.removeItem('auth_token');
+    isLoggedIn: function() {
+        return this.getToken() !== null;
     },
 
-    redirectToLogin: function() {
-        window.location.href = '/login';
+    removeToken: function() {
+        localStorage.removeItem('token');
+        sessionStorage.removeItem('token');
     }
 };
 
 document.addEventListener('DOMContentLoaded', function() {
-    loadOrderHistory();
+    checkAuthAndLoadHistory();
 });
 
-function loadOrderHistory() {
-    const token = AuthManager.getToken();
-
-    if (!token) {
-        AuthManager.redirectToLogin();
+function checkAuthAndLoadHistory() {
+    if (!AuthManager.isLoggedIn()) {
+        alert('로그인이 필요합니다.');
+        window.location.href = '/login';
         return;
     }
 
-    // 로딩 상태 표시
-    showLoadingState();
+    loadOrderHistory();
+}
 
-    fetch('/api/auth/order-history', {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        }
-    })
-        .then(response => {
-            if (!response.ok) {
-                if (response.status === 401) {
-                    throw new Error('UNAUTHORIZED');
-                }
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('주문 내역 데이터:', data);
+async function loadOrderHistory() {
+    const loadingState = document.getElementById('loading-state');
+    const productsContainer = document.getElementById('products-container');
+    const emptyState = document.getElementById('empty-state');
+    const errorState = document.getElementById('error-state');
 
-            if (data.success) {
-                displayProducts(data.orderedProducts, data.totalCount);
-            } else {
-                showErrorState();
-            }
-        })
-        .catch(error => {
-            console.error('주문 내역 로드 에러:', error);
+    // 로딩 표시
+    loadingState.style.display = 'block';
+    productsContainer.style.display = 'none';
+    emptyState.style.display = 'none';
+    errorState.style.display = 'none';
 
-            if (error.message === 'UNAUTHORIZED') {
-                alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
-                AuthManager.removeToken();
-                AuthManager.redirectToLogin();
-            } else {
-                showErrorState();
+    try {
+        const token = AuthManager.getToken();
+        const response = await fetch('/api/auth/order-history', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
             }
         });
+
+        if (response.status === 401) {
+            AuthManager.removeToken();
+            alert('로그인이 만료되었습니다.');
+            window.location.href = '/login';
+            return;
+        }
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log('주문 내역 데이터:', data);
+
+            if (data.success && data.orderedProducts) {
+                displayOrderHistory(data.orderedProducts, data.totalCount || 0);
+            } else {
+                showEmptyState();
+            }
+        } else {
+            throw new Error('Failed to load order history');
+        }
+
+    } catch (error) {
+        console.error('주문 내역 로드 실패:', error);
+        showErrorState();
+    } finally {
+        loadingState.style.display = 'none';
+    }
 }
 
-function showLoadingState() {
-    document.getElementById('loading-state').style.display = 'block';
-    document.getElementById('products-container').style.display = 'none';
-    document.getElementById('empty-state').style.display = 'none';
-    document.getElementById('error-state').style.display = 'none';
-}
+// 🔥 강화된 주문 내역 표시 함수 (원본 기능 + 수량/가격 정보 강화)
+function displayOrderHistory(orders, totalCount) {
+    const productsContainer = document.getElementById('products-container');
+    const productsGrid = document.getElementById('products-grid');
+    const totalCountElement = document.getElementById('total-count');
 
-function showErrorState() {
-    document.getElementById('loading-state').style.display = 'none';
-    document.getElementById('products-container').style.display = 'none';
-    document.getElementById('empty-state').style.display = 'none';
-    document.getElementById('error-state').style.display = 'block';
-}
-
-function displayProducts(products, totalCount) {
-    // 총 개수 업데이트
-    document.getElementById('total-count').textContent = totalCount;
-
-    // 로딩 상태 숨기기
-    document.getElementById('loading-state').style.display = 'none';
-
-    if (!products || products.length === 0) {
-        // 빈 상태 표시
-        document.getElementById('empty-state').style.display = 'block';
-        document.getElementById('products-container').style.display = 'none';
+    if (orders.length === 0) {
+        showEmptyState();
         return;
     }
 
-    // 상품 목록 표시
-    const productsGrid = document.getElementById('products-grid');
-    productsGrid.innerHTML = '';
+    // 총 개수 업데이트
+    if (totalCountElement) {
+        totalCountElement.textContent = totalCount;
+    }
 
-    products.forEach(product => {
-        const productCard = createProductCard(product);
-        productsGrid.appendChild(productCard);
-    });
-
-    document.getElementById('products-container').style.display = 'block';
-    document.getElementById('empty-state').style.display = 'none';
-}
-
-function createProductCard(product) {
-    const card = document.createElement('div');
-    card.className = 'product-card';
-    card.setAttribute('data-product-no', product.productNo);
-
-    // 이미지 URL 처리
-    const imageUrl = (product.imageUrls && product.imageUrls.length > 0)
-        ? product.imageUrls[0]
-        : '/images/no-image.png';
-
-    // 가격 포맷팅
-    const formattedPrice = new Intl.NumberFormat('ko-KR').format(product.price);
-
-    card.innerHTML = `
-        <img src="${imageUrl}" 
-             alt="${product.productName}" 
-             class="product-image"
-             onerror="this.src='/images/no-image.png'">
-        
-        <div class="product-info">
-            <div class="product-brand">${product.brandName || '브랜드명'}</div>
-            <div class="product-name">${product.productName}</div>
-            <div class="product-category">${product.subCategory || '카테고리'}</div>
-            <div class="product-price">${formattedPrice}원</div>
+    // 주문 목록 HTML 생성 (수량 정보 강화)
+    const ordersHtml = orders.map(order => `
+        <div class="product-card" data-product-no="${order.productNo}">
+            <div class="product-image" onclick="goToProduct(${order.productNo})">
+                ${order.imageUrls && order.imageUrls.length > 0
+        ? `<img src="${order.imageUrls[0]}" alt="${order.productName}">`
+        : '<div class="no-image">이미지 없음</div>'
+    }
+            </div>
             
-            <div class="product-stats">
-                <div class="stat-item">
-                    <span class="heart-icon">♥</span>
-                    <span>${product.likeCount || 0}</span>
+            <div class="product-info">
+                <div class="product-brand">${order.brandName || '브랜드명'}</div>
+                <div class="product-name" onclick="goToProduct(${order.productNo})">${order.productName}</div>
+                <div class="product-category">${order.subCategory || '카테고리'}</div>
+                
+                <!-- 🔥 주문 정보 섹션 강화 -->
+                <div class="order-summary">
+                    <div class="order-main-info">
+                        <div class="quantity-price">
+                            <span class="quantity-badge">${order.quantity || 1}개 주문</span>
+                            <span class="total-amount">${(order.totalPrice || (order.price * (order.quantity || 1))).toLocaleString()}원</span>
+                        </div>
+                        <div class="unit-price">단가: ${(order.price || 0).toLocaleString()}원</div>
+                    </div>
+                    <div class="order-date-info">
+                        <span class="order-date">${order.orderDate ? formatDate(order.orderDate) : '정보 없음'}</span>
+                        <span class="order-status-badge">${order.orderStatus || '주문완료'}</span>
+                    </div>
                 </div>
-                <div class="stat-item">
-                    <span class="star-icon">★</span>
-                    <span>리뷰 ${product.reviewCount || 0}개</span>
+                
+                <div class="product-stats">
+                    <div class="stat-item">
+                        <span class="icon">♥</span>
+                        <span>${order.likeCount || 0}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="icon">★</span>
+                        <span>리뷰 ${order.reviewCount || 0}개</span>
+                    </div>
+                </div>
+                
+                <div class="product-actions">
+                    <button class="btn btn-outline" onclick="goToProduct(${order.productNo})">상품 보기</button>
+                    <button class="btn btn-danger" onclick="cancelOrderFromHistory(${order.orderId || order.productNo})">주문 취소</button>
                 </div>
             </div>
         </div>
-    `;
+    `).join('');
 
-    // 카드 클릭 이벤트
-    card.addEventListener('click', function() {
-        goToProduct(product.productNo);
-    });
+    productsGrid.innerHTML = ordersHtml;
+    productsContainer.style.display = 'block';
+}
 
-    return card;
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}.${month}.${day}`;
+}
+
+function showEmptyState() {
+    document.getElementById('empty-state').style.display = 'block';
+}
+
+function showErrorState() {
+    document.getElementById('error-state').style.display = 'block';
 }
 
 function goToProduct(productNo) {
     window.location.href = `/products/${productNo}`;
 }
-// orderHistory.js에 취소 기능 추가
 
-function createProductCard(product) {
-    const card = document.createElement('div');
-    card.className = 'product-card';
-    card.setAttribute('data-product-no', product.productNo);
-
-    // 이미지 URL 처리
-    const imageUrl = (product.imageUrls && product.imageUrls.length > 0)
-        ? product.imageUrls[0]
-        : '/images/no-image.png';
-
-    // 가격 포맷팅
-    const formattedPrice = new Intl.NumberFormat('ko-KR').format(product.price);
-
-    card.innerHTML = `
-        <button class="cancel-order-btn" onclick="cancelOrderFromHistory(event, ${product.productNo})">
-            <span>취소</span>
-        </button>
-        
-        <img src="${imageUrl}" 
-             alt="${product.productName}" 
-             class="product-image"
-             onerror="this.src='/images/no-image.png'">
-        
-        <div class="product-info">
-            <div class="product-brand">${product.brandName || '브랜드명'}</div>
-            <div class="product-name">${product.productName}</div>
-            <div class="product-category">${product.subCategory || '카테고리'}</div>
-            <div class="product-price">${formattedPrice}원</div>
-            
-            <div class="product-stats">
-                <div class="stat-item">
-                    <span class="heart-icon">♥</span>
-                    <span>${product.likeCount || 0}</span>
-                </div>
-                <div class="stat-item">
-                    <span class="star-icon">★</span>
-                    <span>리뷰 ${product.reviewCount || 0}개</span>
-                </div>
-            </div>
-        </div>
-    `;
-
-    // 카드 클릭 이벤트 (취소 버튼 제외)
-    card.addEventListener('click', function(e) {
-        if (!e.target.closest('.cancel-order-btn')) {
-            goToProduct(product.productNo);
-        }
-    });
-
-    return card;
-}
-
-// 주문 취소 함수 (주문내역에서)
-function cancelOrderFromHistory(event, productNo) {
-    event.stopPropagation(); // 카드 클릭 이벤트 방지
-
-    if (!confirm('주문을 취소하시겠습니까?')) {
+async function cancelOrderFromHistory(orderId) {
+    if (!confirm('정말로 주문을 취소하시겠습니까?')) {
         return;
     }
 
-    const token = AuthManager.getToken();
-
-    if (!token) {
-        alert('로그인이 필요합니다.');
-        AuthManager.redirectToLogin();
-        return;
-    }
-
-    const button = event.currentTarget;
-    button.disabled = true;
-
-    // 주문 ID를 구하기 위해 productNo로 취소 요청
-    fetch(`/products/${productNo}/cancel-order`, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        }
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message);
-
-                // 카드 제거 애니메이션
-                const productCard = button.closest('.product-card');
-                productCard.style.opacity = '0';
-                productCard.style.transform = 'scale(0.9)';
-
-                setTimeout(() => {
-                    productCard.remove();
-                    updateTotalCount();
-                }, 300);
-
-                // 모든 카드가 제거되었는지 확인
-                setTimeout(() => {
-                    const remainingCards = document.querySelectorAll('.product-card');
-                    if (remainingCards.length === 0) {
-                        document.getElementById('products-container').style.display = 'none';
-                        document.getElementById('empty-state').style.display = 'block';
-                    }
-                }, 400);
-            } else {
-                alert(data.message || '주문 취소에 실패했습니다.');
+    try {
+        const token = AuthManager.getToken();
+        const response = await fetch(`/api/auth/cancel-order/${orderId}`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
             }
-        })
-        .catch(error => {
-            console.error('주문 취소 에러:', error);
-            alert('오류가 발생했습니다. 다시 시도해주세요.');
-        })
-        .finally(() => {
-            button.disabled = false;
         });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            alert(data.message || '주문이 취소되었습니다.');
+            // 페이지 새로고침하여 업데이트된 목록 표시
+            loadOrderHistory();
+        } else {
+            alert(data.message || '주문 취소에 실패했습니다.');
+        }
+
+    } catch (error) {
+        console.error('주문 취소 실패:', error);
+        alert('오류가 발생했습니다. 다시 시도해주세요.');
+    }
 }

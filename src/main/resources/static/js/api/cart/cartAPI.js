@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 // productNo: 1,
                 productName: productInfo.productName,
                 price: productInfo.price,
-                quantity: quantity.value,
+                // quantity: quantity.value,
                 imageUrls: productInfo.imageUrl
             })
         })

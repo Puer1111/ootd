@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 public class LoginController {
@@ -270,6 +271,8 @@ public class LoginController {
     }
 
     // 주문 내역 API (좋아요 목록과 완전히 동일)
+    // LoginController.java의 주문내역 API (디버깅 제거된 버전)
+
     @GetMapping("/api/auth/order-history")
     @ResponseBody
     public ResponseEntity<?> getUserOrderHistory(@AuthenticationPrincipal UserDetails userDetails) {
@@ -285,20 +288,55 @@ public class LoginController {
             User user = userRepository.findByEmail(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
 
-            // 주문한 상품 번호 목록 (좋아요와 완전히 동일)
-            List<Long> orderedProductNos = userOrderRepository.findProductNosByUserId(user.getId());
+            // Repository 메소드로 주문 정보 조회
+            List<UserOrder> userOrders;
+            try {
+                userOrders = userOrderRepository.findByUserIdAndStatusOrderByCreatedAtDesc(
+                        user.getId(), UserOrder.OrderStatus.ORDERED);
+            } catch (Exception e) {
+                // 대안 방법: 모든 주문을 가져와서 필터링
+                userOrders = userOrderRepository.findAll().stream()
+                        .filter(order -> order.getUserId().equals(user.getId()) &&
+                                order.getStatus() == UserOrder.OrderStatus.ORDERED)
+                        .sorted((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()))
+                        .collect(Collectors.toList());
+            }
 
-            List<ProductDTO> orderedProducts = new ArrayList<>();
-            for (Long productNo : orderedProductNos) {
-                ProductDTO product = productService.getProductById(productNo);
+            List<Map<String, Object>> orderedProducts = new ArrayList<>();
+
+            for (UserOrder order : userOrders) {
+                ProductDTO product = productService.getProductById(order.getProductNo());
                 if (product != null) {
-                    product.setLikeCount(productLikeRepository.countByProductNo(productNo));
+                    // 상품 기본 정보 설정
+                    product.setLikeCount(productLikeRepository.countByProductNo(order.getProductNo()));
                     if (productReviewRepository != null) {
-                        product.setReviewCount(productReviewRepository.countByProductNo(productNo));
-                        Double avgRating = productReviewRepository.findAverageRatingByProductNo(productNo);
+                        product.setReviewCount(productReviewRepository.countByProductNo(order.getProductNo()));
+                        Double avgRating = productReviewRepository.findAverageRatingByProductNo(order.getProductNo());
                         product.setAverageRating(avgRating != null ? avgRating : 0.0);
                     }
-                    orderedProducts.add(product);
+
+                    // 주문 정보와 상품 정보를 합친 Map 생성
+                    Map<String, Object> orderWithProduct = new HashMap<>();
+
+                    // 상품 정보
+                    orderWithProduct.put("productNo", product.getProductNo());
+                    orderWithProduct.put("productName", product.getProductName());
+                    orderWithProduct.put("price", product.getPrice());
+                    orderWithProduct.put("imageUrls", product.getImageUrls());
+                    orderWithProduct.put("brandName", product.getBrandName());
+                    orderWithProduct.put("subCategory", product.getSubCategory());
+                    orderWithProduct.put("likeCount", product.getLikeCount());
+                    orderWithProduct.put("reviewCount", product.getReviewCount());
+                    orderWithProduct.put("averageRating", product.getAverageRating());
+
+                    // 주문 정보 추가
+                    orderWithProduct.put("orderId", order.getId());
+                    orderWithProduct.put("quantity", order.getQuantity() != null ? order.getQuantity() : 1);
+                    orderWithProduct.put("totalPrice", order.getTotalPrice() != null ? order.getTotalPrice() : 0L);
+                    orderWithProduct.put("orderDate", order.getCreatedAt());
+                    orderWithProduct.put("orderStatus", order.getStatus().getDescription());
+
+                    orderedProducts.add(orderWithProduct);
                 }
             }
 
@@ -410,6 +448,49 @@ public class LoginController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "주문 취소 중 오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    // LoginController.java에 추가할 사용자 통계 API
+
+    // LoginController.java의 사용자 통계 API (수정된 버전)
+
+    @GetMapping("/api/auth/user-stats")
+    @ResponseBody
+    public ResponseEntity<?> getUserStats(@AuthenticationPrincipal UserDetails userDetails) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            if (userDetails == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+
+            User user = userRepository.findByEmail(userDetails.getUsername())
+                    .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
+
+            // 🔧 후기(리뷰) 개수 가져오기 - countByUserId 메소드 사용
+            int reviewCount = 0;
+            if (productReviewRepository != null) {
+                reviewCount = productReviewRepository.countByUserId(user.getId());
+            }
+
+            // 적립금과 쿠폰은 나중에 구현 (기본값 0)
+            int points = 0; // TODO: 적립금 시스템 구현 시 실제 값으로 변경
+            int coupons = 0; // TODO: 쿠폰 시스템 구현 시 실제 값으로 변경
+
+            response.put("success", true);
+            response.put("reviewCount", reviewCount); // 내가 쓴 후기(리뷰) 개수
+            response.put("points", points);
+            response.put("coupons", coupons);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "통계 정보를 가져오는 중 오류가 발생했습니다: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }

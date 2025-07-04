@@ -27,8 +27,20 @@ const AuthManager = {
 
 document.addEventListener('DOMContentLoaded', function() {
     loadUserInfo();
+    loadUserStats(); // 🆕 사용자 통계 로드 추가
     document.getElementById('logoutBtn').addEventListener('click', logout);
     document.getElementById('passwordChangeForm').addEventListener('submit', changePassword);
+
+    // ✅ 좋아요 상품목록 이벤트 리스너 추가
+    const likedProductsMenu = document.querySelector('.menu-item[onclick="goToLikedProducts()"]');
+    if (likedProductsMenu) {
+        likedProductsMenu.addEventListener('click', function() {
+            console.log('좋아요 상품목록 클릭됨!');
+            goToLikedProducts();
+        });
+        // onclick 속성 제거 (중복 방지)
+        likedProductsMenu.removeAttribute('onclick');
+    }
 });
 
 function togglePersonalInfo() {
@@ -105,6 +117,53 @@ function loadUserInfo() {
             } else {
                 errorDiv.style.display = 'block';
             }
+        });
+}
+
+// 🆕 사용자 통계 정보 로드 (적립금, 쿠폰, 후기 개수)
+function loadUserStats() {
+    const token = AuthManager.getToken();
+
+    if (!token) return;
+
+    // 후기 개수 가져오기
+    fetch('/api/auth/user-stats', {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Failed to load user stats');
+        })
+        .then(data => {
+            if (data.success) {
+                // 적립금 (기본값 0)
+                const pointsElement = document.getElementById('user-points');
+                if (pointsElement) {
+                    pointsElement.textContent = data.points || 0;
+                }
+
+                // 쿠폰 (기본값 0)
+                const couponsElement = document.getElementById('user-coupons');
+                if (couponsElement) {
+                    couponsElement.textContent = data.coupons || 0;
+                }
+
+                // 후기 개수 (내가 쓴 리뷰 개수)
+                const reviewsElement = document.getElementById('user-reviews');
+                if (reviewsElement) {
+                    reviewsElement.textContent = data.reviewCount || 0;
+                }
+            }
+        })
+        .catch(error => {
+            console.log('사용자 통계 로드 실패 (로그인 안 됨 또는 오류):', error);
+            // 에러 시 기본값 유지
         });
 }
 
@@ -204,32 +263,12 @@ function goToLogin() {
     AuthManager.redirectToLogin();
 }
 
-// 모달 외부 클릭 시 닫기
-window.onclick = function(event) {
-    const modal = document.getElementById('passwordModal');
-    if (event.target === modal) {
-        closePasswordModal();
-    }
-
-
+// 🆕 장바구니로 이동
+function goToCart() {
+    window.location.href = '/cart';
 }
-document.addEventListener('DOMContentLoaded', function() {
-    loadUserInfo();
-    document.getElementById('logoutBtn').addEventListener('click', logout);
-    document.getElementById('passwordChangeForm').addEventListener('submit', changePassword);
 
-    // ✅ 좋아요 상품목록 이벤트 리스너 추가
-    const likedProductsMenu = document.querySelector('.menu-item[onclick="goToLikedProducts()"]');
-    if (likedProductsMenu) {
-        likedProductsMenu.addEventListener('click', function() {
-            console.log('좋아요 상품목록 클릭됨!');
-            goToLikedProducts();
-        });
-        // onclick 속성 제거 (중복 방지)
-        likedProductsMenu.removeAttribute('onclick');
-    }
-});
-
+// 네비게이션 함수들
 function goToLikedProducts() {
     window.location.href = '/liked-products';
 }
@@ -240,4 +279,17 @@ function goToOrderHistory() {
 
 function goToCancelHistory() {
     window.location.href = '/cancel-history';
+}
+
+// 🆕 내가 쓴 리뷰 페이지로 이동
+function goToMyReviews() {
+    window.location.href = '/api/reviews/my-reviews';
+}
+
+// 모달 외부 클릭 시 닫기
+window.onclick = function(event) {
+    const modal = document.getElementById('passwordModal');
+    if (event.target === modal) {
+        closePasswordModal();
+    }
 }
