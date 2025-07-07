@@ -174,27 +174,38 @@ document.addEventListener('DOMContentLoaded', () => {
     // 초기에는 조회 섹션만 보이도록 설정
     showSection('coupon-retrieve-section');
 
-    // 사이드바 메뉴 토글 기능
+    // --- 사이드바 메뉴 토글 및 활성화 기능 ---
     const couponManagementToggle = document.getElementById('coupon-management-toggle');
     const couponSubmenu = document.getElementById('coupon-submenu');
 
     if (couponManagementToggle && couponSubmenu) {
+        const sidebarLinks = document.querySelectorAll('.admin-sidebar a, .admin-sidebar span');
+
+        const deactivateAll = () => {
+            sidebarLinks.forEach(link => {
+                link.classList.remove('active');
+            });
+        };
+
         couponManagementToggle.addEventListener('click', (event) => {
-            // 클릭된 요소가 서브메뉴 링크가 아닌 경우에만 토글
-            if (event.target.tagName !== 'A') {
-                couponSubmenu.classList.toggle('active');
+            event.preventDefault();
+            const isSubmenuLink = event.target.closest('#coupon-submenu');
+
+            if (!isSubmenuLink) { // 하위 메뉴 링크가 아닐 때만 토글
+                const isActive = couponSubmenu.classList.contains('active');
+                deactivateAll(); // 모든 활성화 클래스 제거
+                couponSubmenu.classList.toggle('active', !isActive);
+                couponManagementToggle.querySelector('span').classList.toggle('active', !isActive);
+            } else {
+                 deactivateAll();
+                 event.target.classList.add('active');
+                 couponManagementToggle.querySelector('span').classList.add('active');
+                 const targetSectionId = event.target.dataset.targetSection;
+                 showSection(targetSectionId);
             }
         });
-
-        // 서브메뉴 링크 클릭 시 해당 섹션 표시
-        couponSubmenu.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', (event) => {
-                event.preventDefault();
-                const targetSectionId = event.target.dataset.targetSection;
-                showSection(targetSectionId);
-            });
-        });
     }
+    // --- 사이드바 메뉴 기능 끝 ---
 
     // 쿠폰 등록 폼 처리
     const couponForm = document.getElementById('coupon-form');

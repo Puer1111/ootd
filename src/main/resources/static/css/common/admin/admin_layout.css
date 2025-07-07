@@ -51,6 +51,12 @@ main {
     margin-right: 20px;
 }
 
+.admin-sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
 .admin-sidebar ul li .submenu {
     list-style: none;
     padding-left: 20px;
@@ -77,6 +83,9 @@ main {
     color: #333;
 }
 
-.admin-sidebar ul li a:hover {
+.admin-sidebar ul li a:hover,
+.admin-sidebar ul li span:hover,
+.admin-sidebar ul li a.active,
+.admin-sidebar ul li span.active {
     color: #007bff;
 }

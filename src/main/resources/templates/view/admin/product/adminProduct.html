@@ -17,7 +17,15 @@
         <h2>관리자 메뉴</h2>
         <ul>
             <li><a href="/admin/coupon">쿠폰 관리</a></li>
-            <li><a href="/admin/product">상품 관리</a></li>
+            <li id="product-management-toggle">
+                <span>상품 관리</span>
+                <ul id="product-submenu" class="submenu">
+                    <li><a href="#">조회</a></li>
+                    <li><a href="#">등록</a></li>
+                    <li><a href="#">수정</a></li>
+                    <li><a href="#">삭제</a></li>
+                </ul>
+            </li>
         </ul>
     </div>
     <div th:fragment="content">
@@ -135,5 +143,4 @@
 <footer th:replace="~{view/admin/css/admin_footer :: admin_footer}"></footer>
 </body>
 <script type="module" src="/js/admin/adminProduct.js"></script>
-<script src="/js/admin/common/sidebar.js"></script>
 </html>

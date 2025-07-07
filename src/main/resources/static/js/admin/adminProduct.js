@@ -1,5 +1,37 @@
 document.addEventListener('DOMContentLoaded', function () {
 
+    // --- 사이드바 메뉴 토글 및 활성화 기능 ---
+    const productManagementToggle = document.getElementById('product-management-toggle');
+    const productSubmenu = document.getElementById('product-submenu');
+
+    if (productManagementToggle && productSubmenu) {
+        const sidebarLinks = document.querySelectorAll('.admin-sidebar a, .admin-sidebar span');
+
+        const deactivateAll = () => {
+            sidebarLinks.forEach(link => {
+                link.classList.remove('active');
+            });
+        };
+
+        productManagementToggle.addEventListener('click', (event) => {
+            event.preventDefault();
+            const isSubmenuLink = event.target.closest('#product-submenu');
+
+            if (!isSubmenuLink) { // 하위 메뉴 링크가 아닐 때만 토글
+                const isActive = productSubmenu.classList.contains('active');
+                deactivateAll(); // 모든 활성화 클래스 제거
+                productSubmenu.classList.toggle('active', !isActive);
+                productManagementToggle.querySelector('span').classList.toggle('active', !isActive);
+            } else {
+                 deactivateAll();
+                 event.target.classList.add('active');
+                 productManagementToggle.querySelector('span').classList.add('active');
+            }
+        });
+    }
+    // --- 사이드바 메뉴 기능 끝 ---
+
+
     // api 전역 호출
     window.api = window.api || {};
     import('../api/app.js')
