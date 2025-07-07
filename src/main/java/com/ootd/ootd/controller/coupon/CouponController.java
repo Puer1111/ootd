@@ -21,8 +21,8 @@ public class CouponController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/modify")
-    public ResponseEntity<Void> modifyCoupon(@RequestBody UpdateCouponDTO updateCouponDTO) {
+    @PutMapping("/update")
+    public ResponseEntity<Void> updateCoupon(@RequestBody UpdateCouponDTO updateCouponDTO) {
         couponService.updateCoupon(updateCouponDTO);
         return ResponseEntity.ok().build();
     }
@@ -31,5 +31,10 @@ public class CouponController {
     public ResponseEntity<Void> deleteCoupon(@RequestBody DeleteCouponDTO deleteCouponDTO) {
         couponService.deleteCoupon(deleteCouponDTO.getCouponId());
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllCoupons() {
+        return ResponseEntity.ok(couponService.getAllCoupons());
     }
 }

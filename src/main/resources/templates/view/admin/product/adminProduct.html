@@ -3,16 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <title>OOTD</title>
-    <link rel="stylesheet" th:href="@{/css/common/footer.css}">
-    <link rel="stylesheet" th:href="@{/css/common/header.css}">
-    <link rel="stylesheet" th:href="@{/css/common/layout.css}">
-    <link rel="stylesheet" th:href="@{/css/common/reset.css}">
-    <link rel="stylesheet" th:href="@{/css/product/enterProduct.css}">
+    <link rel="stylesheet" href="/css/common/admin/admin_footer.css">
+    <link rel="stylesheet" href="/css/common/admin/admin_header.css">
+    <link rel="stylesheet" href="/css/common/admin/admin_layout.css">
+    <link rel="stylesheet" href="/css/admin/adminProduct.css">
+    <link rel="stylesheet" href="/css/common/reset.css">
 
 </head>
 <body>
-<header th:replace="~{common/header :: header}"></header>
+<header th:replace="~{view/admin/css/admin_header :: admin_header}"></header>
 <main>
+    <div class="admin-sidebar">
+        <h2>관리자 메뉴</h2>
+        <ul>
+            <li><a href="/admin/coupon">쿠폰 관리</a></li>
+            <li><a href="/admin/product">상품 관리</a></li>
+        </ul>
+    </div>
     <div th:fragment="content">
         <form th:action="@{/enter/product}" method="POST" enctype="multipart/form-data" id="product-form">
             <div class="container">
@@ -125,8 +132,8 @@
         </form>
     </div>
 </main>
-<footer th:replace="~{common/footer :: footer}"></footer>
+<footer th:replace="~{view/admin/css/admin_footer :: admin_footer}"></footer>
 </body>
-<script type="module" src="/js/product/enterProduct.js"></script>
-
+<script type="module" src="/js/admin/adminProduct.js"></script>
+<script src="/js/admin/common/sidebar.js"></script>
 </html>

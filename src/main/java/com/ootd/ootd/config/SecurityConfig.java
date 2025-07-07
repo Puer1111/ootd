@@ -65,7 +65,6 @@ public class SecurityConfig {
                                 "/cancel-history",    // 취소 내역 페이지
                                 // 상품
                                 "/products/**",
-                                "/enter",              // 상품 등록
                                 "/enter/product",       // 상품- 등록 후 페이지
                                 "/api/register/colors", // 상품-색깔 등록
                                 "/api/lookup/colors",  // 상품-색깔 조회
@@ -81,8 +80,12 @@ public class SecurityConfig {
                                 "/payments/cancel/{imp_uid}", // 결제 취소
                                 "/cart", // 장바구니 페이지
                                 "/cart/add", // 장바구니 담기
+                                "/admin/product",       // 상품 등록
                                 "/admin/coupon", // 관리자 쿠폰
-                                "/api/coupon/insert" , // 쿠폰 등록 api
+                                "/api/coupon/insert", // 쿠폰 등록 api
+                                "/api/coupon/update", // 쿠폰 수정 api
+                                "/api/coupon/delete", // 쿠폰 삭제 api
+                                "/api/coupon/all", // 쿠폰 전체 조회 api
                                 "/api/categories" // 카테고리 전체 조회
                         ).permitAll()                // 인증 없이 접근 허용
 

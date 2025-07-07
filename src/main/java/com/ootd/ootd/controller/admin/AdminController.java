@@ -13,4 +13,9 @@ public class AdminController {
     public String adminCouponPage() {
         return "view/admin/coupon/adminCoupon";
     }
+
+    @GetMapping("/product")
+    public String adminProductPage() {
+        return "view/admin/product/adminProduct";
+    }
 }

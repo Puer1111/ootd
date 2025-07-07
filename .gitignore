@@ -56,3 +56,7 @@ service-account-*.json
 
 # build.gradle
 build.gradle
+
+# txt
+Project-problem.txt
+

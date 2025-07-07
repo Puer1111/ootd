@@ -2,11 +2,9 @@ package com.ootd.ootd.controller.product;
 
 import com.ootd.ootd.model.dto.product.ProductDTO;
 import com.ootd.ootd.model.entity.like.ProductLike;
-import com.ootd.ootd.model.entity.product_colors.ProductColors;
 import com.ootd.ootd.model.entity.review.ProductReview;
 import com.ootd.ootd.model.entity.user.User;
 import com.ootd.ootd.repository.product.ProductLikeRepository;
-import com.ootd.ootd.repository.product.ProductRepository;
 import com.ootd.ootd.repository.product.ProductReviewRepository;
 import com.ootd.ootd.repository.user.UserRepository;
 import com.ootd.ootd.service.colors.ColorsService;
@@ -27,7 +25,6 @@ import com.ootd.ootd.repository.order.UserOrderRepository;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Controller
 public class ProductController {
@@ -75,10 +72,6 @@ public class ProductController {
         return "view/product/productDetail";
     }
 
-    @GetMapping("/enter")
-    public String showEnterProductForm(){
-        return "view/product/enterProduct";
-    }
 
     @PostMapping("/enter/product")
     public ResponseEntity<?> insertProduct(@ModelAttribute ProductDTO dto,
