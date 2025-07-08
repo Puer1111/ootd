@@ -18,6 +18,7 @@ public class ProductDetailDTO {
     private String description;
     private String brandName;
     private Long brandNo;
+    private List<Integer> inventory;
 
     public ProductDetailDTO(Long productNo, String productName, Integer price, String description, String brandName, Long brandNo) {
         this.productNo = productNo;

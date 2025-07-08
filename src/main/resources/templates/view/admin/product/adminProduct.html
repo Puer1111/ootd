@@ -20,124 +20,148 @@
             <li id="product-management-toggle">
                 <span>상품 관리</span>
                 <ul id="product-submenu" class="submenu">
-                    <li><a href="#">조회</a></li>
-                    <li><a href="#">등록</a></li>
-                    <li><a href="#">수정</a></li>
-                    <li><a href="#">삭제</a></li>
+                    <li><a href="#" data-target-section="product-list-section">조회/관리</a></li>
+                    <li><a href="#" data-target-section="product-register-section">등록</a></li>
                 </ul>
             </li>
         </ul>
     </div>
-    <div th:fragment="content">
-        <form th:action="@{/enter/product}" method="POST" enctype="multipart/form-data" id="product-form">
-            <div class="container">
-                <div class="form-group">
-                    <label for="productName">상품명 <span class="required">*</span></label>
-                    <input type="text" id="productName" name="productName" required>
-                </div>
+    <div class="admin-content">
+        <!-- 상품 조회/관리 섹션 -->
+        <div id="product-list-section" class="admin-table-container">
+            <h2>상품 조회/관리</h2>
+            <table id="product-table" class="admin-table">
+                <thead>
+                <tr>
+                    <th></th> <!-- 옵션 펼치기/접기 버튼을 위한 빈 공간 -->
+                    <th>ID</th>
+                    <th>이미지</th>
+                    <th>상품명</th>
+                    <th>브랜드</th>
+                    <th>카테고리</th>
+                    <th>가격</th>
+                    <th>관리</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- 상품 목록이 동적으로 추가됩니다 -->
+                </tbody>
+            </table>
+        </div>
 
-                <div class="form-group">
-                    <label for="description">상품 설명</label>
-                    <textarea id="description" name="description" rows="4"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <div class="all-Label">
-                        <label for="fileInput"><span>이미지</span> <span class="required">*</span></label>
-                    </div>
-                    <div class="product-img-boundary">
-                        <input type="file" name="images" id="fileInput" multiple class="fileInput">
-                        <div class="preview-ghost">
-                            <div id="preview-area"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+        <!-- 상품 등록/수정 섹션 -->
+        <div id="product-register-section" style="display:none;">
+            <h2 id="form-title">상품 등록</h2>
+            <form th:action="@{/enter/product}" method="POST" enctype="multipart/form-data" id="product-form">
+                <input type="hidden" id="productNo">
+                <div class="container">
                     <div class="form-group">
-                        <label for="brand-select">브랜드 <span class="required">*</span></label>
-                        <div style="display:flex; gap:20px; width:100%;">
-                            <div style="flex:1;">
-                                <select id="brand-select" name="brandNo" required>
-                                    <option value="">-- 브랜드 선택 --</option>
-                                </select>
-                            </div>
-                            <button type="button" id="add-brand-btn">+ 새 브랜드 추가</button>
-                        </div>
+                        <label for="productName">상품명 <span class="required">*</span></label>
+                        <input type="text" id="productName" name="productName" required>
                     </div>
-                </div>
 
-                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
                     <div class="form-group">
-                        <label for="categoryChoiceFirst">카테고리 <span class="required">*</span></label>
-                        <div style="display:flex; gap:20px; width:100%;">
-                            <div class="categoryFirst" style="flex:1;">
-                                <select id="categoryChoiceFirst" name="mainCategory" required>
-                                    <option value="top">상의</option>
-                                    <option value="bottom">하의</option>
-                                    <option value="shoes">신발</option>
-                                </select>
+                        <label for="description">상품 설명</label>
+                        <textarea id="description" name="description" rows="4"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="all-Label">
+                            <label for="fileInput"><span>이미지</span> <span class="required">*</span></label>
+                        </div>
+                        <div class="product-img-boundary">
+                            <input type="file" name="images" id="fileInput" multiple class="fileInput">
+                            <div class="preview-ghost">
+                                <div id="preview-area"></div>
                             </div>
-                            <div class="categorySecond" style="flex:1;">
-                                <select id="categoryChoiceSecond" name="categoryNo" required>
-                                    <option value="">카테고리 선택</option>
-                                </select>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label for="brand-select">브랜드 <span class="required">*</span></label>
+                            <div style="display:flex; gap:20px; width:100%;">
+                                <div style="flex:1;">
+                                    <select id="brand-select" name="brandNo" required>
+                                        <option value="">-- 브랜드 선택 --</option>
+                                    </select>
+                                </div>
+                                <button type="button" id="add-brand-btn">+ 새 브랜드 추가</button>
                             </div>
-                            <button type="button" id="add-category-btn">+ 새 카테고리 추가</button>
                         </div>
                     </div>
-                </div>
 
-                <!--사이즈-->
-                <div class="sizes-section">
-                    <div class="form-group" style="display: flex;">
-                        <label style="margin-right:5px;">사이즈 정보</label><span class="required">*</span>
-                    </div>
-                    <div class="size-header">
-                        <div>사이즈</div>
-                        <div style="text-align: center">가격(원)</div>
-                        <div>색깔</div>
-                        <div>재고</div>
-                        <div>상태</div>
-                        <div></div>
-                    </div>
-
-                    <div id="sizesContainer">
-                        <!-- 사이즈 아이템들이 동적으로 추가됩니다 -->
-                    </div>
-
-                    <button type="button" class="btn-add">
-                        <span>+</span>사이즈 추가
-                    </button>
-                </div>
-
-                <div class="form-actions">
-                    <button type="button" class="register" id="submit-btn">등록하기</button>
-                </div>
-            </div>
-
-            <div id="common-modal" class="modal">
-                <div class="modal-content">
-                    <span class="close" id="close-modal">&times;</span>
-                    <h3 id="modal-title" style="margin-bottom:10px;"></h3>
-                    <select name="mainCategory" id="Category-main"></select>
-                    <div class="type-title-div">
-                        <div class="title-input">
-                            <input type="text" id="modal-input-title" class="modal-input">
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label for="categoryChoiceFirst">카테고리 <span class="required">*</span></label>
+                            <div style="display:flex; gap:20px; width:100%;">
+                                <div class="categoryFirst" style="flex:1;">
+                                    <select id="categoryChoiceFirst" name="mainCategory" required>
+                                        <option value="top">상의</option>
+                                        <option value="bottom">하의</option>
+                                        <option value="shoes">신발</option>
+                                    </select>
+                                </div>
+                                <div class="categorySecond" style="flex:1;">
+                                    <select id="categoryChoiceSecond" name="categoryNo" required>
+                                        <option value="">카테고리 선택</option>
+                                    </select>
+                                </div>
+                                <button type="button" id="add-category-btn">+ 새 카테고리 추가</button>
+                            </div>
                         </div>
                     </div>
-                    <div id="type-content-div">
-                        <div class="content-input">
-                            <input type="text" id="modal-input-content-1"><br/>
-                            <input type="text" id="modal-input-content-2">
-                        </div>
-                    </div>
-                    <button type="button" id="cancel-btn">취소</button>
-                    <button type="button" id="save-btn">저장</button>
-                </div>
-            </div>
 
-        </form>
+                    <!--사이즈-->
+                    <div class="sizes-section">
+                        <div class="form-group" style="display: flex;">
+                            <label style="margin-right:5px;">사이즈 정보</label><span class="required">*</span>
+                        </div>
+                        <div class="size-header">
+                            <div>사이즈</div>
+                            <div style="text-align: center">가격(원)</div>
+                            <div>색깔</div>
+                            <div>재고</div>
+                            <div>상태</div>
+                            <div></div>
+                        </div>
+
+                        <div id="sizesContainer">
+                            <!-- 사이즈 아이템들이 동적으로 추가됩니다 -->
+                        </div>
+
+                        <button type="button" class="btn-add">
+                            <span>+</span>사이즈 추가
+                        </button>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="register" id="submit-btn">등록하기</button>
+                    </div>
+                </div>
+
+                <div id="common-modal" class="modal">
+                    <div class="modal-content">
+                        <span class="close" id="close-modal">&times;</span>
+                        <h3 id="modal-title" style="margin-bottom:10px;"></h3>
+                        <select name="mainCategory" id="Category-main"></select>
+                        <div class="type-title-div">
+                            <div class="title-input">
+                                <input type="text" id="modal-input-title" class="modal-input">
+                            </div>
+                        </div>
+                        <div id="type-content-div">
+                            <div class="content-input">
+                                <input type="text" id="modal-input-content-1"><br/>
+                                <input type="text" id="modal-input-content-2">
+                            </div>
+                        </div>
+                        <button type="button" id="cancel-btn">취소</button>
+                        <button type="button" id="save-btn">저장</button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 </main>
 <footer th:replace="~{view/admin/css/admin_footer :: admin_footer}"></footer>

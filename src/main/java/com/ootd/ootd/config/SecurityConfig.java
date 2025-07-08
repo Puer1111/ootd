@@ -80,15 +80,17 @@ public class SecurityConfig {
                                 "/payments/cancel/{imp_uid}", // 결제 취소
                                 "/cart", // 장바구니 페이지
                                 "/cart/add", // 장바구니 담기
-                                "/admin/product",       // 상품 등록
+                                "/admin/**",       // 상품
                                 "/admin/coupon", // 관리자 쿠폰
+                                "/api/products", // 상품 조회
+                                "/api/select/product/{productNo}" , // 상품 조회 JS 용
                                 "/api/coupon/insert", // 쿠폰 등록 api
                                 "/api/coupon/update", // 쿠폰 수정 api
                                 "/api/coupon/delete", // 쿠폰 삭제 api
                                 "/api/coupon/all", // 쿠폰 전체 조회 api
                                 "/api/categories" // 카테고리 전체 조회
                         ).permitAll()                // 인증 없이 접근 허용
-
+//                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         // ✅ 로그인이 필요한 경로들
                         .requestMatchers(
                                 "/api/auth/mypage",

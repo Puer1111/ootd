@@ -57,7 +57,7 @@ public class ProductController {
         this.colorsService = colorsService;
     }
 
-    // ProductController.java에 추가
+
     @GetMapping("/")
     public String test(Model model) {
         List<ProductDTO> products = productService.getAllProducts();
@@ -65,6 +65,13 @@ public class ProductController {
         return "view/index";
     }
 
+//    @GetMapping("/api/products")
+//    @ResponseBody
+//    public List<ProductDTO> getAllProducts() {
+//        return productService.getAllProducts();
+//    }
+
+    // View 전달용
     @GetMapping("/products/{productNo}")
     public String productDetail(@PathVariable Long productNo, Model model) {
         ProductDTO product = productService.getProductById(productNo);
@@ -73,7 +80,20 @@ public class ProductController {
     }
 
 
-    @PostMapping("/enter/product")
+    // JS 응답용
+    @GetMapping("/api/select/product/{productNo}")
+    @ResponseBody // JSON 형태로 데이터를 반환하도록 지정
+    public ResponseEntity<ProductDTO> getProductDetailsApi(@PathVariable Long productNo) {
+        ProductDTO product = productService.getProductById(productNo);
+        if (product != null) {
+            return ResponseEntity.ok(product);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
+    @PostMapping("/api/insert/product")
     public ResponseEntity<?> insertProduct(@ModelAttribute ProductDTO dto,
                                            HttpServletRequest request
     )  {
