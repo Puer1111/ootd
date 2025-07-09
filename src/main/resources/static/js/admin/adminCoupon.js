@@ -1,3 +1,36 @@
+// 쿠폰 조회 및 표시 함수
+async function retrieveAndDisplayCoupons() {
+    try {
+        const response = await fetch('/api/coupon/all');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const coupons = await response.json();
+        const table = document.getElementById('coupon-table');
+        if (!table) return; // 테이블이 없으면 함수 종료
+
+        const tableBody = table.querySelector('tbody');
+        if (!tableBody) return; // tbody가 없으면 함수 종료
+
+        tableBody.innerHTML = ''; // 기존 데이터 삭제
+
+        coupons.forEach(coupon => {
+            const row = tableBody.insertRow();
+            const expirationDate = coupon.expirationDate ? new Date(coupon.expirationDate).toLocaleDateString() : 'N/A';
+            row.innerHTML = `
+                <td>${coupon.id}</td>
+                <td>${coupon.couponName}</td>
+                <td>${coupon.discountRate}%</td>
+                <td>${coupon.quantity}</td>
+                <td>${expirationDate}</td>
+            `;
+        });
+    } catch (error) {
+        console.error('Error fetching coupons:', error);
+        alert('쿠폰 정보를 불러오는 데 실패했습니다.');
+    }
+}
+
 // 쿠폰 등록을 처리하는 함수
 function register(couponData) {
 
@@ -33,7 +66,7 @@ function register(couponData) {
 }
 
 // 쿠폰 수정을 처리하는 함수
-function modify(couponData) {
+function update(couponData) {
     // 숫자 필드는 숫자로 변환
     couponData.couponId = parseInt(couponData.couponId, 10);
     couponData.discountRate = parseInt(couponData.discountRate, 10);
@@ -41,7 +74,7 @@ function modify(couponData) {
     couponData.receiveLimit = parseInt(couponData.receiveLimit, 10);
     couponData.usageLimit = parseInt(couponData.usageLimit, 10);
 
-    fetch('/api/coupon/modify', {
+    fetch('/api/coupon/update', {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -97,10 +130,13 @@ function deleteCoupon(couponId) {
 
 // 섹션 표시/숨김 함수
 function showSection(sectionId) {
-    const sections = document.querySelectorAll('#coupon-register-section, #coupon-modify-section, #coupon-delete-section');
+    const sections = document.querySelectorAll('#coupon-retrieve-section, #coupon-register-section, #coupon-modify-section, #coupon-delete-section');
     sections.forEach(section => {
         if (section.id === sectionId) {
             section.style.display = 'block';
+            if (sectionId === 'coupon-retrieve-section') {
+                retrieveAndDisplayCoupons();
+            }
         } else {
             section.style.display = 'none';
         }
@@ -135,8 +171,41 @@ async function lookupCategory(mainCategory, subCategorySelectElement) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 초기에는 등록 섹션만 보이도록 설정
-    showSection('coupon-register-section');
+    // 초기에는 조회 섹션만 보이도록 설정
+    showSection('coupon-retrieve-section');
+
+    // --- 사이드바 메뉴 토글 및 활성화 기능 ---
+    const couponManagementToggle = document.getElementById('coupon-management-toggle');
+    const couponSubmenu = document.getElementById('coupon-submenu');
+
+    if (couponManagementToggle && couponSubmenu) {
+        const sidebarLinks = document.querySelectorAll('.admin-sidebar a, .admin-sidebar span');
+
+        const deactivateAll = () => {
+            sidebarLinks.forEach(link => {
+                link.classList.remove('active');
+            });
+        };
+
+        couponManagementToggle.addEventListener('click', (event) => {
+            event.preventDefault();
+            const isSubmenuLink = event.target.closest('#coupon-submenu');
+
+            if (!isSubmenuLink) { // 하위 메뉴 링크가 아닐 때만 토글
+                const isActive = couponSubmenu.classList.contains('active');
+                deactivateAll(); // 모든 활성화 클래스 제거
+                couponSubmenu.classList.toggle('active', !isActive);
+                couponManagementToggle.querySelector('span').classList.toggle('active', !isActive);
+            } else {
+                 deactivateAll();
+                 event.target.classList.add('active');
+                 couponManagementToggle.querySelector('span').classList.add('active');
+                 const targetSectionId = event.target.dataset.targetSection;
+                 showSection(targetSectionId);
+            }
+        });
+    }
+    // --- 사이드바 메뉴 기능 끝 ---
 
     // 쿠폰 등록 폼 처리
     const couponForm = document.getElementById('coupon-form');
@@ -159,18 +228,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 쿠폰 수정 폼 처리
-    const couponModifyForm = document.getElementById('coupon-modify-form');
-    if (couponModifyForm) {
-        couponModifyForm.addEventListener('submit', (event) => {
+    const couponUpdateForm = document.getElementById('coupon-modify-form');
+    if (couponUpdateForm) {
+        couponUpdateForm.addEventListener('submit', (event) => {
             event.preventDefault();
-            const formData = new FormData(couponModifyForm);
+            const formData = new FormData(couponUpdateForm);
             const couponData = Object.fromEntries(formData.entries());
-            modify(couponData);
+            update(couponData);
         });
 
         // 수정 폼의 modifyMainCategory 변경 시 modifySubCategory 업데이트
-        const modifyMainCategorySelect = couponModifyForm.querySelector('#modifyMainCategory');
-        const modifySubCategorySelect = couponModifyForm.querySelector('#modifySubCategory');
+        const modifyMainCategorySelect = couponUpdateForm.querySelector('#modifyMainCategory');
+        const modifySubCategorySelect = couponUpdateForm.querySelector('#modifySubCategory');
         if (modifyMainCategorySelect && modifySubCategorySelect) {
             modifyMainCategorySelect.addEventListener('change', () => {
                 lookupCategory(modifyMainCategorySelect.value, modifySubCategorySelect);
@@ -189,25 +258,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 사이드바 메뉴 토글 기능
-    const couponManagementToggle = document.getElementById('coupon-management-toggle');
-    const couponSubmenu = document.getElementById('coupon-submenu');
-
-    if (couponManagementToggle && couponSubmenu) {
-        couponManagementToggle.addEventListener('click', (event) => {
-            // 클릭된 요소가 서브메뉴 링크가 아닌 경우에만 토글
-            if (event.target.tagName !== 'A') {
-                couponSubmenu.classList.toggle('active');
-            }
-        });
-
-        // 서브메뉴 링크 클릭 시 해당 섹션 표시
-        couponSubmenu.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', (event) => {
-                event.preventDefault();
-                const targetSectionId = event.target.dataset.targetSection;
-                showSection(targetSectionId);
-            });
-        });
-    }
 });

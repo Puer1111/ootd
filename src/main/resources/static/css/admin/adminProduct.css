@@ -1,4 +1,3 @@
-/* enterProduct.css */
 
 /* 전체 폼 스타일링 */
 main{
@@ -620,4 +619,51 @@ input:focus, select:focus, textarea:focus {
         max-width: 400px;
     }
 
+}
+
+/* --- 접이식 행(Accordion Row) 스타일 --- */
+
+/* 펼치기/접기 버튼 */
+.toggle-options-btn {
+    background: none;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    transition: transform 0.2s ease;
+}
+
+.toggle-options-btn:hover {
+    background-color: #f0f0f0;
+}
+
+/* 옵션이 펼쳐졌을 때 버튼 회전 */
+.toggle-options-btn.open {
+    transform: rotate(180deg);
+}
+
+/* 상세 옵션을 담는 행 */
+.options-row {
+    background-color: #f9f9f9; /* 기본 행과 색상 구분 */
+}
+
+/* 상세 옵션 테이블 */
+.options-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+}
+
+.options-table th, .options-table td {
+    border: 1px solid #e0e0e0;
+    padding: 8px 12px;
+    text-align: center;
+}
+
+.options-table th {
+    background-color: #efefef;
+    font-weight: 600;
 }

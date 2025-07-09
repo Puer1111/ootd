@@ -1,6 +1,7 @@
 package com.ootd.ootd.repository.product;
 
 import com.ootd.ootd.model.entity.like.ProductLike;
+import org.springframework.data.jdbc.repository.query.Modifying;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -34,6 +35,10 @@ public interface ProductLikeRepository extends JpaRepository<ProductLike, Long> 
 
     int countByUserId(Long userId);
 
+
     // 사용자가 좋아요한 상품 목록
     List<ProductLike> findByUserId(Long userId);
+
+    @Modifying
+    void deleteByProductNo(Long productNo);
 }

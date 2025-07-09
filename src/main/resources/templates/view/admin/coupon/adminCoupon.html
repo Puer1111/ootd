@@ -19,6 +19,7 @@
             <li id="coupon-management-toggle">
                 <span>쿠폰 관리</span>
                 <ul id="coupon-submenu" class="submenu">
+                    <li><a href="#" data-target-section="coupon-retrieve-section">조회</a></li>
                     <li><a href="#" data-target-section="coupon-register-section">등록</a></li>
                     <li><a href="#" data-target-section="coupon-modify-section">수정</a></li>
                     <li><a href="#" data-target-section="coupon-delete-section">삭제</a></li>
@@ -28,7 +29,23 @@
         </ul>
     </div>
     <div class="admin-content">
-        <div id="coupon-register-section">
+        <div id="coupon-retrieve-section" class="admin-table-container" style="display:none;">
+            <h2>쿠폰 조회</h2>
+            <table id="coupon-table" class="admin-table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>이름</th>
+                    <th>할인율</th>
+                    <th>수량</th>
+                    <th>만료일</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <div id="coupon-register-section" style="display:none;">
             <h2>쿠폰 등록</h2>
             <form id="coupon-form">
                 <label for="couponName">쿠폰명:</label>

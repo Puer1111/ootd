@@ -1,6 +1,7 @@
 package com.ootd.ootd.repository.product;
 
 import com.ootd.ootd.model.entity.review.ProductReview;
+import org.springframework.data.jdbc.repository.query.Modifying;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -41,7 +42,11 @@ public interface ProductReviewRepository extends JpaRepository<ProductReview, Lo
     // 사용자가 작성한 리뷰 목록
     List<ProductReview> findByUserIdOrderByCreatedAtDesc(Long userId);
 
+
     @Query("SELECT pr FROM ProductReview pr WHERE pr.productNo = :productNo ORDER BY pr.createdAt DESC")
     List<ProductReview> findTop10ByProductNoOrderByCreatedAtDesc(@Param("productNo") Long productNo, Pageable pageable);
+
+    @Modifying
+    void deleteByProductNo(Long productNo);
 
 }

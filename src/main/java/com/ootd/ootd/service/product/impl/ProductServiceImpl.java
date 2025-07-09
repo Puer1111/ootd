@@ -1,5 +1,7 @@
 package com.ootd.ootd.service.product.impl;
 
+import com.ootd.ootd.model.dto.product.AdminProductDTO;
+import com.ootd.ootd.model.dto.product.AdminProductFlatDTO;
 import com.ootd.ootd.model.dto.product.ProductDTO;
 import com.ootd.ootd.model.dto.product.ProductDetailDTO;
 import com.ootd.ootd.model.dto.product.ProductOptionDTO;
@@ -16,7 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,8 +45,6 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public ProductDTO insertProduct(ProductDTO dto) {
-//        Long productNo = Long.parseLong(RandomGenerate.generateRandom10Digits());
-//        dto.setProductNo(productNo);
         System.out.println("Null Check : " + dto);
         try {
             Product productEntity = ProductDTO.convertToEntity(dto);
@@ -89,5 +91,82 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(productNo.toString())
                 .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
         return ProductDTO.convertToDTO(product);
+    }
+
+    @Override
+    @Transactional
+    public ProductDTO updateProduct(Long productId, ProductDTO dto) {
+        Product product = productRepository.findById(String.valueOf(productId))
+                .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
+
+        // 상품 정보 업데이트
+        product.setProductName(dto.getProductName());
+        product.setPrice(dto.getPrice());
+        product.setDescription(dto.getDescription());
+        // ... 기타 필요한 필드 업데이트
+
+        // 상품 옵션 업데이트 (기존 옵션 삭제 후 새로 추가하는 방식)
+        productOptionRepository.deleteByProductNo(productId);
+        List<ProductOption> productOptions = ProductOptionDTO.convertToEntityList(dto.getProductOption(), productId);
+        productOptionRepository.saveAll(productOptions);
+
+        Product updatedProduct = productRepository.save(product);
+        return ProductDTO.convertToDTO(updatedProduct);
+    }
+
+    @Override
+    @Transactional
+    public void deleteProduct(Long productId) {
+        // 연관된 데이터 삭제
+        productOptionRepository.deleteByProductNo(productId);
+        productLikeRepository.deleteByProductNo(productId);
+        productReviewRepository.deleteByProductNo(productId);
+
+        // 상품 삭제
+        productRepository.deleteById(String.valueOf(productId));
+    }
+
+    @Override
+    public List<AdminProductDTO> getAdminProducts() {
+        List<AdminProductFlatDTO> flatList = productRepository.findAdminProducts();
+
+        // productNo를 기준으로 데이터를 그룹화하고, 순서를 유지하기 위해 LinkedHashMap 사용
+        Map<Long, List<AdminProductFlatDTO>> groupedByProduct = flatList.stream()
+                .collect(Collectors.groupingBy(
+                        AdminProductFlatDTO::getProductNo,
+                        LinkedHashMap::new, // 순서 보장을 위해 LinkedHashMap 사용
+                        Collectors.toList()
+                ));
+
+        // 그룹화된 맵을 최종적인 AdminProductDTO 리스트로 변환
+        return groupedByProduct.values().stream()
+                .map(optionsForOneProduct -> {
+                    // 리스트의 첫 번째 항목에서 공통 상품 정보를 가져옴
+                    AdminProductFlatDTO firstOption = optionsForOneProduct.get(0);
+
+                    // 해당 상품의 모든 옵션 정보를 ProductOptionInfo 리스트로 변환
+                    List<AdminProductDTO.ProductOptionInfo> options = optionsForOneProduct.stream()
+                            .map(flatDto -> new AdminProductDTO.ProductOptionInfo(
+                                    flatDto.getSize() != null ? flatDto.getSize() : "",
+                                    flatDto.getInventory() != null ? flatDto.getInventory() : 0,
+                                    flatDto.getStatus() != null ? flatDto.getStatus() : "",
+                                    flatDto.getColorName() != null ? flatDto.getColorName() : ""
+                            ))
+                            .collect(Collectors.toList());
+
+                    // 최종적으로 계층 구조를 가진 AdminProductDTO를 빌드
+                    return AdminProductDTO.builder()
+                            .productNo(firstOption.getProductNo())
+                            .productName(firstOption.getProductName())
+                            .price(firstOption.getPrice())
+                            .description(firstOption.getDescription())
+                            .brandName(firstOption.getBrandName())
+                            .categoryNo(firstOption.getCategoryNo())
+                            .subCategory(firstOption.getSubCategory())
+                            .imageUrls(firstOption.getImageUrls())
+                            .options(options)
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 }

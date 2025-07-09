@@ -1,5 +1,6 @@
 package com.ootd.ootd.service.coupon.impl;
 
+import com.ootd.ootd.model.dto.coupon.CouponResponseDTO;
 import com.ootd.ootd.model.dto.coupon.InsertCouponDTO;
 import com.ootd.ootd.model.dto.coupon.UpdateCouponDTO;
 import com.ootd.ootd.model.entity.category.Category;
@@ -10,6 +11,9 @@ import com.ootd.ootd.service.coupon.CouponService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -67,5 +71,18 @@ public class CouponServiceImpl implements CouponService {
             throw new EntityNotFoundException("Coupon not found with id: " + couponId);
         }
         couponRepository.deleteById(couponId);
+    }
+
+    @Override
+    public List<CouponResponseDTO> getAllCoupons() {
+        return couponRepository.findAll().stream()
+                .map(coupon -> CouponResponseDTO.builder()
+                        .id(coupon.getCouponId())
+                        .couponName(coupon.getCouponName())
+                        .discountRate(coupon.getDiscountRate())
+                        .quantity(coupon.getQuantity())
+                        .expirationDate(coupon.getExpirationDate())
+                        .build())
+                .collect(Collectors.toList());
     }
 }

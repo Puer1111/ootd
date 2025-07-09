@@ -67,7 +67,6 @@ public class SecurityConfig {
                                 "/products/*/after-reviews",         // 🆕 구매 후기 목록 조회 (누구나 가능)
                                 // 상품
                                 "/products/**",
-                                "/enter",              // 상품 등록
                                 "/enter/product",       // 상품- 등록 후 페이지
                                 "/api/register/colors", // 상품-색깔 등록
                                 "/api/lookup/colors",  // 상품-색깔 조회
@@ -84,16 +83,27 @@ public class SecurityConfig {
                                 "/payments/cancel/{imp_uid}", // 결제 취소
                                 "/cart", // 장바구니 페이지
                                 "/cart/add", // 장바구니 담기
+                                "/admin/**",       // 상품
                                 "/admin/coupon", // 관리자 쿠폰
+
                                 "/api/coupon/insert" , // 쿠폰 등록 api
                                 "/api/categories", // 카테고리 전체 조회
 
                                 "/points",                          // 적립금 메인 페이지
                                 "/points/history",                  // 적립금 내역 페이지
                                 "/points/statistics",               // 적립금 통계 페이지
-                                "/api/points/earn-rate"             // 적립률 정보 조회 (공개)
-                        ).permitAll()                // 인증 없이 접근 허용
+                                "/api/points/earn-rate",             // 적립률 정보 조회 (공개)
 
+                                "/api/products", // 상품 조회
+                                "/api/select/product/{productNo}" , // 상품 조회 JS 용
+                                "/api/coupon/insert", // 쿠폰 등록 api
+                                "/api/coupon/update", // 쿠폰 수정 api
+                                "/api/coupon/delete", // 쿠폰 삭제 api
+                                "/api/coupon/all", // 쿠폰 전체 조회 api
+                                "/api/categories" // 카테고리 전체 조회
+
+                        ).permitAll()                // 인증 없이 접근 허용
+//                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         // ✅ 로그인이 필요한 경로들
                         .requestMatchers(
                                 "/api/auth/mypage",
