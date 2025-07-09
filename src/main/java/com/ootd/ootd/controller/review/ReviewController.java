@@ -32,7 +32,7 @@ public class ReviewController {
     // 내가 쓴 리뷰 페이지
     @GetMapping("/my-reviews")
     public String myReviewsPage() {
-        return "view/product/review";
+        return "view/product/reviews";
     }
 
     // 내가 쓴 리뷰 목록 API

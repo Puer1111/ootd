@@ -5,13 +5,12 @@ import com.ootd.ootd.service.payment.PaymentService;
 import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Payment;
-import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import retrofit2.http.Path;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -20,12 +19,11 @@ import java.util.Map;
 @Controller
 public class PaymentController {
 
+    private final PaymentService paymentService;
+
     @Autowired
-    PaymentService paymentservice;
-
-    public PaymentController(PaymentService paymentservice) {
-        this.paymentservice = paymentservice;
-
+    public PaymentController(PaymentService paymentService) {
+        this.paymentService = paymentService;
     }
 
     @GetMapping("/goPay")
@@ -37,15 +35,16 @@ public class PaymentController {
     @ResponseBody
     public IamportResponse<Payment> validatePayment(@PathVariable String imp_uid)
             throws IamportResponseException, IOException {
-        return paymentservice.validatePayment(imp_uid);
+        return paymentService.validatePayment(imp_uid);
     }
 
     @PostMapping("/payments/save")
     public ResponseEntity<?> savePayment(@RequestBody PaymentDTO dto) {
         System.out.println("DTO 확인: " + dto);
         try {
-            paymentservice.savePayment(dto);
+            paymentService.savePayment(dto);
         } catch (Exception e) {
+            System.err.println("결제 저장 중 오류: " + e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return ResponseEntity.ok().build();
@@ -57,15 +56,18 @@ public class PaymentController {
         if (orderId == null) {
             return ResponseEntity.badRequest().body("orderNo is required");
         }
-        String result = paymentservice.getImpUid(orderId);
+        String result = paymentService.getImpUid(orderId);
         Map<String, String> response = new HashMap<>();
         response.put("impUid", result);
-
         return ResponseEntity.ok().body(response);
     }
+
     @PostMapping("/payments/cancel/{imp_uid}")
     public ResponseEntity<?> cancelPayment(@PathVariable("imp_uid") String imp_uid) {
-            IamportResponse<Payment> reponse = paymentservice.cancelPayment(imp_uid);
+        IamportResponse<Payment> response = paymentService.cancelPayment(imp_uid);
+        if (response == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("결제 취소 실패");
+        }
         return ResponseEntity.ok().build();
     }
 }

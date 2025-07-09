@@ -3,12 +3,11 @@ package com.ootd.ootd.controller.user;
 import com.ootd.ootd.model.dto.user.SignupRequest;
 import com.ootd.ootd.model.dto.user.UserDTO;
 import com.ootd.ootd.service.user.UserService;
+import com.ootd.ootd.service.reward.RewardService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -21,17 +20,18 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final RewardService rewardService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, RewardService rewardService) {
         this.userService = userService;
+        this.rewardService = rewardService;
     }
 
     @GetMapping("/signup")
     public String signupPage(Model model) {
-        // UI에 필요한 데이터를 추가적으로 전달 가능
         model.addAttribute("title", "회원가입");
-        return "view/user/signup"; // templates/view/signup.html로 매핑
+        return "view/user/signup";
     }
 
     @PostMapping("/signup")
@@ -55,6 +55,15 @@ public class UserController {
             // 사용자 등록
             UserDTO userDTO = userService.registerUser(signupRequest);
 
+            // 🎉 회원가입 축하 적립금 지급
+            try {
+                rewardService.giveSignupReward(userDTO.getId());
+                System.out.println("🎉 회원가입 축하 적립금 지급 완료 - 사용자ID: " + userDTO.getId());
+            } catch (Exception e) {
+                System.err.println("❌ 회원가입 적립금 지급 실패: " + e.getMessage());
+                // 적립금 지급 실패해도 회원가입은 성공으로 처리
+            }
+
             Map<String, Object> response = new HashMap<>();
             response.put("message", "사용자가 성공적으로 등록되었습니다!");
             response.put("user", userDTO);
@@ -66,12 +75,4 @@ public class UserController {
             return ResponseEntity.internalServerError().body(response);
         }
     }
-//        @GetMapping
-//        public String showMypage(Model model, @AuthenticationPrincipal UserDetails userDetails) {
-//            String email = userDetails.getUsername(); // JWT 기반이라면 email 또는 userId 반환
-//            model.addAttribute("user", userService.findByEmail(email));
-//            return "mypage";
-//        }
-//    }
-
 }

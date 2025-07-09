@@ -440,6 +440,131 @@ public class ProductController {
         }
     }
 
+    // 🆕 구매 후기 작성 (주문한 사용자만 가능)
+    @PostMapping("/products/{productNo}/after-review")
+    public ResponseEntity<?> createAfterReview(@PathVariable Long productNo,
+                                               @RequestBody Map<String, Object> reviewData,
+                                               @AuthenticationPrincipal UserDetails userDetails) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            if (userDetails == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+
+            User user = userRepository.findByEmail(userDetails.getUsername())
+                    .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
+
+            // 🔥 주문 여부 확인 (구매 후기는 실제 구매한 사람만 작성 가능)
+            boolean hasOrdered = userOrderRepository.existsByUserIdAndProductNoAndStatus(
+                    user.getId(), productNo, UserOrder.OrderStatus.ORDERED);
+
+            if (!hasOrdered) {
+                response.put("success", false);
+                response.put("message", "구매 후기는 실제 구매하신 고객만 작성 가능합니다");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            // 이미 구매 후기를 작성했는지 확인
+            if (productReviewRepository.existsByProductNoAndUserId(productNo, user.getId())) {
+                response.put("success", false);
+                response.put("message", "이미 구매 후기를 작성하셨습니다");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            int rating = Integer.parseInt(reviewData.get("rating").toString());
+            String content = reviewData.get("content").toString();
+
+            if (rating < 1 || rating > 5) {
+                response.put("success", false);
+                response.put("message", "평점은 1-5점 사이여야 합니다");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            // 🔥 구매 후기는 별도 필드로 구분 (예: type 필드 추가 고려)
+            ProductReview afterReview = new ProductReview(productNo, user.getId(), rating, content);
+            // afterReview.setReviewType("AFTER_REVIEW"); // 필요시 타입 구분
+            productReviewRepository.save(afterReview);
+
+            response.put("success", true);
+            response.put("message", "구매 후기가 작성되었습니다");
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "구매 후기 작성 중 오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    // 🆕 구매 후기 목록 조회 (주문한 사용자의 후기만)
+    @GetMapping("/products/{productNo}/after-reviews")
+    public ResponseEntity<?> getAfterReviews(@PathVariable Long productNo) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            // 🔥 실제 구매한 사용자들의 리뷰만 조회하는 로직 필요
+            // 현재는 모든 리뷰를 구매 후기로 간주
+            List<ProductReview> afterReviews = productReviewRepository.findByProductNoOrderByCreatedAtDesc(productNo);
+
+            // 🔥 실제로는 주문 여부를 확인하여 필터링해야 함
+            // afterReviews = afterReviews.stream()
+            //     .filter(review -> userOrderRepository.existsByUserIdAndProductNoAndStatus(
+            //         review.getUserId(), productNo, UserOrder.OrderStatus.ORDERED))
+            //     .collect(Collectors.toList());
+
+            response.put("success", true);
+            response.put("afterReviews", afterReviews);
+            response.put("afterReviewCount", afterReviews.size());
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "구매 후기를 가져오는 중 오류가 발생했습니다");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    // 🆕 구매 후기 작성 권한 확인
+    @GetMapping("/products/{productNo}/after-review-permission")
+    public ResponseEntity<?> getAfterReviewPermission(@PathVariable Long productNo,
+                                                      @AuthenticationPrincipal UserDetails userDetails) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            boolean canWriteAfterReview = false;
+            boolean isLoggedIn = userDetails != null;
+
+            if (isLoggedIn) {
+                User user = userRepository.findByEmail(userDetails.getUsername()).orElse(null);
+                if (user != null) {
+                    // 주문했는지 확인
+                    boolean hasOrdered = userOrderRepository.existsByUserIdAndProductNoAndStatus(
+                            user.getId(), productNo, UserOrder.OrderStatus.ORDERED);
+
+                    // 이미 후기를 작성했는지 확인
+                    boolean alreadyReviewed = productReviewRepository.existsByProductNoAndUserId(productNo, user.getId());
+
+                    canWriteAfterReview = hasOrdered && !alreadyReviewed;
+                }
+            }
+
+            response.put("success", true);
+            response.put("canWriteAfterReview", canWriteAfterReview);
+            response.put("isLoggedIn", isLoggedIn);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "권한 확인 중 오류가 발생했습니다");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
 
 
 

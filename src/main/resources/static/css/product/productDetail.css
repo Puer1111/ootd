@@ -835,3 +835,58 @@
         font-size: 20px;
     }
 }
+/* 🆕 구매 후기 전용 스타일 - productDetail.css 파일 끝에 추가 */
+
+/* 구매 후기 아이템 */
+.after-review-item {
+    border-left: 4px solid #28a745;
+    background-color: #f8fff9;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    border-bottom: 1px solid #e0f5e0;
+}
+
+.after-review-item:last-child {
+    border-bottom: none;
+}
+
+/* 구매 확인 배지 */
+.verified-purchase {
+    display: inline-block;
+    background-color: #28a745;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    margin-right: 8px;
+}
+
+/* 구매 후기 설명 텍스트 */
+.after-review-description {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    font-style: italic;
+}
+
+/* 구매 후기 섹션 헤더 */
+.after-reviews-header h3 {
+    color: #28a745;
+}
+
+/* 구매 후기 별점 (일반 리뷰와 구분) */
+.after-star {
+    font-size: 24px;
+    color: #ddd;
+    cursor: pointer;
+    transition: color 0.2s;
+    user-select: none;
+}
+
+.after-star:hover,
+.after-star.active {
+    color: #28a745; /* 일반 리뷰는 노란색, 구매 후기는 초록색 */
+}

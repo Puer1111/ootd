@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>내 적립금 - OOTD</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <!-- CSS 파일들 -->
+    <link rel="stylesheet" th:href="@{/css/common/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/common/header.css}">
+    <link rel="stylesheet" th:href="@{/css/common/layout.css}">
+    <link rel="stylesheet" th:href="@{/css/point/points.css}">
+</head>
+<body>
+
+<!-- 공통 헤더 -->
+<header th:replace="~{common/header.html :: header}"></header>
+
+<div class="points-container">
+    <!-- 로딩 상태 -->
+    <div id="loading" class="loading" style="display: none;">
+        적립금 정보를 불러오는 중...
+    </div>
+
+    <!-- 에러 메시지 -->
+    <div id="error-message" class="error-message" style="display: none;"></div>
+
+    <!-- 성공 메시지 -->
+    <div id="success-message" class="success-message" style="display: none;"></div>
+
+    <!-- 메인 콘텐츠 -->
+    <div id="main-content">
+        <!-- 페이지 헤더 -->
+        <div class="points-header">
+            <h1>💰 내 적립금</h1>
+            <p>적립금을 확인하고 관리하세요</p>
+        </div>
+
+        <!-- 적립금 카드들 -->
+        <div class="points-cards">
+            <!-- 메인 적립금 카드 -->
+            <div class="points-card main">
+                <div class="card-header">
+                    <div class="card-icon">💎</div>
+                    <h2 class="card-title">사용 가능한 적립금</h2>
+                </div>
+                <div class="card-value" id="available-points-main">0원</div>
+                <div class="card-description">지금 바로 사용할 수 있는 적립금입니다</div>
+            </div>
+
+            <!-- 총 적립금 -->
+            <div class="points-card">
+                <div class="card-header">
+                    <div class="card-icon">📈</div>
+                    <h3 class="card-title">총 적립금</h3>
+                </div>
+                <div class="card-value" id="total-points">0원</div>
+                <div class="card-description">지금까지 받은 모든 적립금</div>
+            </div>
+
+            <!-- 사용한 적립금 -->
+            <div class="points-card">
+                <div class="card-header">
+                    <div class="card-icon">🛒</div>
+                    <h3 class="card-title">사용한 적립금</h3>
+                </div>
+                <div class="card-value" id="used-points">0원</div>
+                <div class="card-description">지금까지 사용한 적립금</div>
+            </div>
+        </div>
+
+        <!-- 적립금 통계 섹션 -->
+        <div class="statistics-section">
+            <h3 class="section-title">📊 적립금 통계</h3>
+            <div class="statistics-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="total-earned">0원</div>
+                    <div class="stat-label">총 적립 금액</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="total-used-history">0원</div>
+                    <div class="stat-label">총 사용 금액</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="purchase-earn-count">0회</div>
+                    <div class="stat-label">구매 적립 횟수</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="purchase-use-count">0회</div>
+                    <div class="stat-label">구매 사용 횟수</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 적립금 내역 섹션 -->
+        <div class="points-history-section">
+            <div class="section-header">
+                <h3 class="section-title">📋 적립금 내역</h3>
+
+                <div class="section-controls">
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-filter="all">전체</button>
+                        <button class="filter-btn" data-filter="earn">적립</button>
+                        <button class="filter-btn" data-filter="use">사용</button>
+                    </div>
+
+                    <button id="refresh-btn" class="refresh-btn">🔄 새로고침</button>
+                </div>
+            </div>
+
+            <div class="points-history-list" id="points-history-list">
+                <!-- 적립금 내역이 여기에 동적으로 추가됩니다 -->
+            </div>
+
+            <!-- 페이지네이션 -->
+            <div id="pagination" class="pagination" style="display: none;">
+                <!-- 페이지네이션 버튼들이 여기에 동적으로 추가됩니다 -->
+            </div>
+        </div>
+
+        <!-- 최근 활동 섹션 -->
+        <div class="recent-activity-section">
+            <div class="section-header">
+                <h3 class="section-title">⏰ 최근 활동</h3>
+
+                <div class="section-controls">
+                    <div class="filter-buttons">
+                        <button class="period-btn active" data-days="7">7일</button>
+                        <button class="period-btn" data-days="30">30일</button>
+                        <button class="period-btn" data-days="90">90일</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="recent-activity">
+                <!-- 최근 활동이 여기에 동적으로 추가됩니다 -->
+            </div>
+        </div>
+
+        <!-- 적립률 정보 -->
+        <div class="points-info-section">
+            <div class="section-header">
+                <h3 class="section-title">ℹ️ 적립금 안내</h3>
+            </div>
+
+            <div class="info-content">
+                <div class="info-cards">
+                    <div class="info-card">
+                        <div class="info-icon">💡</div>
+                        <h4>적립 방법</h4>
+                        <ul>
+                            <li>상품 구매 시 결제 금액의 1% 적립</li>
+                            <li>회원가입 시 1,000원 적립</li>
+                            <li>이벤트 참여 시 추가 적립</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-icon">🎯</div>
+                        <h4>사용 방법</h4>
+                        <ul>
+                            <li>상품 주문 시 적립금 사용 가능</li>
+                            <li>1원 단위로 자유롭게 사용</li>
+                            <li>결제 금액 한도 내에서 사용</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-icon">⚠️</div>
+                        <h4>주의사항</h4>
+                        <ul>
+                            <li>적립금 유효기간: 적립일로부터 1년</li>
+                            <li>환불 시 사용한 적립금도 함께 환원</li>
+                            <li>일부 상품은 적립 제외될 수 있음</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="earn-rate-info" class="earn-rate-section">
+                    <!-- 적립률 정보가 여기에 동적으로 추가됩니다 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 뒤로가기 버튼 -->
+        <div class="back-button">
+            <a href="/mypage" class="btn btn-outline">← 마이페이지로 돌아가기</a>
+        </div>
+    </div>
+</div>
+
+<!-- 적립금 계산기 모달 -->
+<div id="point-calculator-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>적립금 계산기</h3>
+            <span class="close" onclick="closeModal('point-calculator-modal')">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="calculator-section">
+                <label for="amount-input">구매 예정 금액</label>
+                <input type="number" id="amount-input" placeholder="금액을 입력하세요" min="0">
+                <button id="calculate-btn" class="btn btn-primary">계산하기</button>
+                <div id="calculation-result" class="calculation-result"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 공통 푸터 -->
+<footer th:replace="~{common/footer.html :: footer}"></footer>
+
+<!-- JavaScript 파일들 -->
+<script src="/js/point/pointsAPI.js"></script>
+<script src="/js/point/points.js"></script>
+
+<style>
+    /* 추가 스타일 */
+    .info-content {
+        padding: 30px;
+    }
+
+    .info-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .info-card {
+        background: #f8f9fa;
+        padding: 25px;
+        border-radius: 10px;
+        border-left: 4px solid #667eea;
+    }
+
+    .info-icon {
+        font-size: 2rem;
+        margin-bottom: 15px;
+    }
+
+    .info-card h4 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #333;
+    }
+
+    .info-card ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .info-card li {
+        padding: 5px 0;
+        color: #666;
+        position: relative;
+        padding-left: 20px;
+    }
+
+    .info-card li::before {
+        content: "✓";
+        color: #28a745;
+        font-weight: bold;
+        position: absolute;
+        left: 0;
+    }
+
+    .earn-rate-section {
+        background: #e3f2fd;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .earn-rate-display h4 {
+        margin-bottom: 10px;
+        color: #1976d2;
+    }
+
+    .rate-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1976d2;
+        margin-bottom: 10px;
+    }
+
+    .rate-example {
+        font-size: 1.1rem;
+        color: #666;
+    }
+
+    /* 모달 스타일 */
+    .modal {
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 10px;
+        max-width: 500px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 30px;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        color: #333;
+    }
+
+    .close {
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #666;
+    }
+
+    .close:hover {
+        color: #333;
+    }
+
+    .modal-body {
+        padding: 30px;
+    }
+
+    .calculator-section {
+        text-align: center;
+    }
+
+    .calculator-section label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .calculator-section input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 1rem;
+        margin-bottom: 20px;
+    }
+
+    .calculation-result {
+        margin-top: 20px;
+        padding: 15px;
+        background: #e3f2fd;
+        border-radius: 6px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1976d2;
+        min-height: 20px;
+    }
+
+    .back-button {
+        text-align: center;
+        margin-top: 40px;
+        padding-top: 30px;
+        border-top: 1px solid #e9ecef;
+    }
+
+    /* 반응형 추가 */
+    @media (max-width: 768px) {
+        .info-cards {
+            grid-template-columns: 1fr;
+        }
+
+        .modal-content {
+            margin: 20px;
+        }
+
+        .modal-header, .modal-body {
+            padding: 20px;
+        }
+    }
+</style>
+
+</body>
+</html>

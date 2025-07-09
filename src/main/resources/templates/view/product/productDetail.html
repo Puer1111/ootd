@@ -137,15 +137,12 @@
 
     <!-- productDetail.html의 탭 메뉴 수정 -->
 
-    <!-- 상품 상세 탭 -->
+    <!-- 상품 상세 탭 (후기 탭 제거됨) -->
     <div class="product-tabs">
         <div class="tab-menu">
             <button class="tab-btn active" onclick="showTab('info')">상품정보</button>
             <button class="tab-btn" onclick="showTab('reviews')">
                 리뷰 (<span id="review-count-tab">0</span>)
-            </button>
-            <button class="tab-btn" onclick="showTab('afterreviews')">
-                후기 (<span id="after-review-count-tab">0</span>)
             </button>
         </div>
 
@@ -170,7 +167,7 @@
             </div>
         </div>
 
-        <!-- 리뷰 탭 (기존 리뷰 기능) -->
+        <!-- 리뷰 탭 (기존 유지) -->
         <div id="reviews-tab" class="tab-content">
             <div class="reviews-section">
                 <div class="reviews-header">
@@ -178,48 +175,40 @@
                     <div id="average-rating">평점: <span id="avg-rating">0.0</span>★</div>
                 </div>
 
-                <!-- 기존 리뷰 작성 폼과 리뷰 목록 그대로 유지 -->
-                <!-- ... 기존 리뷰 관련 HTML ... -->
-            </div>
-        </div>
-
-        <!-- 🆕 후기 탭 (새로 추가) -->
-        <div id="afterreviews-tab" class="tab-content">
-            <div class="after-reviews-section">
-                <div class="after-reviews-header">
-                    <h3>구매 후기 (<span id="after-review-count">0</span>개)</h3>
-                    <p class="after-review-description">실제 구매하신 고객들의 솔직한 후기입니다.</p>
+                <!-- 로그인 필요 메시지 -->
+                <div id="login-required-message" class="login-required" style="display: none;">
+                    <p>리뷰를 작성하려면 <a href="/login">로그인</a>해주세요.</p>
                 </div>
 
-                <!-- 후기 작성 버튼 (주문한 사용자만) -->
-                <div id="write-after-review-container" class="write-review-container">
-                    <button id="write-after-review-btn" class="btn btn-primary" style="display: none;">구매 후기 작성</button>
+                <!-- 리뷰 작성 버튼 -->
+                <div class="write-review-container">
+                    <button id="write-review-btn" class="btn btn-primary" style="display: none;">리뷰 작성</button>
                 </div>
 
-                <!-- 후기 작성 폼 -->
-                <div id="after-review-form-container" style="display: none;">
+                <!-- 리뷰 작성 폼 -->
+                <div id="review-form-container" class="review-form-container" style="display: none;">
                     <div class="review-form">
-                        <h4>구매 후기 작성</h4>
+                        <h4>리뷰 작성</h4>
                         <div class="rating-input">
-                            <span class="star after-star" data-rating="1">★</span>
-                            <span class="star after-star" data-rating="2">★</span>
-                            <span class="star after-star" data-rating="3">★</span>
-                            <span class="star after-star" data-rating="4">★</span>
-                            <span class="star after-star" data-rating="5">★</span>
+                            <span class="star" data-rating="1">★</span>
+                            <span class="star" data-rating="2">★</span>
+                            <span class="star" data-rating="3">★</span>
+                            <span class="star" data-rating="4">★</span>
+                            <span class="star" data-rating="5">★</span>
                         </div>
-                        <textarea id="after-review-content" placeholder="구매 후기를 작성해주세요..." rows="4" class="review-textarea"></textarea>
+                        <textarea id="review-content" placeholder="리뷰를 작성해주세요..." rows="4" class="review-textarea"></textarea>
                         <div class="review-form-buttons">
-                            <button id="submit-after-review-btn" class="btn btn-primary">후기 작성</button>
-                            <button id="cancel-after-review-btn" class="btn btn-outline">취소</button>
+                            <button id="submit-review-btn" class="btn btn-primary">리뷰 작성</button>
+                            <button id="cancel-review-btn" class="btn btn-outline">취소</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- 후기 목록 -->
-                <div id="after-reviews-list">
-                    <div id="no-after-reviews" class="no-reviews">
-                        <p>아직 작성된 구매 후기가 없습니다.</p>
-                        <p>첫 번째 후기를 작성해보세요!</p>
+                <!-- 리뷰 목록 -->
+                <div id="reviews-list">
+                    <div id="no-reviews" class="no-reviews">
+                        <p>아직 작성된 리뷰가 없습니다.</p>
+                        <p>첫 번째 리뷰를 작성해보세요!</p>
                     </div>
                 </div>
             </div>

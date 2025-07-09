@@ -7,33 +7,186 @@
     <link rel="stylesheet" href="/css/common/header.css">
     <link rel="stylesheet" href="/css/common/layout.css">
     <link rel="stylesheet" href="/css/common/reset.css">
+    <style>
+        .payment-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .payment-product-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .payment-product-title span {
+            margin-right: 10px;
+        }
+
+        .payment-product-price {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quantity-btn {
+            width: 35px;
+            height: 35px;
+            border: 1px solid #ddd;
+            background: #f5f5f5;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quantity-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .quantity-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #quantity {
+            font-size: 16px;
+            font-weight: bold;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .total-price-section {
+            border-top: 2px solid #333;
+            padding-top: 15px;
+            margin-top: 20px;
+        }
+
+        .total-price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+
+        .payment-submit {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .apply-button, .cancel-button {
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            min-width: 150px;
+        }
+
+        .apply-button {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .apply-button:hover {
+            background-color: #2980b9;
+        }
+
+        .cancel-button {
+            background-color: #95a5a6;
+            color: white;
+        }
+
+        .cancel-button:hover {
+            background-color: #7f8c8d;
+        }
+
+        .sale-percent {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .price-value {
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
 <header th:replace="~{common/header :: header}"></header>
 <main>
     <div th:fragment="content">
-        <div class="test1">
+        <div class="payment-container">
             <div class="payment-product-title">
-                <span>결제 상품 : </span>
-                <div class="payment-product-title-show" id="productName">Test</div>
+                <span>결제 상품 :</span>
+                <div class="payment-product-title-show" id="productName">Test Product</div>
             </div>
+
             <div class="payment-product-price">
-                <span>상품 금액 : </span>
-                <div class="payment-product-price-show" id="productPrice">5000</div>
-                <span>수량: </span>
-                <button>+</button><span id="quantity">10</span><button>-</button>
-                <span>할인 : </span>
-                <p class="sale-percent" id="salePercent">40</p>
-                <span>결제 금액 : </span>
-                <p id="totalPrice">55000</p>
+                <div class="price-row">
+                    <span>상품 단가 :</span>
+                    <span class="price-value"><span id="productPrice">5000</span>원</span>
+                </div>
+
+                <div class="price-row">
+                    <span>수량 :</span>
+                    <div class="quantity-controls">
+                        <button type="button" id="minus-btn" class="quantity-btn">-</button>
+                        <span id="quantity">1</span>
+                        <button type="button" id="plus-btn" class="quantity-btn">+</button>
+                    </div>
+                </div>
+
+                <div class="price-row">
+                    <span>할인율 :</span>
+                    <span class="sale-percent"><span id="salePercent">0</span>%</span>
+                </div>
+
+                <div class="price-row">
+                    <span>할인 금액 :</span>
+                    <span class="price-value"><span id="discountAmount">0</span>원</span>
+                </div>
+
+                <div class="total-price-section">
+                    <div class="total-price-row">
+                        <span>최종 결제 금액 :</span>
+                        <span><span id="totalPrice">5000</span>원</span>
+                    </div>
+                </div>
             </div>
 
             <div class="payment-submit">
-                <button id="payment-button" class="apply-button"> 결제 하기</button>
-                <button class="cancel-button">결제 취소</button>
+                <button id="payment-button" class="apply-button">결제하기</button>
+                <button class="cancel-button">결제취소</button>
             </div>
         </div>
-
     </div>
 </main>
 <footer th:replace="~{common/footer :: footer}"></footer>

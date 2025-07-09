@@ -1,12 +1,15 @@
 package com.ootd.ootd.controller.user;
 
 import com.ootd.ootd.model.dto.product.ProductDTO;
+import com.ootd.ootd.model.entity.category.Category;
 import com.ootd.ootd.model.entity.user.User;
+import com.ootd.ootd.repository.category.CategoryRepository;
 import com.ootd.ootd.repository.product.ProductLikeRepository;
 import com.ootd.ootd.repository.product.ProductReviewRepository;
 import com.ootd.ootd.repository.user.UserRepository;
 import com.ootd.ootd.security.JwtTokenProvider;
 import com.ootd.ootd.service.product.ProductService;
+import com.ootd.ootd.service.reward.RewardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,10 +21,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import com.ootd.ootd.repository.order.UserOrderRepository;
 import com.ootd.ootd.model.entity.order.UserOrder;
-import com.ootd.ootd.repository.order.UserOrderRepository;
-
-
-
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,7 +53,12 @@ public class LoginController {
     @Autowired
     private UserOrderRepository userOrderRepository;
 
+    @Autowired
+    private CategoryRepository categoryRepository;
 
+    // 🆕 RewardService 사용 (pointService 대신)
+    @Autowired
+    private RewardService rewardService;
 
     // 로그인 페이지 보여주기
     @GetMapping("/login")
@@ -270,9 +274,6 @@ public class LoginController {
         return "view/user/orderHistory";
     }
 
-    // 주문 내역 API (좋아요 목록과 완전히 동일)
-    // LoginController.java의 주문내역 API (디버깅 제거된 버전)
-
     @GetMapping("/api/auth/order-history")
     @ResponseBody
     public ResponseEntity<?> getUserOrderHistory(@AuthenticationPrincipal UserDetails userDetails) {
@@ -288,13 +289,11 @@ public class LoginController {
             User user = userRepository.findByEmail(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
 
-            // Repository 메소드로 주문 정보 조회
             List<UserOrder> userOrders;
             try {
                 userOrders = userOrderRepository.findByUserIdAndStatusOrderByCreatedAtDesc(
                         user.getId(), UserOrder.OrderStatus.ORDERED);
             } catch (Exception e) {
-                // 대안 방법: 모든 주문을 가져와서 필터링
                 userOrders = userOrderRepository.findAll().stream()
                         .filter(order -> order.getUserId().equals(user.getId()) &&
                                 order.getStatus() == UserOrder.OrderStatus.ORDERED)
@@ -307,29 +306,26 @@ public class LoginController {
             for (UserOrder order : userOrders) {
                 ProductDTO product = productService.getProductById(order.getProductNo());
                 if (product != null) {
-                    // 상품 기본 정보 설정
-                    product.setLikeCount(productLikeRepository.countByProductNo(order.getProductNo()));
-                    if (productReviewRepository != null) {
-                        product.setReviewCount(productReviewRepository.countByProductNo(order.getProductNo()));
-                        Double avgRating = productReviewRepository.findAverageRatingByProductNo(order.getProductNo());
-                        product.setAverageRating(avgRating != null ? avgRating : 0.0);
+                    String categoryName = "카테고리";
+                    String subCategoryName = "하위카테고리";
+
+                    if (product.getCategoryNo() != null) {
+                        Optional<Category> categoryOpt = categoryRepository.findById(product.getCategoryNo());
+                        if (categoryOpt.isPresent()) {
+                            Category category = categoryOpt.get();
+                            categoryName = category.getMainCategory();
+                            subCategoryName = category.getSubCategory();
+                        }
                     }
 
-                    // 주문 정보와 상품 정보를 합친 Map 생성
                     Map<String, Object> orderWithProduct = new HashMap<>();
-
-                    // 상품 정보
                     orderWithProduct.put("productNo", product.getProductNo());
                     orderWithProduct.put("productName", product.getProductName());
                     orderWithProduct.put("price", product.getPrice());
                     orderWithProduct.put("imageUrls", product.getImageUrls());
                     orderWithProduct.put("brandName", product.getBrandName());
-                    orderWithProduct.put("subCategory", product.getSubCategory());
-                    orderWithProduct.put("likeCount", product.getLikeCount());
-                    orderWithProduct.put("reviewCount", product.getReviewCount());
-                    orderWithProduct.put("averageRating", product.getAverageRating());
-
-                    // 주문 정보 추가
+                    orderWithProduct.put("categoryName", categoryName);
+                    orderWithProduct.put("subCategory", subCategoryName);
                     orderWithProduct.put("orderId", order.getId());
                     orderWithProduct.put("quantity", order.getQuantity() != null ? order.getQuantity() : 1);
                     orderWithProduct.put("totalPrice", order.getTotalPrice() != null ? order.getTotalPrice() : 0L);
@@ -375,7 +371,6 @@ public class LoginController {
             User user = userRepository.findByEmail(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
 
-            // 취소한 상품 번호 목록
             List<Long> cancelledProductNos = userOrderRepository.findCancelledProductNosByUserId(user.getId());
 
             List<ProductDTO> cancelledProducts = new ArrayList<>();
@@ -452,10 +447,7 @@ public class LoginController {
         }
     }
 
-    // LoginController.java에 추가할 사용자 통계 API
-
-    // LoginController.java의 사용자 통계 API (수정된 버전)
-
+    // 🆕 사용자 통계 API (RewardService 사용)
     @GetMapping("/api/auth/user-stats")
     @ResponseBody
     public ResponseEntity<?> getUserStats(@AuthenticationPrincipal UserDetails userDetails) {
@@ -471,28 +463,46 @@ public class LoginController {
             User user = userRepository.findByEmail(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
 
-            // 🔧 후기(리뷰) 개수 가져오기 - countByUserId 메소드 사용
-            int reviewCount = 0;
-            if (productReviewRepository != null) {
-                reviewCount = productReviewRepository.countByUserId(user.getId());
+            // 🆕 실제 적립금 조회 (RewardService 사용)
+            Long availablePoints = 0L;
+            try {
+                availablePoints = rewardService.getAvailablePoints(user.getId());
+                System.out.println("✅ 적립금 조회 성공 - 사용자ID: " + user.getId() + ", 적립금: " + availablePoints + "원");
+            } catch (Exception e) {
+                System.err.println("❌ 적립금 조회 실패: " + e.getMessage());
+                // 기본값 0 사용
             }
 
-            // 적립금과 쿠폰은 나중에 구현 (기본값 0)
-            int points = 0; // TODO: 적립금 시스템 구현 시 실제 값으로 변경
-            int coupons = 0; // TODO: 쿠폰 시스템 구현 시 실제 값으로 변경
+            // 후기(리뷰) 개수 가져오기
+            int reviewCount = 0;
+            try {
+                if (productReviewRepository != null) {
+                    reviewCount = productReviewRepository.countByUserId(user.getId());
+                    System.out.println("✅ 리뷰 개수 조회 성공 - 사용자ID: " + user.getId() + ", 리뷰 개수: " + reviewCount + "개");
+                }
+            } catch (Exception e) {
+                System.err.println("❌ 리뷰 개수 조회 실패: " + e.getMessage());
+            }
+
+            // 쿠폰은 나중에 구현 (기본값 0)
+            int coupons = 0;
 
             response.put("success", true);
-            response.put("reviewCount", reviewCount); // 내가 쓴 후기(리뷰) 개수
-            response.put("points", points);
+            response.put("points", availablePoints); // 🆕 실제 적립금
+            response.put("reviewCount", reviewCount);
             response.put("coupons", coupons);
+
+            System.out.println("📊 최종 통계 - 적립금: " + availablePoints + "원, 리뷰: " + reviewCount + "개, 쿠폰: " + coupons + "장");
 
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
+            System.err.println("❌ 사용자 통계 조회 전체 실패: " + e.getMessage());
+            e.printStackTrace();
+
             response.put("success", false);
             response.put("message", "통계 정보를 가져오는 중 오류가 발생했습니다: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-
 }

@@ -34,4 +34,16 @@ public interface UserOrderRepository extends JpaRepository<UserOrder, Long> {
 
     // 주문 ID로 찾기
     Optional<UserOrder> findByIdAndUserId(Long id, Long userId);
+
+    // UserOrderRepository.java에 추가
+    @Query("SELECT uo FROM UserOrder uo WHERE uo.totalPrice = :totalPrice ORDER BY uo.createdAt DESC")
+    Optional<UserOrder> findTopByTotalPriceOrderByCreatedAtDesc(@Param("totalPrice") Long totalPrice);
+
+    @Query("SELECT uo FROM UserOrder uo ORDER BY uo.createdAt DESC")
+    List<UserOrder> findTop5ByOrderByCreatedAtDesc();
+
+    // 편의 메소드
+//    default List<UserOrder> findTop5ByOrderByCreatedAtDesc() {
+//        return findTop5ByOrderByCreatedAtDesc(PageRequest.of(0, 5));}
+
 }

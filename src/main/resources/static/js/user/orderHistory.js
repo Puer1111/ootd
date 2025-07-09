@@ -78,7 +78,7 @@ async function loadOrderHistory() {
     }
 }
 
-// 🔥 강화된 주문 내역 표시 함수 (원본 기능 + 수량/가격 정보 강화)
+// 주문 내역 표시 함수
 function displayOrderHistory(orders, totalCount) {
     const productsContainer = document.getElementById('products-container');
     const productsGrid = document.getElementById('products-grid');
@@ -94,7 +94,7 @@ function displayOrderHistory(orders, totalCount) {
         totalCountElement.textContent = totalCount;
     }
 
-    // 주문 목록 HTML 생성 (수량 정보 강화)
+    // 주문 목록 HTML 생성
     const ordersHtml = orders.map(order => `
         <div class="product-card" data-product-no="${order.productNo}">
             <div class="product-image" onclick="goToProduct(${order.productNo})">
@@ -105,11 +105,11 @@ function displayOrderHistory(orders, totalCount) {
             </div>
             
             <div class="product-info">
-                <div class="product-brand">${order.brandName || '브랜드명'}</div>
+                <div class="product-brand">브랜드: ${order.brandName || 'OOTD'}</div>
                 <div class="product-name" onclick="goToProduct(${order.productNo})">${order.productName}</div>
-                <div class="product-category">${order.subCategory || '카테고리'}</div>
+                <div class="product-category">카테고리: ${order.categoryName || '패션'} > ${order.subCategory || '일반'}</div>
                 
-                <!-- 🔥 주문 정보 섹션 강화 -->
+                <!-- 주문 정보 섹션 -->
                 <div class="order-summary">
                     <div class="order-main-info">
                         <div class="quantity-price">
@@ -121,17 +121,6 @@ function displayOrderHistory(orders, totalCount) {
                     <div class="order-date-info">
                         <span class="order-date">${order.orderDate ? formatDate(order.orderDate) : '정보 없음'}</span>
                         <span class="order-status-badge">${order.orderStatus || '주문완료'}</span>
-                    </div>
-                </div>
-                
-                <div class="product-stats">
-                    <div class="stat-item">
-                        <span class="icon">♥</span>
-                        <span>${order.likeCount || 0}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="icon">★</span>
-                        <span>리뷰 ${order.reviewCount || 0}개</span>
                     </div>
                 </div>
                 
