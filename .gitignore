@@ -59,4 +59,10 @@ build.gradle
 
 # txt
 Project-problem.txt
+Problem.md
+project-problem.md
+
+#xlsx
+/src/main/resources/templates/crowling/
+
 

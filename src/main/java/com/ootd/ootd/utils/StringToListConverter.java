@@ -23,12 +23,15 @@ public class StringToListConverter implements AttributeConverter<List<String>, S
 
     @Override
     public List<String> convertToEntityAttribute(String dbData) {
-        // DB → Java: JSON 문자열을 List로
+        if (dbData == null || dbData.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
         try {
-            return dbData == null ? new ArrayList<>() :
-                    mapper.readValue(dbData, new TypeReference<List<String>>() {});
+            // JSON 형식으로 시도
+            return mapper.readValue(dbData, new TypeReference<List<String>>() {});
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            // JSON 파싱 실패 시, 콤마로 구분된 문자열로 처리
+            return List.of(dbData.split(","));
         }
     }
 
