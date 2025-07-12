@@ -97,7 +97,7 @@
                 </span>
             </div>
 
-            <!-- 수량 선택 섹션 추가 -->
+            <!-- 수량 선택 섹션 -->
             <div class="quantity-section">
                 <label for="quantity" class="quantity-label">수량</label>
                 <div class="quantity-controls">
@@ -123,21 +123,15 @@
                 <span id="product-no" th:text="${product.productNo}">상품번호</span>
             </div>
 
-            <!-- 구매 버튼들 -->
+            <!-- 구매 버튼들 (간소화됨) -->
             <div class="action-buttons">
-
                 <button class="btn btn-primary btn-large" id="add-cart-btn" onclick="addToCartWithQuantity()">장바구니</button>
-
-                <!-- 주문 상태에 따라 다른 버튼 표시 -->
                 <button id="order-btn" class="btn btn-secondary btn-large" onclick="orderProductWithQuantity()">주문하기</button>
-                <button id="cancel-order-btn" class="btn btn-danger btn-large" onclick="cancelOrder()" style="display: none;">주문취소</button>
             </div>
         </div>
     </div>
 
-    <!-- productDetail.html의 탭 메뉴 수정 -->
-
-    <!-- 상품 상세 탭 (후기 탭 제거됨) -->
+    <!-- 상품 상세 탭 -->
     <div class="product-tabs">
         <div class="tab-menu">
             <button class="tab-btn active" onclick="showTab('info')">상품정보</button>
@@ -146,7 +140,7 @@
             </button>
         </div>
 
-        <!-- 상품정보 탭 (기존과 동일) -->
+        <!-- 상품정보 탭 -->
         <div id="info-tab" class="tab-content active">
             <div class="product-details">
                 <h3>상품 상세 정보</h3>
@@ -167,7 +161,7 @@
             </div>
         </div>
 
-        <!-- 리뷰 탭 (기존 유지) -->
+        <!-- 리뷰 탭 -->
         <div id="reviews-tab" class="tab-content">
             <div class="reviews-section">
                 <div class="reviews-header">
@@ -226,9 +220,6 @@
 
 <script src="/js/product/productDetail.js"></script>
 <script src="/js/api/cart/cartAPI.js"></script>
-<<<<<<< HEAD
 
-=======
->>>>>>> Develop
 </body>
 </html>

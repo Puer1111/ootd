@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>랭킹 - OOTD</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <!-- CSS 파일들 -->
+    <link rel="stylesheet" href="/css/common/footer.css">
+    <link rel="stylesheet" href="/css/common/header.css">
+    <link rel="stylesheet" href="/css/common/layout.css">
+    <link rel="stylesheet" href="/css/common/reset.css">
+    <link rel="stylesheet" href="/css/ranking/ranking.css">
+</head>
+<body>
+
+<header th:replace="~{common/header.html :: header}"></header>
+
+<main>
+    <div class="ranking-container">
+        <!-- 랭킹 페이지 타이틀 -->
+        <div class="ranking-header">
+            <h1 class="ranking-title">상품 랭킹</h1>
+            <p class="ranking-subtitle">카테고리별 인기 상품을 확인해보세요</p>
+        </div>
+
+        <!-- 필터 및 정렬 섹션 -->
+        <div class="filter-section">
+            <!-- 정렬 방식 선택 -->
+            <div class="filter-group">
+                <h3>정렬 기준</h3>
+                <div class="sort-filters">
+                    <button class="sort-btn active" data-sort="reviews" onclick="changeSortOrder('reviews')">리뷰 많은 순</button>
+                    <button class="sort-btn" data-sort="likes" onclick="changeSortOrder('likes')">좋아요 순</button>
+                    <button class="sort-btn" data-sort="rating" onclick="changeSortOrder('rating')">평점 순</button>
+                </div>
+            </div>
+
+            <!-- 카테고리 필터 -->
+            <div class="filter-group">
+                <h3>카테고리</h3>
+                <div class="category-filters">
+                    <button class="category-btn active" data-category="all" onclick="filterByCategory('all')">전체</button>
+                    <button class="category-btn" data-category="top" onclick="filterByCategory('top')">상의</button>
+                    <button class="category-btn" data-category="bottom" onclick="filterByCategory('bottom')">하의</button>
+                    <button class="category-btn" data-category="shoes" onclick="filterByCategory('shoes')">신발</button>
+                </div>
+
+                <!-- 하위 카테고리 필터 -->
+                <div class="sub-category-filters" id="sub-category-filters" style="display: none;">
+                    <div class="sub-categories" id="sub-categories"></div>
+                </div>
+            </div>
+
+            <!-- 기간 필터 -->
+            <div class="filter-group">
+                <h3>기간</h3>
+                <div class="period-filters">
+                    <button class="period-btn active" data-period="all" onclick="filterByPeriod('all')">전체</button>
+                    <button class="period-btn" data-period="week" onclick="filterByPeriod('week')">최근 1주</button>
+                    <button class="period-btn" data-period="month" onclick="filterByPeriod('month')">최근 1개월</button>
+                    <button class="period-btn" data-period="year" onclick="filterByPeriod('year')">최근 1년</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 랭킹 결과 섹션 -->
+        <div class="ranking-section">
+            <div class="ranking-section-header">
+                <h2 class="section-title" id="section-title">리뷰 랭킹</h2>
+                <div class="section-controls">
+                    <button id="filter-liked-btn" class="filter-btn" onclick="toggleLikedFilter()">
+                        <span class="heart-icon">♥</span> 좋아요만 보기
+                    </button>
+                    <div class="view-options">
+                        <button class="view-btn active" data-view="grid" onclick="changeView('grid')">
+                            <span>⚏</span> 그리드
+                        </button>
+                        <button class="view-btn" data-view="list" onclick="changeView('list')">
+                            <span>☰</span> 리스트
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 로딩 상태 -->
+            <div id="loading-state" class="loading-state" style="display: none;">
+                <div class="spinner"></div>
+                <p>랭킹을 불러오는 중...</p>
+            </div>
+
+            <!-- 랭킹 상품 그리드/리스트 -->
+            <div class="ranking-grid" id="ranking-grid">
+                <!-- 상품 카드들이 JavaScript로 동적 생성됨 -->
+            </div>
+
+            <!-- 좋아요 필터링 시 빈 상태 -->
+            <div id="no-liked-products" class="empty-state" style="display: none;">
+                <p>좋아요한 상품이 없습니다.</p>
+                <button class="btn btn-primary" onclick="toggleLikedFilter()">전체 상품 보기</button>
+            </div>
+
+            <!-- 상품이 없을 때 -->
+            <div id="no-products" class="empty-state" style="display: none;">
+                <p>해당 조건의 상품이 없습니다.</p>
+                <button class="btn btn-primary" onclick="resetFilters()">필터 초기화</button>
+            </div>
+        </div>
+
+        <!-- 페이지네이션 -->
+        <div class="pagination-container" id="pagination-container" style="display: none;">
+            <div class="pagination">
+                <button class="page-btn" id="prev-page" onclick="changePage(-1)">‹ 이전</button>
+                <div class="page-numbers" id="page-numbers"></div>
+                <button class="page-btn" id="next-page" onclick="changePage(1)">다음 ›</button>
+            </div>
+        </div>
+
+        <!-- 뒤로가기 버튼 -->
+        <div class="back-button">
+            <button class="btn btn-outline" onclick="goBack()">← 메인으로 돌아가기</button>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{common/footer.html :: footer}"></footer>
+
+<!-- JavaScript 파일 -->
+<script src="/js/ranking/ranking.js"></script>
+
+</body>
+</html>

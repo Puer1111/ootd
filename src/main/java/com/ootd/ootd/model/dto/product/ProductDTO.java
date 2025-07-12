@@ -1,12 +1,11 @@
 package com.ootd.ootd.model.dto.product;
 
+import com.ootd.ootd.model.dto.promotion.ProductPromotionDTO;
 import com.ootd.ootd.model.entity.product.Product;
-import com.ootd.ootd.model.entity.product_colors.ProductColors;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -26,7 +25,7 @@ public class ProductDTO {
     private List<String> imageUrls;
     private Long categoryNo;
     private String subCategory;
-//    private List<Long> colorsNo;
+    private String mainCategory; // 메인 카테고리 추가
     private Long productColorsNo;
 
     private ProductOptionDTO productOption;
@@ -36,9 +35,19 @@ public class ProductDTO {
     private int reviewCount = 0;
     private double averageRating = 0.0;
 
+    // 🆕 추천/세일 정보 추가
+    private ProductPromotionDTO promotion;
 
+    // 편의 메서드들
+    private Boolean isRecommended = false;
+    private Boolean isSale = false;
+    private Integer salePercentage;
+    private Integer salePrice;
+    private Boolean isActiveSale = false;
 
-    public ProductDTO(Long productNo, String productName, Integer price, String description, String brandName, Long brandNo, List<String> imageUrls, Long categoryNo,String subCategory) {
+    // 기존 생성자
+    public ProductDTO(Long productNo, String productName, Integer price, String description,
+                      String brandName, Long brandNo, List<String> imageUrls, Long categoryNo, String subCategory) {
         this.productNo = productNo;
         this.productName = productName;
         this.price = price;
@@ -48,6 +57,14 @@ public class ProductDTO {
         this.imageUrls = imageUrls;
         this.categoryNo = categoryNo;
         this.subCategory = subCategory;
+    }
+
+    // 🆕 확장된 생성자 (메인 카테고리 포함)
+    public ProductDTO(Long productNo, String productName, Integer price, String description,
+                      String brandName, Long brandNo, List<String> imageUrls, Long categoryNo,
+                      String subCategory, String mainCategory) {
+        this(productNo, productName, price, description, brandName, brandNo, imageUrls, categoryNo, subCategory);
+        this.mainCategory = mainCategory;
     }
 
     public static ProductDTO convertToDTO(Product entity) {
@@ -63,7 +80,7 @@ public class ProductDTO {
     }
 
     public static Product convertToEntity(ProductDTO dto) {
-    return Product.builder()
+        return Product.builder()
                 .productNo(dto.getProductNo())
                 .productName(dto.getProductName())
                 .brandNo(dto.getBrandNo())
@@ -72,6 +89,25 @@ public class ProductDTO {
                 .categoryNo(dto.getCategoryNo())
                 .description(dto.getDescription())
                 .build();
+    }
 
+    // 🆕 프로모션 정보 설정 메서드
+    public void setPromotionInfo(ProductPromotionDTO promotion) {
+        this.promotion = promotion;
+        if (promotion != null) {
+            this.isRecommended = promotion.getIsRecommended();
+            this.isSale = promotion.getIsSale();
+            this.salePercentage = promotion.getSalePercentage();
+            this.salePrice = promotion.getSalePrice();
+            this.isActiveSale = promotion.getIsActiveSale();
+        }
+    }
+
+    // 🆕 실제 표시할 가격 계산 (세일 중이면 세일 가격, 아니면 원래 가격)
+    public Integer getDisplayPrice() {
+        if (isActiveSale && salePrice != null) {
+            return salePrice;
+        }
+        return price;
     }
 }

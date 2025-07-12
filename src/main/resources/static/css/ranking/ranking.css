@@ -1,0 +1,774 @@
+/* 랭킹 페이지 전용 스타일 */
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: #f8f9fa;
+}
+
+.ranking-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    margin-top: 80px;
+}
+
+/* 랭킹 헤더 */
+.ranking-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 3rem 2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    color: white;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.ranking-title {
+    font-size: 3rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.ranking-subtitle {
+    font-size: 1.2rem;
+    margin: 0;
+    opacity: 0.9;
+}
+
+/* 필터 섹션 */
+.filter-section {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.filter-group {
+    margin-bottom: 2rem;
+}
+
+.filter-group:last-child {
+    margin-bottom: 0;
+}
+
+.filter-group h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-group h3::before {
+    content: '';
+    width: 4px;
+    height: 20px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 2px;
+}
+
+/* 필터 버튼들 공통 스타일 */
+.category-filters, .sort-filters, .period-filters, .sub-categories {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.category-btn, .sort-btn, .period-btn, .sub-category-btn {
+    padding: 0.6rem 1.2rem;
+    border: 2px solid #e9ecef;
+    background: white;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #666;
+    position: relative;
+    overflow: hidden;
+}
+
+.category-btn::before, .sort-btn::before, .period-btn::before, .sub-category-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    transition: left 0.3s ease;
+    z-index: -1;
+}
+
+.category-btn:hover, .sort-btn:hover, .period-btn:hover, .sub-category-btn:hover {
+    border-color: #667eea;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.category-btn:hover::before, .sort-btn:hover::before, .period-btn:hover::before, .sub-category-btn:hover::before {
+    left: 0;
+}
+
+.category-btn.active, .sort-btn.active, .period-btn.active, .sub-category-btn.active {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-color: #667eea;
+    color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* 하위 카테고리 필터 */
+.sub-category-filters {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e9ecef;
+}
+
+/* 랭킹 섹션 */
+.ranking-section {
+    margin-bottom: 3rem;
+}
+
+.ranking-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.section-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+/* 좋아요 필터 버튼 */
+.filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #666;
+}
+
+.filter-btn:hover {
+    border-color: #ff6b6b;
+    background: #fff5f5;
+    color: #ff6b6b;
+}
+
+.filter-btn.active {
+    background: #ff6b6b;
+    color: white;
+    border-color: #ff6b6b;
+}
+
+.filter-btn.active .heart-icon {
+    color: white;
+}
+
+.heart-icon {
+    color: #ff6b6b;
+    font-size: 1rem;
+}
+
+/* 뷰 옵션 */
+.view-options {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.view-btn {
+    padding: 0.75rem 1rem;
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #666;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.view-btn:hover {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.view-btn.active {
+    background: #667eea;
+    border-color: #667eea;
+    color: white;
+}
+
+/* 로딩 상태 */
+.loading-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 랭킹 그리드 */
+.ranking-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+    padding: 1rem 0;
+}
+
+.ranking-grid.list-view {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+/* 랭킹 카드 (그리드 뷰) */
+.ranking-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.ranking-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* 랭킹 순위 뱃지 */
+.ranking-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    z-index: 3;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.ranking-badge.rank-1 {
+    background: linear-gradient(135deg, #ffd700, #ffed4e);
+    color: #b8860b;
+}
+
+.ranking-badge.rank-2 {
+    background: linear-gradient(135deg, #c0c0c0, #e5e5e5);
+    color: #696969;
+}
+
+.ranking-badge.rank-3 {
+    background: linear-gradient(135deg, #cd7f32, #daa520);
+    color: #8b4513;
+}
+
+.ranking-badge.rank-other {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+/* 프로모션 뱃지 */
+.badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 0.3rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    z-index: 3;
+    color: white;
+}
+
+.recommended-badge {
+    background: linear-gradient(135deg, #28a745, #20c997);
+}
+
+.sale-badge {
+    background: linear-gradient(135deg, #dc3545, #e74c3c);
+    right: 15px;
+    top: 60px;
+}
+
+.ranking-card:not(:has(.recommended-badge)) .sale-badge {
+    top: 15px;
+}
+
+/* 좋아요 버튼 (카드 위) */
+.like-btn-card {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.95);
+    border: none;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 2;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.like-btn-card:hover {
+    background: white;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.like-btn-card .heart {
+    font-size: 1.2rem;
+    color: #ff6b6b;
+}
+
+.like-btn-card.liked .heart {
+    color: #ff6b6b;
+}
+
+/* 카드 이미지 */
+.card-image {
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+    position: relative;
+    background: #f8f9fa;
+}
+
+.card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.ranking-card:hover .card-image img {
+    transform: scale(1.05);
+}
+
+.card-image span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #999;
+    font-size: 1rem;
+}
+
+/* 카드 내용 */
+.card-content {
+    padding: 1.5rem;
+}
+
+.card-subtitle {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.card-tag {
+    display: inline-block;
+    background: linear-gradient(135deg, #e9ecef, #f8f9fa);
+    color: #6c757d;
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    margin-bottom: 1rem;
+}
+
+/* 가격 스타일 */
+.card-price {
+    margin: 0.75rem 0;
+}
+
+.original-price {
+    color: #999;
+    text-decoration: line-through;
+    font-size: 1rem;
+    margin-right: 0.5rem;
+}
+
+.current-price {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #667eea;
+}
+
+.ranking-card:has(.sale-badge) .current-price {
+    color: #dc3545;
+}
+
+/* 카드 통계 */
+.card-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    padding: 1rem 0 0 0;
+    border-top: 1px solid #f0f0f0;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.stat-item .icon {
+    font-size: 1rem;
+}
+
+.heart-icon {
+    color: #ff6b6b;
+}
+
+.star-icon {
+    color: #ffd43b;
+}
+
+.review-icon {
+    color: #667eea;
+}
+
+/* 리스트 뷰 스타일 */
+.ranking-card.list-view {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    gap: 2rem;
+}
+
+.ranking-card.list-view .card-image {
+    width: 150px;
+    height: 150px;
+    flex-shrink: 0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.ranking-card.list-view .card-content {
+    flex: 1;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.ranking-card.list-view .card-stats {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+}
+
+.ranking-card.list-view .like-btn-card {
+    position: static;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.ranking-card.list-view .ranking-badge {
+    left: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* 페이지네이션 */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    margin: 3rem 0;
+}
+
+.pagination {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.page-btn {
+    padding: 0.75rem 1rem;
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #666;
+    font-weight: 500;
+}
+
+.page-btn:hover {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.page-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.page-numbers {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.page-number {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #666;
+    font-weight: 500;
+}
+
+.page-number:hover {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.page-number.active {
+    background: #667eea;
+    border-color: #667eea;
+    color: white;
+}
+
+/* 빈 상태 */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.empty-state p {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 2rem;
+}
+
+/* 버튼 스타일 */
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.btn-outline {
+    background: transparent;
+    color: #667eea;
+    border: 2px solid #667eea;
+}
+
+.btn-outline:hover {
+    background: #667eea;
+    color: white;
+}
+
+/* 뒤로가기 버튼 */
+.back-button {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 992px) {
+    .ranking-container {
+        padding: 1.5rem;
+        margin-top: 70px;
+    }
+
+    .ranking-title {
+        font-size: 2.5rem;
+    }
+
+    .filter-section {
+        padding: 1.5rem;
+    }
+
+    .ranking-section-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+
+    .section-controls {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .ranking-container {
+        padding: 1rem;
+        margin-top: 60px;
+    }
+
+    .ranking-header {
+        padding: 2rem 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .ranking-title {
+        font-size: 2rem;
+    }
+
+    .ranking-subtitle {
+        font-size: 1rem;
+    }
+
+    .filter-section {
+        padding: 1rem;
+    }
+
+    .category-filters, .sort-filters, .period-filters, .sub-categories {
+        gap: 0.5rem;
+    }
+
+    .category-btn, .sort-btn, .period-btn, .sub-category-btn {
+        font-size: 0.8rem;
+        padding: 0.5rem 1rem;
+    }
+
+    .ranking-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+
+    .section-controls {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .view-options {
+        justify-content: center;
+    }
+
+    .ranking-card.list-view {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .ranking-card.list-view .card-image {
+        width: 200px;
+        height: 200px;
+        margin: 0 auto;
+    }
+
+    .ranking-card.list-view .like-btn-card {
+        position: absolute;
+        bottom: 15px;
+        right: 15px;
+        margin: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .ranking-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ranking-header {
+        padding: 1.5rem 0.75rem;
+    }
+
+    .ranking-title {
+        font-size: 1.8rem;
+    }
+
+    .filter-group h3 {
+        font-size: 1rem;
+    }
+
+    .category-btn, .sort-btn, .period-btn, .sub-category-btn {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.8rem;
+    }
+
+    .card-content {
+        padding: 1rem;
+    }
+}

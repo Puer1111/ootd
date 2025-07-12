@@ -44,10 +44,12 @@
                 </div>
             </div>
 
+
+
             <!-- 상품 섹션 -->
             <div class="section">
                 <div class="section-header">
-                    <h2 class="section-title">상품</h2>
+                    <h2 id="section-title" class="section-title">상품</h2>
                     <div class="section-controls">
                         <button id="filter-liked-btn" class="filter-btn" onclick="toggleLikedFilter()">
                             <span class="heart-icon">♥</span> 좋아요만 보기
@@ -56,14 +58,23 @@
                     </div>
                 </div>
 
-                <!-- 상품이 있을 때 -->
-                <div th:if="${products != null and !products.isEmpty()}" class="grid-container" id="products-grid">
+                <!-- 🆕 로딩 상태 -->
+                <div id="loading-state" class="loading-state" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>상품을 불러오는 중...</p>
+                </div>
+
+                <!-- 상품이 있을 때 (기존 Thymeleaf 템플릿) -->
+                <div class="grid-container" id="products-grid">
+                    <!-- 🔥 Thymeleaf로 렌더링된 기본 상품들 -->
                     <div th:each="product : ${products}" class="card"
                          th:data-product-no="${product.productNo}"
                          onclick="goToProduct(this)">
 
-                        <!-- 좋아요 버튼 -->
-                        <button class="like-btn-card" th:data-product-no="${product.productNo}" onclick="toggleLikeFromMain(event, this)">
+                        <!-- 🔥 좋아요 버튼 (핵심!) -->
+                        <button class="like-btn-card"
+                                th:data-product-no="${product.productNo}"
+                                onclick="toggleLikeFromMain(event, this)">
                             <span class="heart">♡</span>
                         </button>
 
@@ -105,7 +116,7 @@
                 </div>
 
                 <!-- 상품이 없을 때 -->
-                <div th:if="${products == null or products.isEmpty()}" class="empty-state">
+                <div id="no-products" class="empty-state" th:if="${products == null or products.isEmpty()}">
                     <p>등록된 상품이 없습니다.</p>
                     <a href="/enter" class="btn btn-primary">첫 상품 등록하기</a>
                 </div>
