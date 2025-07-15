@@ -13,18 +13,54 @@ const showSection = (sectionId) => {
 };
 
 // --- 사이드바 메뉴 이벤트 ---
-const sidebarLinks = document.querySelectorAll('.admin-sidebar a[data-target-section]');
-sidebarLinks.forEach(link => {
-    link.addEventListener('click', (event) => {
-        event.preventDefault();
-        const targetSectionId = link.getAttribute('data-target-section');
-        showSection(targetSectionId);
+const productManagementToggle = document.getElementById('product-management-toggle');
+const productSubmenu = document.getElementById('product-submenu');
 
-        if (targetSectionId === 'product-register-section') {
-            resetForm(); // 등록 폼으로 전환 시 폼 초기화
+if (productManagementToggle && productSubmenu) {
+    // Get all clickable elements in the sidebar for deactivation
+    const allSidebarClickables = document.querySelectorAll('.admin-sidebar a, .admin-sidebar span');
+
+    const deactivateAllActiveStates = () => {
+        allSidebarClickables.forEach(el => {
+            el.classList.remove('active');
+        });
+        // Also ensure all submenus are hidden, except the one being toggled if it's a parent
+        document.querySelectorAll('.admin-sidebar .submenu').forEach(submenu => {
+            submenu.classList.remove('active');
+        });
+    };
+
+    productManagementToggle.addEventListener('click', (event) => {
+        event.preventDefault();
+        const clickedElement = event.target;
+
+        // Check if the clicked element is the span itself or a child of the li (but not an 'a' tag)
+        const isToggleSpan = clickedElement.tagName === 'SPAN' && clickedElement.closest('#product-management-toggle');
+        const isSubmenuLink = clickedElement.tagName === 'A' && clickedElement.closest('#product-submenu');
+
+        if (isToggleSpan) {
+            // If the span (toggle) is clicked
+            const isActive = productSubmenu.classList.contains('active');
+            deactivateAllActiveStates(); // Deactivate all others first
+            productSubmenu.classList.toggle('active', !isActive); // Toggle submenu visibility
+            clickedElement.classList.toggle('active', !isActive); // Toggle active state of the span
+        } else if (isSubmenuLink) {
+            // If a submenu link is clicked
+            deactivateAllActiveStates(); // Deactivate all others first
+            clickedElement.classList.add('active'); // Activate the clicked link
+            productManagementToggle.querySelector('span').classList.add('active'); // Activate the parent span
+            productSubmenu.classList.add('active'); // Ensure submenu stays open
+
+            const targetSectionId = clickedElement.getAttribute('data-target-section');
+            showSection(targetSectionId);
+
+            if (targetSectionId === 'product-register-section') {
+                resetForm(); // Reset form when navigating to register section
+            }
         }
+        // If clicked outside the span or a link, do nothing (e.g., clicking on the li padding)
     });
-});
+}
 
 // --- 초기화 ---
 loadProducts();
@@ -91,13 +127,13 @@ function loadProducts() {
                             </thead>
                             <tbody>
                 `;
-                product.options.forEach(option => {
+                (product.options || []).forEach(option => {
                     optionsTableHtml += `
                         <tr>
-                            <td>${option.colorName}</td>
-                            <td>${option.size}</td>
-                            <td>${option.inventory}</td>
-                            <td>${option.status}</td>
+                            <td>${option?.colorName ?? 'N/A'}</td>
+                            <td>${option?.size ?? 'N/A'}</td>
+                            <td>${option?.inventory ?? 0}</td>
+                            <td>${option?.status ?? 'N/A'}</td>
                         </tr>
                     `;
                 });
@@ -208,11 +244,11 @@ function handleEdit(event) {
         const sizeItem = document.createElement('div');
         sizeItem.classList.add('size-item');
         sizeItem.innerHTML = `
-            <div><input type="text" name="productOption.size[]" value="${option.size}" readonly></div>
+            <div><input type="text" name="productOption.size[]" value="${option.size}" ></div>
             <div><input type="number" name="product.price[]" value="${productData.price}"></div>
+            <div><input type="text" name="productOption.colorName[]" value="${option.colorName}" ></div>
             <div><input type="number" name="productOption.inventory[]" value="${option.inventory}"></div>
             <div><input type="text" name="productOption.status[]" value="${option.status}"></div>
-            <div><input type="text" name="productOption.colorName[]" value="${option.colorName}" readonly></div>
             <button type="button" class="size-remove-btn">-</button>
         `;
         sizesContainer.appendChild(sizeItem);

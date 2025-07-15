@@ -1,90 +1,200 @@
 /* adminCoupon.css */
 
-form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px; /* 각 폼 요소들 사이의 간격 */
-    max-width: 500px; /* 폼의 최대 너비 설정 (선택 사항) */
-    margin-bottom: 30px; /* 각 폼 아래 여백 */
+/* 사이드바 서브메뉴 스타일 */
+.admin-sidebar .submenu {
+    display: none;
+    list-style: none;
+    padding-left: 0;
+}
+
+.admin-sidebar .submenu.active {
+    display: block;
+}
+
+/* 공통 섹션 스타일 */
+#coupon-retrieve-section,
+#coupon-register-section,
+#coupon-modify-section,
+#coupon-delete-section {
     padding: 20px;
-    border: 1px solid #ddd;
+    background-color: #f8f9fa;
     border-radius: 8px;
-    background-color: #f9f9f9;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-top: 20px;
 }
 
-form div.form-group, /* 필요한 경우 폼 그룹을 위한 스타일 */
-form label {
-    display: flex;
-    align-items: center;
-    margin-bottom: 5px;
+/* 섹션 제목 스타일 */
+#coupon-retrieve-section h2,
+#coupon-register-section h2,
+#coupon-modify-section h2,
+#coupon-delete-section h2 {
+    color: #343a40;
+    margin-bottom: 25px;
+    text-align: center;
+    font-size: 28px;
+    font-weight: 700;
 }
 
-form label {
-    width: 120px; /* 라벨의 고정 너비 */
-    flex-shrink: 0; /* 라벨이 줄어들지 않도록 */
-    margin-right: 10px; /* 라벨과 입력 필드 사이 간격 */
-    text-align: right; /* 라벨 텍스트 오른쪽 정렬 */
+/* 폼 컨테이너 스타일 */
+#coupon-form,
+#coupon-modify-form,
+#coupon-delete-form {
+    max-width: 600px; /* 폼 너비 조정 */
+    margin: 0 auto;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-form input[type="text"],
-form input[type="number"],
-form input[type="date"],
-form select {
-    flex-grow: 1; /* 입력 필드가 남은 공간을 채우도록 */
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box; /* 패딩과 보더가 너비에 포함되도록 */
+/* 폼 그룹 (label + input/select) 스타일 */
+#coupon-form label,
+#coupon-modify-form label,
+#coupon-delete-form label {
+    display: block;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 8px;
+    margin-top: 15px; /* 각 필드 위 여백 */
 }
 
-form button[type="submit"] {
-    align-self: flex-end; /* 버튼을 오른쪽으로 정렬 */
-    padding: 10px 20px;
-    background-color: #007bff;
+#coupon-form input[type="text"],
+#coupon-form input[type="number"],
+#coupon-form input[type="date"],
+#coupon-form select,
+#coupon-modify-form input[type="text"],
+#coupon-modify-form input[type="number"],
+#coupon-modify-form input[type="date"],
+#coupon-modify-form select,
+#coupon-delete-form input[type="number"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    font-size: 16px;
+    color: #495057;
+    box-sizing: border-box; /* 패딩이 너비에 포함되도록 */
+}
+
+#coupon-form input:focus,
+#coupon-form select:focus,
+#coupon-modify-form input:focus,
+#coupon-modify-form select:focus,
+#coupon-delete-form input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    outline: none;
+}
+
+/* 버튼 스타일 */
+#coupon-form button[type="submit"],
+#coupon-modify-form button[type="submit"],
+#coupon-delete-form button[type="submit"] {
+    display: block; /* 블록 레벨 요소로 만들어 너비 100% */
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 18px;
+    border-radius: 5px;
+    background-color: #28a745; /* 등록 버튼 색상 */
     color: white;
     border: none;
-    border-radius: 5px;
     cursor: pointer;
-    font-size: 16px;
-    margin-top: 10px;
+    transition: background-color 0.3s ease;
+    margin-top: 30px; /* 버튼 위 여백 */
 }
 
-form button[type="submit"]:hover {
-    background-color: #0056b3;
+#coupon-form button[type="submit"]:hover,
+#coupon-modify-form button[type="submit"]:hover,
+#coupon-delete-form button[type="submit"]:hover {
+    background-color: #218838;
 }
 
-/* 테이블 컨테이너 스타일 */
+/* 카테고리 선택 드롭다운 정렬 */
+#coupon-form div[style*="display:flex"],
+#coupon-modify-form div[style*="display:flex"] {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+#coupon-form div[style*="display:flex"] select,
+#coupon-modify-form div[style*="display:flex"] select {
+    flex: 1; /* 두 셀렉트 박스가 동일한 너비를 가지도록 */
+}
+
+/* 기존 테이블 스타일 (admin-table-container) */
 .admin-table-container {
     margin-top: 20px;
+    background-color: #ffffff;
     padding: 20px;
-    border: 1px solid #ddd;
     border-radius: 8px;
-    background-color: #f9f9f9;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
-/* 관리자 테이블 스타일 */
 .admin-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 15px;
+    margin-top: 20px;
 }
 
 .admin-table th,
 .admin-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
+    padding: 12px 15px;
+    border: 1px solid #e9ecef;
     text-align: left;
+    font-size: 15px;
 }
 
-.admin-table th {
-    background-color: #f2f2f2;
-    font-weight: bold;
+.admin-table thead th {
+    background-color: lightgray;
+    font-weight: 600;
+    color: #495057;
+    text-transform: uppercase;
 }
 
 .admin-table tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
+    background-color: #fefefe;
 }
 
 .admin-table tbody tr:hover {
-    background-color: #e9e9e9;
+    background-color: #e2f0ff; /* 호버 시 배경색 변경 */
+    cursor: pointer;
+}
+
+.admin-table td {
+    color: #343a40;
+}
+
+.admin-table td img {
+    max-width: 60px;
+    height: auto;
+    border-radius: 4px;
+}
+
+.admin-table .btn-edit,
+.admin-table .btn-delete {
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background-color 0.2s ease;
+    border: none;
+    color: white;
+}
+
+.admin-table .btn-edit {
+    background-color: #007bff;
+    margin-right: 5px;
+}
+
+.admin-table .btn-edit:hover {
+    background-color: #0056b3;
+}
+
+.admin-table .btn-delete {
+    background-color: #dc3545;
+}
+
+.admin-table .btn-delete:hover {
+    background-color: #c82333;
 }

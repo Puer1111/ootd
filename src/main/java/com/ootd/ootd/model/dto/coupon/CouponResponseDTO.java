@@ -17,4 +17,5 @@ public class CouponResponseDTO {
     private Integer discountRate;
     private Integer quantity;
     private LocalDate expirationDate;
+    private String subCategory;
 }

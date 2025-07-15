@@ -7,7 +7,7 @@ export const api = {
     colors : null,
     // product : null,
     size: null,
-    coupon: null
+    // coupon: null
 };
 
 // 나중에 초기화 함수를 통해 모듈들을 연결
@@ -27,4 +27,4 @@ api.utils = utils;
 api.colors = colors;
 // api.product = product;
 api.size = size;
-api.coupon = coupon;
+// api.coupon = coupon;

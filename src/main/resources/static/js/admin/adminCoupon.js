@@ -1,7 +1,7 @@
 // 쿠폰 조회 및 표시 함수
 async function retrieveAndDisplayCoupons() {
     try {
-        const response = await fetch('/api/coupon/all');
+        const response = await fetch('/api/coupons/all');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -23,6 +23,7 @@ async function retrieveAndDisplayCoupons() {
                 <td>${coupon.discountRate}%</td>
                 <td>${coupon.quantity}</td>
                 <td>${expirationDate}</td>
+                <td>${coupon.subCategory}</td>
             `;
         });
     } catch (error) {
@@ -40,7 +41,7 @@ function register(couponData) {
     couponData.receiveLimit = parseInt(couponData.receiveLimit, 10);
     couponData.usageLimit = parseInt(couponData.usageLimit, 10);
 
-    fetch('/api/coupon/insert', {
+    fetch('/api/coupons/insert', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -74,7 +75,7 @@ function update(couponData) {
     couponData.receiveLimit = parseInt(couponData.receiveLimit, 10);
     couponData.usageLimit = parseInt(couponData.usageLimit, 10);
 
-    fetch('/api/coupon/update', {
+    fetch('/api/coupons/update', {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -104,7 +105,7 @@ function deleteCoupon(couponId) {
         return;
     }
 
-    fetch('/api/coupon/delete', {
+    fetch('/api/coupons/delete', {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
