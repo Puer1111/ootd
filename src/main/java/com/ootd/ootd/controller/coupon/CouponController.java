@@ -7,6 +7,7 @@ import com.ootd.ootd.service.auth.user.impl.UserDetailsImpl;
 import com.ootd.ootd.service.coupon.CouponService;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -45,5 +46,12 @@ public class CouponController {
         Long userId = userDetails.getUser().getId();
         couponService.issueCoupon(couponId,userId);
         return ResponseEntity.ok().build();
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<String> handleIllegalStateException(IllegalStateException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ex.getMessage());
     }
 }

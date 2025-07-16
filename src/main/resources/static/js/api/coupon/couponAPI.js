@@ -1,14 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     const issueCouponBtn = document.getElementById('issue-coupon-btn');
 
-    console.log('AuthManager.getToken() 호출 결과:', AuthManager.getToken());
-    console.log('localStorage.getItem(\'auth_token\') 직접 호출 결과:', localStorage.getItem('auth_token'));
-    console.log('AuthManager.isLoggedIn() 호출 결과:', AuthManager.isLoggedIn());
-
     if (issueCouponBtn) {
         issueCouponBtn.addEventListener('click', async () => {
             if (!AuthManager.isLoggedIn()) {
-
                 alert('로그인이 필요합니다.');
                 AuthManager.redirectToLogin();
                 return;

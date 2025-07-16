@@ -57,6 +57,9 @@ service-account-*.json
 # build.gradle
 build.gradle
 
+#img
+src/main/resources/static/img/
+
 # txt
 Project-problem.txt
 Problem.md

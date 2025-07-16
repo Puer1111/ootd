@@ -9,6 +9,7 @@ import com.ootd.ootd.model.entity.coupon.CouponUsage;
 import com.ootd.ootd.repository.category.CategoryRepository;
 import com.ootd.ootd.repository.coupon.CouponRepository;
 import com.ootd.ootd.repository.coupon.CouponUsageRepository;
+import com.ootd.ootd.repository.user.UserRepository;
 import com.ootd.ootd.service.coupon.CouponService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class CouponServiceImpl implements CouponService {
     private final CouponRepository couponRepository;
     private final CategoryRepository categoryRepository;
     private final CouponUsageRepository couponUsageRepository;
+    private final UserRepository userRepository;
 
     @Override
     public void insertCoupon(InsertCouponDTO insertCouponDTO) {
@@ -96,6 +98,9 @@ public class CouponServiceImpl implements CouponService {
 
     @Override
     public void issueCoupon(Long couponId, Long userId) {
+        if (couponUsageRepository.existsByUserIdAndCouponId(userId, couponId)) {
+            throw new IllegalStateException("이미 발급받은 쿠폰입니다.");
+        }
         CouponUsage couponUsage = CouponUsage.builder()
                 .couponId(couponId)
                 .userId(userId).build();
