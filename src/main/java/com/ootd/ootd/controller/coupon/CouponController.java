@@ -35,7 +35,6 @@ public class CouponController {
         couponService.deleteCoupon(deleteCouponDTO.getCouponId());
         return ResponseEntity.ok().build();
     }
-
     @GetMapping("/all")
     public ResponseEntity<?> getAllCoupons() {
         return ResponseEntity.ok(couponService.getAllCoupons());

@@ -34,10 +34,17 @@ public class CouponUsage {
     private LocalDateTime receivedAt;   // 받은 날짜
 
     @Column(name = "is_used" )
-    private Boolean isUsed = false;             // 사용 여부
+    private Boolean isUsed;             // 사용 여부
 
     @Column(name = "used_at")
     private LocalDateTime usedAt;       // 사용 날짜
+
+    @PrePersist
+    public void onPrePersist() {
+        if (this.isUsed == null) {
+            this.isUsed = false;
+        }
+    }
 
     @Column(name = "order_id")
     private Long orderId;               // 주문 상품 ID

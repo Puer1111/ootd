@@ -49,7 +49,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // 마이페이지 접근 함수 (JWT 토큰 포함)
     function accessMypage() {
         // ✅ 키 통일: 'token'으로 변경
-        const token = localStorage.getItem('token');
+        // const token = localStorage.getItem('token');
+         const token = localStorage.getItem('auth_token');
+
 
         if (!token) {
             alert('로그인이 필요합니다.');
@@ -76,7 +78,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Error:', error);
                 alert('마이페이지 접근에 실패했습니다. 다시 로그인해주세요.');
                 // ✅ 키 통일: 'token'으로 변경
-                localStorage.removeItem('token');
+                // localStorage.removeItem('token');
+                localStorage.removeItem('auth_token');
                 window.location.href = '/login';
             });
     }
@@ -116,7 +119,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
                         // ✅ 토큰 저장 - 키 통일: 'token'으로 변경
                         if (data.token) {
-                            localStorage.setItem('token', data.token);
+                            // localStorage.setItem('token', data.token);
+                             localStorage.setItem('auth_token', data.token);
+
                             console.log('토큰 저장 완료:', data.token);
                         }
 

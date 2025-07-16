@@ -156,10 +156,10 @@
     background-color: #fefefe;
 }
 
-.admin-table tbody tr:hover {
-    background-color: #e2f0ff; /* 호버 시 배경색 변경 */
-    cursor: pointer;
-}
+/*.admin-table tbody tr:hover {*/
+/*    background-color: #e2f0ff; !* 호버 시 배경색 변경 *!*/
+/*    cursor: pointer;*/
+/*}*/
 
 .admin-table td {
     color: #343a40;
