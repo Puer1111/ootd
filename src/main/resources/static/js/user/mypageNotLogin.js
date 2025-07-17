@@ -2,11 +2,11 @@
     // 토큰 확인 함수
     function getToken() {
         // ✅ 키 통일: 'token'으로 변경
-        let token = localStorage.getItem('token');
-        if (!token) {
-            // 기존 키도 확인 (하위 호환성)
-            token = localStorage.getItem('auth_token');
-        }
+        let token = localStorage.getItem('auth_token');
+        // if (!token) {
+        //     // 기존 키도 확인 (하위 호환성)
+        //     token = localStorage.getItem('auth_token');
+        // }
         if (!token) {
             // 쿠키에서도 확인
             const cookies = document.cookie.split(';');

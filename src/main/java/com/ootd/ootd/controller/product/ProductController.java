@@ -25,6 +25,8 @@ import com.ootd.ootd.repository.order.UserOrderRepository;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Collectors;
 
 @Controller
 public class ProductController {
@@ -59,17 +61,19 @@ public class ProductController {
 
 
     @GetMapping("/")
-    public String test(Model model) {
+    public String showIndex(Model model) {
         List<ProductDTO> products = productService.getAllProducts();
-        model.addAttribute("products", products);
+        System.out.println("Total products fetched: " + products.size()); // 디버깅 로그 추가
+
+        Map<String, List<ProductDTO>> productsByCategory = products.stream()
+                .filter(p -> p.getMainCategory() != null && !p.getMainCategory().isEmpty())
+                .collect(Collectors.groupingBy(ProductDTO::getMainCategory));
+
+        System.out.println("Products grouped by category: " + productsByCategory.keySet()); // 디버깅 로그 추가
+
+        model.addAttribute("productsByCategory", productsByCategory);
         return "view/index";
     }
-
-//    @GetMapping("/api/products")
-//    @ResponseBody
-//    public List<ProductDTO> getAllProducts() {
-//        return productService.getAllProducts();
-//    }
 
     // View 전달용
     @GetMapping("/products/{productNo}")
@@ -78,7 +82,6 @@ public class ProductController {
         model.addAttribute("product", product);
         return "view/product/productDetail";
     }
-
 
     // JS 응답용
     @GetMapping("/api/select/product/{productNo}")
@@ -96,7 +99,7 @@ public class ProductController {
     @PostMapping("/api/insert/product")
     public ResponseEntity<?> insertProduct(@ModelAttribute ProductDTO dto,
                                            HttpServletRequest request
-    )  {
+    ) {
 //        String[] rawColors = request.getParameterValues("colorsNo");
 //        System.out.println("rawColors: " + Arrays.toString(rawColors));
         ProductDTO productDTO;
@@ -130,7 +133,7 @@ public class ProductController {
         }
         Map<String, Object> response = new HashMap<>();
         response.put("status", "success");
-        response.put("product",productDTO);
+        response.put("product", productDTO);
         response.put("redirectUrl", "/");  // 마이페이지로 이동 엔드포인트 차후 수정.
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -578,7 +581,6 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-
 
 
 }

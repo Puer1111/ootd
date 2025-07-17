@@ -1,7 +1,7 @@
 // 토큰 관리
 const AuthManager = {
     getToken: function() {
-        return localStorage.getItem('token');
+        return localStorage.getItem('auth_token');
     },
 
     removeToken: function() {

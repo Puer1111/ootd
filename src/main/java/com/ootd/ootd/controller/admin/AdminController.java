@@ -112,7 +112,8 @@ public class AdminController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    @GetMapping("/get")
+//    쿠폰 지급 페이지
+    @GetMapping("/sale")
     public String getCouponPage(){
         return "view/coupon/coupon";
     }

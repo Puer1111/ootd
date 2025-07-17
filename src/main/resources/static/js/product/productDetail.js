@@ -172,7 +172,7 @@ function initializeProductInteraction() {
 
 // JWT 토큰 가져오기
 function getJwtToken() {
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
     console.log('JWT 토큰:', token ? '있음' : '없음');
     return token;
 }

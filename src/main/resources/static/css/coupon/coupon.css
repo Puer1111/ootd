@@ -4,7 +4,7 @@
     align-items: center;
     justify-content: center;
     padding: 20px;
-    margin-top: 50px;
+    /*margin-top: 50px;*/
 }
 
 .coupon-image-area {
@@ -27,16 +27,24 @@
 }
 
 .issue-coupon-button {
+    width: 100%;
     padding: 15px 30px;
-    font-size: 1.2em;
+    font-size: 1em;
     color: #fff;
-    background-color: #007bff;
+    background-color: black;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
-
-.issue-coupon-button:hover {
-    background-color: #0056b3;
+#go-login-btn{
+    width: 100%;
+    padding: 10px 15px;
+    font-size: 1em;
+    color: #fff;
+    background-color: black;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }

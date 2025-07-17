@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (response.ok) {
                     // const result = await response.json();
-                    alert( '쿠폰이 발급되었습니다!');
+                    alert('쿠폰이 발급되었습니다!');
                     window.location.reload(); 
                 } else {
                     const errorData = await response.json();
@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (error) {
                 console.error('Error issuing coupon:', error);
-                alert('오류가 발생했습니다. 다시 시도해주세요.');
+                alert('이미 발급받은 쿠폰입니다.');
             }
         });
     }

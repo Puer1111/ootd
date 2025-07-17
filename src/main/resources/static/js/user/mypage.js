@@ -1,17 +1,17 @@
 const AuthManager = {
     setToken: function(token) {
         // ✅ 키 통일: 'token'으로 변경
-        localStorage.setItem('token', token);
+        localStorage.setItem('auth_token', auth_token);
     },
 
     getToken: function() {
         // ✅ 키 통일: 'token'으로 변경
-        return localStorage.getItem('token');
+        return localStorage.getItem('auth_token');
     },
 
     removeToken: function() {
         // ✅ 키 통일: 'token'으로 변경
-        localStorage.removeItem('token');
+        localStorage.removeItem('auth_token');
         // 기존 키도 삭제 (혹시 남아있을 경우)
         localStorage.removeItem('auth_token');
     },

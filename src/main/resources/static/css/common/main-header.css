@@ -48,6 +48,44 @@ header {
     width:150px;
     display: flex;
 }
+
+/*검색*/
+#searchList{
+    width:100%;
+    padding:1px 10px;
+}
+.label{
+    display: flex;
+    justify-content: space-between;
+}
+#searchList .label{
+    padding:0 16px;
+    width:100%;
+    background-color:white;
+    border-radius: 5px;
+}
+#search-input{
+    width: 100%;
+    height: 35px;
+    border-radius: 5px;
+    border:none;
+    outline:none;
+}
+.searchButton{
+    width:25px;
+    height: 20px;
+    position: relative;
+    top:8px;
+    left:8px;
+    background-color: white;
+    border:none;
+}
+#search{
+    object-fit: contain;
+    width:100%;
+    height: 100%;
+    cursor: pointer;
+}
 .category-area{
     display: flex;
     position: relative;
@@ -63,7 +101,6 @@ header {
     line-height: 22px;
     padding: 0 5px;
 }
-
 /*간편 검색어*/
 .simpleSearchTerm{
     padding:5px 5px;
