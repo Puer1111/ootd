@@ -192,12 +192,20 @@ export const size = {
     updateSizeOptions() {
         const categorySelect = document.getElementById('categoryChoiceFirst');
         const mainCategory = categorySelect.value;
+        let transMain;
+        if (mainCategory === "상의") {
+            transMain = "top";
+        } else if (mainCategory === "하의") {
+            transMain = "bottom";
+        } else {
+            transMain = "shoes";
+        }
 
-        if (!mainCategory || !this.availableSizes[mainCategory]) {
+        if (!transMain || !this.availableSizes[transMain]) {
             return '';
         }
 
-        return this.availableSizes[mainCategory]
+        return this.availableSizes[transMain]
             .map(size => `<option value="${size.id}">${size.name}</option>`)
             .join('');
     },

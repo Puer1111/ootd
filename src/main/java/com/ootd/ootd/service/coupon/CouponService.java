@@ -14,4 +14,6 @@ public interface CouponService {
     void deleteCoupon(Long couponId);
 
     List<CouponResponseDTO> getAllCoupons();
+
+    void issueCoupon(Long couponId, Long userId);
 }

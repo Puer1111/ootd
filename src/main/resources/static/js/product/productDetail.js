@@ -22,6 +22,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // 수량 조절 초기화 추가
     initializeQuantityControls();
+
+    // 쿠폰 div 초기화 추가
+    initializeCouponDiv();
 });
 
 // === 🔧 수정된 캐러셸 기능들 ===
@@ -223,7 +226,7 @@ function getCurrentPrice() {
 
 // JWT 토큰 가져오기
 function getJwtToken() {
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
     console.log('JWT 토큰:', token ? '있음' : '없음');
     return token;
 }
@@ -589,25 +592,25 @@ function initializeQuantityControls() {
         updateTotalPrice();
 
         // 마이너스 버튼
-        minusBtn.onclick = function(){
+        minusBtn.onclick = function () {
             let current = parseInt(quantityInput.value) || 1;
-            if(current > 1){
+            if (current > 1) {
                 quantityInput.value = current - 1;
                 updateTotalPrice();
             }
         };
 
         // 플러스 버튼
-        plusBtn.onclick = function(){
+        plusBtn.onclick = function () {
             let current = parseInt(quantityInput.value) || 1;
-            if(current < 99) { // 최대 99개 제한
+            if (current < 99) { // 최대 99개 제한
                 quantityInput.value = current + 1;
                 updateTotalPrice();
             }
         };
 
         // 직접 입력 시 유효성 검사
-        quantityInput.addEventListener('input', function() {
+        quantityInput.addEventListener('input', function () {
             let value = parseInt(this.value);
             if (isNaN(value) || value < 1) {
                 this.value = 1;
@@ -618,7 +621,7 @@ function initializeQuantityControls() {
         });
 
         // 포커스 아웃 시 값 정리
-        quantityInput.addEventListener('blur', function() {
+        quantityInput.addEventListener('blur', function () {
             if (!this.value || parseInt(this.value) < 1) {
                 this.value = 1;
                 updateTotalPrice();
@@ -728,5 +731,21 @@ async function addToCartWithQuantity() {
     } catch (error) {
         console.error('장바구니 추가 실패:', error);
         alert('오류가 발생했습니다. 다시 시도해주세요.');
+    }
+}
+
+function initializeCouponDiv() {
+    const couponDiv = document.querySelector('.getSaleCoupon');
+    couponDiv.style.display = "block";
+    couponDiv.addEventListener('click', function () {
+        const link = this.querySelector('a');
+        if (link) {
+            window.location.href = link.href;
+        }
+    });
+    const response = fetch("/api/auth/check-Pay");
+    const result = response.json();
+    if (result.ok) {
+        couponDiv.style.display="none";
     }
 }

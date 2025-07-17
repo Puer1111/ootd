@@ -47,7 +47,7 @@ public class ProductDTO {
 
     // 기존 생성자
     public ProductDTO(Long productNo, String productName, Integer price, String description,
-                      String brandName, Long brandNo, List<String> imageUrls, Long categoryNo, String subCategory) {
+                      String brandName, Long brandNo, List<String> imageUrls, Long categoryNo, String subCategory,String mainCategory) {
         this.productNo = productNo;
         this.productName = productName;
         this.price = price;
@@ -57,13 +57,6 @@ public class ProductDTO {
         this.imageUrls = imageUrls;
         this.categoryNo = categoryNo;
         this.subCategory = subCategory;
-    }
-
-    // 🆕 확장된 생성자 (메인 카테고리 포함)
-    public ProductDTO(Long productNo, String productName, Integer price, String description,
-                      String brandName, Long brandNo, List<String> imageUrls, Long categoryNo,
-                      String subCategory, String mainCategory) {
-        this(productNo, productName, price, description, brandName, brandNo, imageUrls, categoryNo, subCategory);
         this.mainCategory = mainCategory;
     }
 

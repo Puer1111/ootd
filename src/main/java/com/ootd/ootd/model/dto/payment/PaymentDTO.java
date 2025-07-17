@@ -19,26 +19,11 @@ public class PaymentDTO {
     private Integer totalPrice;
     private String phone;
     private String email;
-    private String userName;
+    private String userId;
     private LocalDateTime orderDate;
     private String paymentStatus;
 
-//    public PaymentDTO(String impUid, Long orderId, String productName, String payMethod, String merchantUid, Integer totalPrice, String phone, String email, String userName, String orderDate, String paymentStatus) {
-//        this.impUid = impUid;
-//        this.orderId = orderId;
-//        this.productName = productName;
-//        this.payMethod = payMethod;
-//        this.merchantUid = merchantUid;
-//        this.totalPrice = totalPrice;
-//        this.phone = phone;
-//        this.email = email;
-//        this.userName = userName;
-//        this.orderDate = orderDate;
-//        this.paymentStatus = paymentStatus;
-//    }
-
-
-    public PaymentDTO(String impUid, Long orderId, String productName, String payMethod, String merchantUid, Integer totalPrice, String phone, String email, String userName, LocalDateTime orderDate, String paymentStatus) {
+    public PaymentDTO(String impUid, Long orderId, String productName, String payMethod, String merchantUid, Integer totalPrice, String phone, String email, String userId, LocalDateTime orderDate, String paymentStatus) {
         this.impUid = impUid;
         this.orderId = orderId;
         this.productName = productName;
@@ -47,7 +32,7 @@ public class PaymentDTO {
         this.totalPrice = totalPrice;
         this.phone = phone;
         this.email = email;
-        this.userName = userName;
+        this.userId = userId;
         this.orderDate = orderDate;
         this.paymentStatus = paymentStatus;
     }
@@ -61,7 +46,7 @@ public class PaymentDTO {
                 .totalPrice(dto.getTotalPrice())
                 .phone(dto.getPhone())
                 .email(dto.getEmail())
-                .userName(dto.getUserName())
+                .userId(dto.getUserId())
                 .orderDate(dto.getOrderDate())
                 .paymentStatus(dto.getPaymentStatus())
                 .build();
@@ -76,7 +61,7 @@ public class PaymentDTO {
                 .totalPrice(entity.getTotalPrice())
                 .phone(entity.getPhone())
                 .email(entity.getEmail())
-                .userName(entity.getUserName())
+                .userId(entity.getUserId())
                 .orderDate(entity.getOrderDate())
                 .paymentStatus(entity.getPaymentStatus())
                 .build();

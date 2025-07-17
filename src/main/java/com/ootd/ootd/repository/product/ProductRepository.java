@@ -16,7 +16,7 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     // 기존 쿼리
     @Query("SELECT new com.ootd.ootd.model.dto.product.ProductDTO(" +
             "p.productNo, p.productName, p.price, p.description, " +
-            "b.brandName, p.brandNo, p.imageUrls, p.categoryNo, c.subCategory) " +
+            "b.brandName, p.brandNo, p.imageUrls, p.categoryNo, c.subCategory , c.mainCategory) " +
             "FROM Brand b JOIN Product p ON p.brandNo = b.brandNo JOIN Category c ON c.categoryNo = p.categoryNo")
     List<ProductDTO> findAllandBrandName();
 

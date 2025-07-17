@@ -10,13 +10,13 @@
 
     <!-- CSS 파일들 -->
     <link rel="stylesheet" th:href="@{/css/common/footer.css}">
-    <link rel="stylesheet" th:href="@{/css/common/header.css}">
+    <link rel="stylesheet" th:href="@{/css/common/main-header.css}">
     <link rel="stylesheet" th:href="@{/css/common/layout.css}">
     <link rel="stylesheet" th:href="@{/css/product/productDetail.css}">
 </head>
 <body>
 
-<header th:replace="~{common/header.html :: header}"></header>
+<header th:replace="~{common/main-header.html :: header}"></header>
 
 <div class="product-detail-container">
     <!-- 상품 메인 정보 섹션 -->
@@ -110,6 +110,10 @@
                 <input type="hidden" id="is-active-sale" th:value="${product.isActiveSale}" />
                 <input type="hidden" id="sale-price" th:value="${product.salePrice}" />
                 <input type="hidden" id="original-price" th:value="${product.price}" />
+            </div>
+
+            <div class="getSaleCoupon">
+                <a href="/coupon/sale">첫 구매 30% 쿠폰 받으러가기</a>
             </div>
 
             <!-- 수량 선택 섹션 -->

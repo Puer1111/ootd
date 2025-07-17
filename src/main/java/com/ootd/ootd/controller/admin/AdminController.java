@@ -151,27 +151,6 @@ public class AdminController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-}
 
-/// / 상품 수정
-//@PutMapping("/update/products/{productId}")
-//public ResponseEntity<?> updateProduct(@PathVariable Long productId, @ModelAttribute ProductDTO dto) {
-//    try {
-//        ProductDTO updatedProduct = productService.updateProduct(productId, dto);
-//        return ResponseEntity.ok(updatedProduct);
-//    } catch (Exception e) {
-//        return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-//    }
-//}
-//
-/// / 상품 삭제
-//@DeleteMapping("/delete/products/{productId}")
-//public ResponseEntity<?> deleteProduct(@PathVariable Long productId) {
-//    try {
-//        productService.deleteProduct(productId);
-//        return ResponseEntity.ok().build();
-//    } catch (Exception e) {
-//        return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-//    }
-//}
+}
 

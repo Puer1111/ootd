@@ -215,4 +215,9 @@ public class PaymentServiceImpl implements PaymentService {
         }
         return null;
     }
+
+    @Override
+    public boolean checkUserPay(Long userId) {
+        return paymentRepository.findbyUserId(userId);
+    }
 }

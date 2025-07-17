@@ -5,8 +5,11 @@ import com.ootd.ootd.model.dto.coupon.InsertCouponDTO;
 import com.ootd.ootd.model.dto.coupon.UpdateCouponDTO;
 import com.ootd.ootd.model.entity.category.Category;
 import com.ootd.ootd.model.entity.coupon.Coupon;
+import com.ootd.ootd.model.entity.coupon.CouponUsage;
 import com.ootd.ootd.repository.category.CategoryRepository;
 import com.ootd.ootd.repository.coupon.CouponRepository;
+import com.ootd.ootd.repository.coupon.CouponUsageRepository;
+import com.ootd.ootd.repository.user.UserRepository;
 import com.ootd.ootd.service.coupon.CouponService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +24,8 @@ public class CouponServiceImpl implements CouponService {
 
     private final CouponRepository couponRepository;
     private final CategoryRepository categoryRepository;
+    private final CouponUsageRepository couponUsageRepository;
+    private final UserRepository userRepository;
 
     @Override
     public void insertCoupon(InsertCouponDTO insertCouponDTO) {
@@ -76,13 +81,29 @@ public class CouponServiceImpl implements CouponService {
     @Override
     public List<CouponResponseDTO> getAllCoupons() {
         return couponRepository.findAll().stream()
-                .map(coupon -> CouponResponseDTO.builder()
-                        .id(coupon.getCouponId())
-                        .couponName(coupon.getCouponName())
-                        .discountRate(coupon.getDiscountRate())
-                        .quantity(coupon.getQuantity())
-                        .expirationDate(coupon.getExpirationDate())
-                        .build())
+                .map(coupon -> {
+                    Category category = categoryRepository.findById(coupon.getCategoryId())
+                            .orElseThrow(() -> new EntityNotFoundException("Category not found with id: " + coupon.getCategoryId()));
+                    return CouponResponseDTO.builder()
+                            .id(coupon.getCouponId())
+                            .couponName(coupon.getCouponName())
+                            .discountRate(coupon.getDiscountRate())
+                            .quantity(coupon.getQuantity())
+                            .expirationDate(coupon.getExpirationDate())
+                            .subCategory(category.getSubCategory())
+                            .build();
+                })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void issueCoupon(Long couponId, Long userId) {
+        if (couponUsageRepository.existsByUserIdAndCouponId(userId, couponId)) {
+            throw new IllegalStateException("이미 발급받은 쿠폰입니다.");
+        }
+        CouponUsage couponUsage = CouponUsage.builder()
+                .couponId(couponId)
+                .userId(userId).build();
+        couponUsageRepository.save(couponUsage);
     }
 }

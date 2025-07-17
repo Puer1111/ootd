@@ -1,7 +1,7 @@
 // 토큰 관리
 const AuthManager = {
     getToken: function() {
-        return localStorage.getItem('token') || sessionStorage.getItem('token');
+        return localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
     },
 
     isLoggedIn: function() {
@@ -312,3 +312,64 @@ function changeSortOrder(sortOrder) {
     console.log('🔄 정렬 변경:', sortOrder);
     // 필요시 추후 구현
 }
+
+// Carousel logic for multiple carousels
+document.addEventListener('DOMContentLoaded', () => {
+    const carousels = document.querySelectorAll('.carousel-container');
+
+    carousels.forEach(carousel => {
+        const productsGrid = carousel.querySelector('.products-grid');
+        const prevBtn = carousel.querySelector('.prev');
+        const nextBtn = carousel.querySelector('.next');
+
+        if (!productsGrid || !prevBtn || !nextBtn) {
+            return;
+        }
+
+        let currentIndex = 0;
+        const totalCards = productsGrid.querySelectorAll('.card').length;
+
+        function getCardsToShow() {
+            const containerWidth = carousel.offsetWidth;
+            const cardWidth = 250 + 32; // card width + margin-right
+            return Math.floor(containerWidth / cardWidth);
+        }
+
+        function updateCarousel() {
+            const cardsToShow = getCardsToShow();
+            const cardElement = productsGrid.querySelector('.card');
+            if (!cardElement) return;
+
+            const cardWidth = cardElement.offsetWidth;
+            const cardMargin = parseInt(window.getComputedStyle(cardElement).marginRight);
+            const totalCardWidth = cardWidth + cardMargin;
+
+            const newTransform = -currentIndex * totalCardWidth;
+            productsGrid.style.transform = `translateX(${newTransform}px)`;
+
+            prevBtn.disabled = currentIndex === 0;
+            nextBtn.disabled = currentIndex >= totalCards - cardsToShow;
+        }
+
+        prevBtn.addEventListener('click', () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateCarousel();
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            const cardsToShow = getCardsToShow();
+            if (currentIndex < totalCards - cardsToShow) {
+                currentIndex++;
+                updateCarousel();
+            }
+        });
+
+        window.addEventListener('resize', updateCarousel);
+
+        if (totalCards > 0) {
+            updateCarousel();
+        }
+    });
+});

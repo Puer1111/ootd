@@ -12,4 +12,6 @@ public interface PaymentService {
     String getImpUid(Long orderNo);
 
     IamportResponse<Payment> cancelPayment(String imp_uid);
+
+    boolean checkUserPay(Long userId);
 }

@@ -3,18 +3,20 @@
 // 토큰 관리 함수들
 const AuthManager = {
     // 토큰 저장
-    setToken: function(token) {
-        localStorage.setItem('auth_token', token);
+    setToken: function(auth_token) {
+        localStorage.setItem('auth_token', auth_token);
     },
 
     // 토큰 가져오기
     getToken: function() {
         return localStorage.getItem('auth_token');
+        // return localStorage.getItem('token');
     },
 
     // 토큰 제거
     removeToken: function() {
         localStorage.removeItem('auth_token');
+        // localStorage.removeItem('token');
     },
 
     // 토큰 유효성 확인

@@ -149,7 +149,18 @@
     flex: 1;
     line-height: 1.3;
 }
-
+/* 쿠폰 */
+.getSaleCoupon{
+    padding:12px;
+    background-color: lightgray;
+    opacity: min(0.8);
+    margin-bottom:10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.getSaleCoupon > a {
+    text-decoration: none;
+}
 /* 좋아요 버튼 스타일 */
 .like-container {
     margin-left: 1rem;

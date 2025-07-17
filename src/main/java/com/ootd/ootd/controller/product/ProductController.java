@@ -29,6 +29,7 @@ import org.springframework.ui.Model;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 public class ProductController {
@@ -64,6 +65,22 @@ public class ProductController {
     }
 
     // View 전달용 - 🆕 프로모션 정보 포함하도록 수정
+    @GetMapping("/")
+    public String showIndex(Model model) {
+        List<ProductDTO> products = productService.getAllProducts();
+        System.out.println("Total products fetched: " + products.size()); // 디버깅 로그 추가
+
+        Map<String, List<ProductDTO>> productsByCategory = products.stream()
+                .filter(p -> p.getMainCategory() != null && !p.getMainCategory().isEmpty())
+                .collect(Collectors.groupingBy(ProductDTO::getMainCategory));
+
+        System.out.println("Products grouped by category: " + productsByCategory.keySet()); // 디버깅 로그 추가
+
+        model.addAttribute("productsByCategory", productsByCategory);
+        return "view/index";
+    }
+
+    // View 전달용
     @GetMapping("/products/{productNo}")
     public String productDetail(@PathVariable Long productNo, Model model) {
         ProductDTO product = productService.getProductById(productNo);
@@ -100,15 +117,12 @@ public class ProductController {
     }
 
     @PostMapping("/api/insert/product")
-    public ResponseEntity<?> insertProduct(@ModelAttribute ProductDTO dto,
-                                           HttpServletRequest request
-    )  {
+    public ResponseEntity<?> insertProduct(@ModelAttribute ProductDTO dto, HttpServletRequest request) {
         ProductDTO productDTO;
 
         try {
             if (dto.getImages() != null && dto.getImages().length > 0) {
-                List<String> images;
-                images = googleCloudStorageService.uploadImages(dto.getImages());
+                List<String> images = googleCloudStorageService.uploadImages(dto.getImages());
                 System.out.println("Uploaded " + dto.getImages().length + " images");
                 dto.setImageUrls(images);
                 System.out.println("Checked ImageUrl : " + images);
@@ -121,10 +135,12 @@ public class ProductController {
         } catch (IOException e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+
         Map<String, Object> response = new HashMap<>();
         response.put("status", "success");
-        response.put("product",productDTO);
-        response.put("redirectUrl", "/");
+        response.put("product", productDTO);
+        response.put("redirectUrl", "/");  // 마이페이지로 이동 엔드포인트 차후 수정.
+
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -491,6 +507,43 @@ public class ProductController {
             response.put("totalCount", 0);
 
             return ResponseEntity.ok(response);
+        }
+    }
+
+    // 🆕 구매 후기 작성 권한 확인
+    @GetMapping("/products/{productNo}/after-review-permission")
+    public ResponseEntity<?> getAfterReviewPermission(@PathVariable Long productNo,
+                                                      @AuthenticationPrincipal UserDetails userDetails) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            boolean canWriteAfterReview = false;
+            boolean isLoggedIn = userDetails != null;
+
+            if (isLoggedIn) {
+                User user = userRepository.findByEmail(userDetails.getUsername()).orElse(null);
+                if (user != null) {
+                    // 주문했는지 확인
+                    boolean hasOrdered = userOrderRepository.existsByUserIdAndProductNoAndStatus(
+                            user.getId(), productNo, UserOrder.OrderStatus.ORDERED);
+
+                    // 이미 후기를 작성했는지 확인
+                    boolean alreadyReviewed = productReviewRepository.existsByProductNoAndUserId(productNo, user.getId());
+
+                    canWriteAfterReview = hasOrdered && !alreadyReviewed;
+                }
+            }
+
+            response.put("success", true);
+            response.put("canWriteAfterReview", canWriteAfterReview);
+            response.put("isLoggedIn", isLoggedIn);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "권한 확인 중 오류가 발생했습니다");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 }

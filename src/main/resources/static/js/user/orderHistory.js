@@ -1,7 +1,7 @@
 // 토큰 관리
 const AuthManager = {
     getToken: function() {
-        return localStorage.getItem('token');
+        return localStorage.getItem('auth_token');
     },
 
     isLoggedIn: function() {
@@ -9,8 +9,8 @@ const AuthManager = {
     },
 
     removeToken: function() {
-        localStorage.removeItem('token');
-        sessionStorage.removeItem('token');
+        localStorage.removeItem('auth_token');
+        sessionStorage.removeItem('auth_token');
     }
 };
 
