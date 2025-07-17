@@ -42,6 +42,9 @@ public class UserOrder {
 
     private LocalDateTime cancelledAt;
 
+    @Column(name = "order_id")
+    private Long orderId; // Order의 PK
+
     // 기본 생성자 (수량 1개)
     public UserOrder(Long productNo, Long userId) {
         this.productNo = productNo;

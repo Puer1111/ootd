@@ -56,6 +56,8 @@ public class SecurityConfig {
                                 "/css/**",            // 정적 CSS
                                 "/js/**",             // 정적 JS
                                 "/img/**",            // 이미지
+                                "/images/**",         // 이미지 (추가)
+                                "/favicon.ico",       // 파비콘
                                 "/webjars/**",        // 웹 자원
                                 "/error",             // 에러 페이지
                                 "/main",              // 메인 페이지
@@ -80,13 +82,16 @@ public class SecurityConfig {
                                 "/api/products",          // 상품 조회
                                 "/api/select/product/{productNo}", // 상품 조회 JS 용
 
-                                "/api/products/ranking",              // 상품 랭킹 조회
+                        "/api/products/ranking",              // 상품 랭킹 조회
                                 "/api/products/ranking/category",     // 카테고리별 상품 랭킹
                                 "/api/products/recommended",          // 추천 상품 조회
                                 "/api/products/sale",                 // 세일 상품 조회
                                 "/api/products/categories/main",      // 메인 카테고리 조회
                                 "/api/products/categories/sub",       // 하위 카테고리 조회
-                                "/ranking",           // 랭킹 페이지
+
+                                // ✅ 랭킹 관련 API 추가
+                                "/ranking",                           // 랭킹 페이지
+                                "/api/ranking/**",                    // 모든 랭킹 API
 
                                 // 결제 관련
                                 "/goPay",                // 결제 테스트
@@ -122,7 +127,10 @@ public class SecurityConfig {
                                 "/recommended",                    // 추천 상품 페이지
                                 "/sale",                          // 세일 상품 페이지
                                 "/api/products/recommended",       // 추천 상품 API
-                                "/api/products/sale"             // 세일 상품 API
+                                "/api/products/sale",             // 세일 상품 API
+                                "/sendImpUid",
+                                "/api/promotion/**"
+
 
                         ).permitAll()                // 인증 없이 접근 허용
 
@@ -153,7 +161,13 @@ public class SecurityConfig {
                                 "/api/points/refund",              // 적립금 환원
                                 "/api/points/can-use",             // 적립금 사용 가능 여부 확인
                                 "/api/points/statistics",          // 내 적립금 통계
-                                "/api/points/recent"               // 최근 적립금 활동
+                                "/api/points/recent",               // 최근 적립금 활동
+
+                                "/api/auth/update-order-payment", //
+
+                                "/user-orders/**"
+
+
                         ).authenticated()           // JWT 인증 필요
 
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요

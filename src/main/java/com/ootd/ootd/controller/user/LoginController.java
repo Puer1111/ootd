@@ -10,6 +10,7 @@ import com.ootd.ootd.repository.user.UserRepository;
 import com.ootd.ootd.security.JwtTokenProvider;
 import com.ootd.ootd.service.product.ProductService;
 import com.ootd.ootd.service.reward.RewardService;
+import com.ootd.ootd.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -59,6 +60,9 @@ public class LoginController {
     // 🆕 RewardService 사용 (pointService 대신)
     @Autowired
     private RewardService rewardService;
+
+    @Autowired
+    private UserService userService;
 
     // 로그인 페이지 보여주기
     @GetMapping("/login")
@@ -230,38 +234,79 @@ public class LoginController {
         Map<String, Object> response = new HashMap<>();
 
         try {
+            System.out.println("=== 좋아요 상품 API 시작 ===");
+
             if (userDetails == null) {
+                System.out.println("❌ userDetails가 null입니다");
                 response.put("success", false);
                 response.put("message", "로그인이 필요합니다");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
 
+            System.out.println("✅ 사용자 인증 확인: " + userDetails.getUsername());
+
             User user = userRepository.findByEmail(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
 
+            System.out.println("✅ 사용자 조회 성공: ID=" + user.getId());
+
             List<Long> likedProductNos = productLikeRepository.findProductNosByUserId(user.getId());
+            System.out.println("✅ 좋아요 상품 번호 조회 성공: " + likedProductNos.size() + "개");
 
             List<ProductDTO> likedProducts = new ArrayList<>();
+
             for (Long productNo : likedProductNos) {
-                ProductDTO product = productService.getProductById(productNo);
-                if (product != null) {
-                    product.setLikeCount(productLikeRepository.countByProductNo(productNo));
-                    if (productReviewRepository != null) {
-                        product.setReviewCount(productReviewRepository.countByProductNo(productNo));
-                        Double avgRating = productReviewRepository.findAverageRatingByProductNo(productNo);
-                        product.setAverageRating(avgRating != null ? avgRating : 0.0);
+                try {
+                    System.out.println("상품 조회 시작: productNo=" + productNo);
+
+                    ProductDTO product = productService.getProductById(productNo);
+                    if (product != null) {
+                        System.out.println("✅ 상품 조회 성공: " + product.getProductName());
+
+                        // null 값 강제 설정으로 안전성 확보
+                        if (product.getIsActiveSale() == null) {
+                            product.setIsActiveSale(false);
+                        }
+                        if (product.getIsRecommended() == null) {
+                            product.setIsRecommended(false);
+                        }
+                        if (product.getIsSale() == null) {
+                            product.setIsSale(false);
+                        }
+
+                        product.setLikeCount(productLikeRepository.countByProductNo(productNo));
+
+                        if (productReviewRepository != null) {
+                            product.setReviewCount(productReviewRepository.countByProductNo(productNo));
+                            Double avgRating = productReviewRepository.findAverageRatingByProductNo(productNo);
+                            product.setAverageRating(avgRating != null ? avgRating : 0.0);
+                        }
+
+                        likedProducts.add(product);
+                        System.out.println("✅ 상품 처리 완료: " + product.getProductName());
+                    } else {
+                        System.out.println("❌ 상품 조회 실패: productNo=" + productNo);
                     }
-                    likedProducts.add(product);
+                } catch (Exception e) {
+                    System.err.println("❌ 상품 처리 중 에러 - productNo: " + productNo);
+                    e.printStackTrace();
                 }
             }
+
+            System.out.println("✅ 모든 상품 처리 완료: " + likedProducts.size() + "개");
 
             response.put("success", true);
             response.put("likedProducts", likedProducts);
             response.put("totalCount", likedProducts.size());
 
+            System.out.println("✅ 응답 객체 생성 완료");
+
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
+            System.err.println("❌ 좋아요 상품 API 전체 실패: " + e.getMessage());
+            e.printStackTrace();
+
             response.put("success", false);
             response.put("message", "좋아요 상품 목록을 가져오는 중 오류가 발생했습니다: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
@@ -274,78 +319,74 @@ public class LoginController {
         return "view/user/orderHistory";
     }
 
+    // 기존 getUserOrderHistory 메서드를 다음과 같이 수정
     @GetMapping("/api/auth/order-history")
     @ResponseBody
     public ResponseEntity<?> getUserOrderHistory(@AuthenticationPrincipal UserDetails userDetails) {
-        Map<String, Object> response = new HashMap<>();
-
         try {
-            if (userDetails == null) {
-                response.put("success", false);
-                response.put("message", "로그인이 필요합니다");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-            }
+            System.out.println("📋 주문 내역 조회 요청 - 사용자: " + userDetails.getUsername());
 
+            // 사용자 정보 조회
             User user = userRepository.findByEmail(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
 
-            List<UserOrder> userOrders;
-            try {
-                userOrders = userOrderRepository.findByUserIdAndStatusOrderByCreatedAtDesc(
-                        user.getId(), UserOrder.OrderStatus.ORDERED);
-            } catch (Exception e) {
-                userOrders = userOrderRepository.findAll().stream()
-                        .filter(order -> order.getUserId().equals(user.getId()) &&
-                                order.getStatus() == UserOrder.OrderStatus.ORDERED)
-                        .sorted((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()))
-                        .collect(Collectors.toList());
-            }
+            // UserOrder 조회
+            List<UserOrder> userOrders = userOrderRepository.findByUserIdAndStatusOrderByCreatedAtDesc(
+                    user.getId(), UserOrder.OrderStatus.ORDERED
+            );
 
-            List<Map<String, Object>> orderedProducts = new ArrayList<>();
+            System.out.println("📋 조회된 주문 개수: " + userOrders.size());
 
-            for (UserOrder order : userOrders) {
-                ProductDTO product = productService.getProductById(order.getProductNo());
-                if (product != null) {
-                    String categoryName = "카테고리";
-                    String subCategoryName = "하위카테고리";
+            List<Map<String, Object>> orderedProducts = userOrders.stream()
+                    .map(order -> {
+                        Map<String, Object> productMap = new HashMap<>();
+                        productMap.put("productNo", order.getProductNo());
 
-                    if (product.getCategoryNo() != null) {
-                        Optional<Category> categoryOpt = categoryRepository.findById(product.getCategoryNo());
-                        if (categoryOpt.isPresent()) {
-                            Category category = categoryOpt.get();
-                            categoryName = category.getMainCategory();
-                            subCategoryName = category.getSubCategory();
+                        // 상품 정보 조회
+                        ProductDTO productDTO = null;
+                        try {
+                            productDTO = productService.getProductById(order.getProductNo());
+                        } catch(Exception e) {
+                            System.err.println("❌ 상품 정보 조회 실패: " + order.getProductNo());
                         }
-                    }
 
-                    Map<String, Object> orderWithProduct = new HashMap<>();
-                    orderWithProduct.put("productNo", product.getProductNo());
-                    orderWithProduct.put("productName", product.getProductName());
-                    orderWithProduct.put("price", product.getPrice());
-                    orderWithProduct.put("imageUrls", product.getImageUrls());
-                    orderWithProduct.put("brandName", product.getBrandName());
-                    orderWithProduct.put("categoryName", categoryName);
-                    orderWithProduct.put("subCategory", subCategoryName);
-                    orderWithProduct.put("orderId", order.getId());
-                    orderWithProduct.put("quantity", order.getQuantity() != null ? order.getQuantity() : 1);
-                    orderWithProduct.put("totalPrice", order.getTotalPrice() != null ? order.getTotalPrice() : 0L);
-                    orderWithProduct.put("orderDate", order.getCreatedAt());
-                    orderWithProduct.put("orderStatus", order.getStatus().getDescription());
+                        if (productDTO != null) {
+                            productMap.put("productName", productDTO.getProductName());
+                            productMap.put("imageUrls", productDTO.getImageUrls() != null ? productDTO.getImageUrls() : new ArrayList<>());
+                            productMap.put("brandName", productDTO.getBrandName());
+                            productMap.put("categoryName", productDTO.getMainCategory() != null ? productDTO.getMainCategory() : "");
+                            productMap.put("subCategory", productDTO.getSubCategory() != null ? productDTO.getSubCategory() : "");
+                        } else {
+                            productMap.put("productName", "상품정보없음");
+                            productMap.put("imageUrls", new ArrayList<>());
+                            productMap.put("brandName", "");
+                            productMap.put("categoryName", "");
+                            productMap.put("subCategory", "");
+                        }
 
-                    orderedProducts.add(orderWithProduct);
-                }
-            }
+                        productMap.put("price", order.getTotalPrice() / order.getQuantity());
+                        productMap.put("quantity", order.getQuantity());
+                        productMap.put("totalPrice", order.getTotalPrice());
+                        productMap.put("orderDate", order.getCreatedAt().toString());
+                        productMap.put("orderStatus", order.getStatus().getDescription());
+                        productMap.put("orderId", order.getId());
 
-            response.put("success", true);
-            response.put("orderedProducts", orderedProducts);
-            response.put("totalCount", orderedProducts.size());
+                        return productMap;
+                    })
+                    .collect(Collectors.toList());
 
-            return ResponseEntity.ok(response);
-
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "totalCount", userOrders.size(),
+                    "orderedProducts", orderedProducts
+            ));
         } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "주문 내역을 가져오는 중 오류가 발생했습니다: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            System.err.println("❌ 주문 내역 조회 실패: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of(
+                    "success", false,
+                    "message", "주문 내역을 불러올 수 없습니다."
+            ));
         }
     }
 
@@ -362,38 +403,79 @@ public class LoginController {
         Map<String, Object> response = new HashMap<>();
 
         try {
+            System.out.println("=== 취소 내역 API 시작 ===");
+
             if (userDetails == null) {
+                System.out.println("❌ userDetails가 null입니다");
                 response.put("success", false);
                 response.put("message", "로그인이 필요합니다");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
 
+            System.out.println("✅ 사용자 인증 확인: " + userDetails.getUsername());
+
             User user = userRepository.findByEmail(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
 
+            System.out.println("✅ 사용자 조회 성공: ID=" + user.getId());
+
             List<Long> cancelledProductNos = userOrderRepository.findCancelledProductNosByUserId(user.getId());
+            System.out.println("✅ 취소된 상품 번호 조회 성공: " + cancelledProductNos.size() + "개");
 
             List<ProductDTO> cancelledProducts = new ArrayList<>();
+
             for (Long productNo : cancelledProductNos) {
-                ProductDTO product = productService.getProductById(productNo);
-                if (product != null) {
-                    product.setLikeCount(productLikeRepository.countByProductNo(productNo));
-                    if (productReviewRepository != null) {
-                        product.setReviewCount(productReviewRepository.countByProductNo(productNo));
-                        Double avgRating = productReviewRepository.findAverageRatingByProductNo(productNo);
-                        product.setAverageRating(avgRating != null ? avgRating : 0.0);
+                try {
+                    System.out.println("취소된 상품 조회 시작: productNo=" + productNo);
+
+                    ProductDTO product = productService.getProductById(productNo);
+                    if (product != null) {
+                        System.out.println("✅ 취소된 상품 조회 성공: " + product.getProductName());
+
+                        // null 값 강제 설정으로 안전성 확보
+                        if (product.getIsActiveSale() == null) {
+                            product.setIsActiveSale(false);
+                        }
+                        if (product.getIsRecommended() == null) {
+                            product.setIsRecommended(false);
+                        }
+                        if (product.getIsSale() == null) {
+                            product.setIsSale(false);
+                        }
+
+                        product.setLikeCount(productLikeRepository.countByProductNo(productNo));
+
+                        if (productReviewRepository != null) {
+                            product.setReviewCount(productReviewRepository.countByProductNo(productNo));
+                            Double avgRating = productReviewRepository.findAverageRatingByProductNo(productNo);
+                            product.setAverageRating(avgRating != null ? avgRating : 0.0);
+                        }
+
+                        cancelledProducts.add(product);
+                        System.out.println("✅ 취소된 상품 처리 완료: " + product.getProductName());
+                    } else {
+                        System.out.println("❌ 취소된 상품 조회 실패: productNo=" + productNo);
                     }
-                    cancelledProducts.add(product);
+                } catch (Exception e) {
+                    System.err.println("❌ 취소된 상품 처리 중 에러 - productNo: " + productNo);
+                    e.printStackTrace();
                 }
             }
+
+            System.out.println("✅ 모든 취소된 상품 처리 완료: " + cancelledProducts.size() + "개");
 
             response.put("success", true);
             response.put("cancelledProducts", cancelledProducts);
             response.put("totalCount", cancelledProducts.size());
 
+            System.out.println("✅ 취소 내역 응답 객체 생성 완료");
+
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
+            System.err.println("❌ 취소 내역 API 전체 실패: " + e.getMessage());
+            e.printStackTrace();
+
             response.put("success", false);
             response.put("message", "취소 내역을 가져오는 중 오류가 발생했습니다: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
@@ -401,51 +483,51 @@ public class LoginController {
     }
 
     // 주문 취소 API (주문내역에서)
-    @PostMapping("/api/auth/cancel-order/{orderId}")
-    @ResponseBody
-    public ResponseEntity<?> cancelOrderById(@PathVariable Long orderId,
-                                             @AuthenticationPrincipal UserDetails userDetails) {
-        Map<String, Object> response = new HashMap<>();
-
-        try {
-            if (userDetails == null) {
-                response.put("success", false);
-                response.put("message", "로그인이 필요합니다");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-            }
-
-            User user = userRepository.findByEmail(userDetails.getUsername())
-                    .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
-
-            Optional<UserOrder> orderOpt = userOrderRepository.findByIdAndUserId(orderId, user.getId());
-
-            if (orderOpt.isEmpty()) {
-                response.put("success", false);
-                response.put("message", "주문을 찾을 수 없습니다");
-                return ResponseEntity.badRequest().body(response);
-            }
-
-            UserOrder order = orderOpt.get();
-            if (order.getStatus() != UserOrder.OrderStatus.ORDERED) {
-                response.put("success", false);
-                response.put("message", "이미 처리된 주문입니다");
-                return ResponseEntity.badRequest().body(response);
-            }
-
-            order.cancel();
-            userOrderRepository.save(order);
-
-            response.put("success", true);
-            response.put("message", "주문이 취소되었습니다");
-
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "주문 취소 중 오류가 발생했습니다: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-    }
+//    @PostMapping("/api/auth/cancel-order/{orderId}")
+//    @ResponseBody
+//    public ResponseEntity<?> cancelOrderById(@PathVariable Long orderId,
+//                                             @AuthenticationPrincipal UserDetails userDetails) {
+//        Map<String, Object> response = new HashMap<>();
+//
+//        try {
+//            if (userDetails == null) {
+//                response.put("success", false);
+//                response.put("message", "로그인이 필요합니다");
+//                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+//            }
+//
+//            User user = userRepository.findByEmail(userDetails.getUsername())
+//                    .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
+//
+//            Optional<UserOrder> orderOpt = userOrderRepository.findByIdAndUserId(orderId, user.getId());
+//
+//            if (orderOpt.isEmpty()) {
+//                response.put("success", false);
+//                response.put("message", "주문을 찾을 수 없습니다");
+//                return ResponseEntity.badRequest().body(response);
+//            }
+//
+//            UserOrder order = orderOpt.get();
+//            if (order.getStatus() != UserOrder.OrderStatus.ORDERED) {
+//                response.put("success", false);
+//                response.put("message", "이미 처리된 주문입니다");
+//                return ResponseEntity.badRequest().body(response);
+//            }
+//
+//            order.cancel();
+//            userOrderRepository.save(order);
+//
+//            response.put("success", true);
+//            response.put("message", "주문이 취소되었습니다");
+//
+//            return ResponseEntity.ok(response);
+//
+//        } catch (Exception e) {
+//            response.put("success", false);
+//            response.put("message", "주문 취소 중 오류가 발생했습니다: " + e.getMessage());
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+//        }
+//    }
 
     // 🆕 사용자 통계 API (RewardService 사용)
     @GetMapping("/api/auth/user-stats")

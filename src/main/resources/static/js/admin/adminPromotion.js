@@ -1,725 +1,655 @@
 // 전역 변수
 let allProducts = [];
-let currentPromotions = [];
+let filteredProducts = [];
+let recommendedProducts = new Set();
+let saleProducts = new Map(); // productNo -> { percentage, price, ... }
+
+// 🆕 페이지네이션 변수 추가
+let currentPage = 1;
+const itemsPerPage = 10;
+let totalPages = 1;
 
 document.addEventListener('DOMContentLoaded', function() {
-    initializePromotionPage();
-    loadPromotionList();
+    loadAllProducts();
     setupEventListeners();
 });
 
-// 페이지 초기화
-function initializePromotionPage() {
-    // 사이드바 메뉴 활성화 처리
-    const submenuItems = document.querySelectorAll('[data-target-section]');
-    submenuItems.forEach(item => {
-        item.addEventListener('click', function(e) {
-            e.preventDefault();
-            const targetSection = this.getAttribute('data-target-section');
-            showSection(targetSection);
+// 이벤트 리스너 설정
+function setupEventListeners() {
+    // 탭 전환
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const tabName = this.dataset.tab;
+            switchTab(tabName);
         });
     });
 
-    // 기본 섹션 표시
-    showSection('promotion-list-section');
-}
-
-// 이벤트 리스너 설정
-function setupEventListeners() {
     // 필터 변경 시
-    document.getElementById('filter-type').addEventListener('change', filterPromotions);
+    document.getElementById('filter-type-recommend').addEventListener('change', filterRecommendProducts);
+    document.getElementById('filter-type-sale').addEventListener('change', filterSaleProducts);
 
-    // 할인율, 원가 입력 시 세일가 자동 계산
-    document.getElementById('sale-percentage').addEventListener('input', calculateSalePrice);
-    document.getElementById('original-price').addEventListener('input', calculateSalePrice);
+    // 엔터키로 사용자 정의 세일 적용
+    document.addEventListener('keypress', function(e) {
+        if (e.target.classList.contains('sale-percentage-input') && e.key === 'Enter') {
+            const input = e.target;
+            const productNo = input.id.replace('customSale', '');
 
-    // 엔터키로 검색
-    document.getElementById('product-search').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            searchProducts();
-        }
-    });
-
-    document.getElementById('sale-product-search').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            searchProductsForSale();
+            // 해당 상품의 원가 찾기
+            const product = allProducts.find(p => p.productNo == productNo);
+            if (product && input.value) {
+                applyCustomSale(parseInt(productNo), input.value, product.price || 0);
+            }
         }
     });
 }
 
-// 섹션 표시
-function showSection(sectionId) {
-    // 모든 섹션 숨기기
-    const sections = document.querySelectorAll('.admin-table-container, #recommended-section, #sale-section');
-    sections.forEach(section => {
-        section.style.display = 'none';
+// 🆕 탭 전환 함수 (페이지 초기화 포함)
+function switchTab(tabName) {
+    // 탭 버튼 활성화 상태 변경
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
     });
+    document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
 
-    // 선택된 섹션 표시
-    const targetSection = document.getElementById(sectionId);
-    if (targetSection) {
-        targetSection.style.display = 'block';
+    // 탭 콘텐츠 표시/숨김
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    document.getElementById(`${tabName}-tab`).classList.add('active');
 
-        // 각 섹션별 데이터 로드
-        switch(sectionId) {
-            case 'promotion-list-section':
-                loadPromotionList();
-                break;
-            case 'recommended-section':
-                loadRecommendedProducts();
-                break;
-            case 'sale-section':
-                loadSaleProducts();
-                break;
-        }
+    // 페이지 초기화
+    currentPage = 1;
+
+    // 탭별 데이터 로드
+    if (tabName === 'sale') {
+        loadSaleData();
+    } else if (tabName === 'recommendation') {
+        renderRecommendTable();
     }
 }
 
-// 전체 프로모션 목록 로드
-async function loadPromotionList() {
+// 모든 상품 로드
+async function loadAllProducts() {
     try {
-        showLoading('promotion-table');
+        showLoading('recommend');
 
-        // 모든 상품 정보 가져오기
-        const [productsResponse, recommendedResponse, saleResponse] = await Promise.all([
-            fetch('/api/products/ranking'),
-            fetch('/admin/promotion/recommended'),
+        // 모든 상품 정보와 추천 상품 정보를 동시에 가져오기
+        const [productsResponse, recommendedResponse] = await Promise.all([
+            fetch('/admin/select/product'),
+            fetch('/admin/promotion/recommended')
+        ]);
+
+        const products = await productsResponse.json();
+        const recommendedData = await recommendedResponse.json();
+
+        if (products && Array.isArray(products)) {
+            allProducts = products;
+
+            // 추천 상품 정보 저장
+            if (recommendedData.success) {
+                recommendedProducts = new Set(
+                    recommendedData.promotions.map(promo => promo.productNo)
+                );
+            }
+
+            filteredProducts = [...allProducts];
+            renderRecommendTable();
+        } else {
+            showError('상품 목록을 불러올 수 없습니다.');
+        }
+    } catch (error) {
+        console.error('상품 목록 로드 실패:', error);
+        showError('상품 목록을 불러오는 중 오류가 발생했습니다.');
+    }
+}
+
+// 세일 데이터 로드
+async function loadSaleData() {
+    try {
+        showLoading('sale');
+
+        const [productsResponse, saleResponse] = await Promise.all([
+            fetch('/admin/select/product'),
             fetch('/admin/promotion/sale')
         ]);
 
-        const productsData = await productsResponse.json();
-        const recommendedData = await recommendedResponse.json();
+        const products = await productsResponse.json();
         const saleData = await saleResponse.json();
 
-        if (productsData.success) {
-            allProducts = productsData.products;
+        if (products && Array.isArray(products)) {
+            allProducts = products;
 
-            // 프로모션 정보 병합
-            const recommendedMap = new Map();
-            const saleMap = new Map();
-
-            if (recommendedData.success) {
-                recommendedData.promotions.forEach(promo => {
-                    recommendedMap.set(promo.productNo, promo);
-                });
-            }
-
+            // 세일 상품 정보 저장
+            saleProducts.clear();
             if (saleData.success) {
                 saleData.promotions.forEach(promo => {
-                    saleMap.set(promo.productNo, promo);
+                    saleProducts.set(promo.productNo, {
+                        percentage: promo.salePercentage,
+                        originalPrice: promo.originalPrice,
+                        salePrice: promo.salePrice,
+                        isActiveSale: promo.isActiveSale
+                    });
                 });
             }
 
-            // 프로모션 정보가 있는 상품만 필터링
-            currentPromotions = allProducts.filter(product => {
-                const recommended = recommendedMap.get(product.productNo);
-                const sale = saleMap.get(product.productNo);
-
-                if (recommended || sale) {
-                    product.promotion = {
-                        recommended: recommended,
-                        sale: sale
-                    };
-                    return true;
-                }
-                return false;
-            });
-
-            renderPromotionTable();
+            renderSaleTable();
+        } else {
+            showError('상품 목록을 불러올 수 없습니다.');
         }
     } catch (error) {
-        console.error('프로모션 목록 로드 실패:', error);
-        showError('프로모션 목록을 불러오는 중 오류가 발생했습니다.');
+        console.error('세일 데이터 로드 실패:', error);
+        showError('세일 데이터를 불러오는 중 오류가 발생했습니다.');
     }
 }
 
-// 프로모션 테이블 렌더링
-function renderPromotionTable() {
-    const tbody = document.querySelector('#promotion-table tbody');
+// 🆕 추천 상품 테이블 렌더링 (페이지네이션 포함)
+function renderRecommendTable() {
+    const tbody = document.querySelector('#recommend-table tbody');
 
-    if (currentPromotions.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="11" class="empty-state">프로모션이 설정된 상품이 없습니다.</td></tr>';
+    if (filteredProducts.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state">표시할 상품이 없습니다.</td></tr>';
+        renderPagination('recommend', 0);
         return;
     }
 
+    // 페이지네이션 계산
+    totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentPageProducts = filteredProducts.slice(startIndex, endIndex);
+
     let html = '';
-    currentPromotions.forEach(product => {
-        const recommended = product.promotion?.recommended;
-        const sale = product.promotion?.sale;
+    currentPageProducts.forEach(product => {
+        const isRecommended = recommendedProducts.has(product.productNo);
+        const recommendStatus = isRecommended ?
+            '<span class="status-badge recommended">추천</span>' :
+            '<span class="status-badge not-recommended">미추천</span>';
+
+        const buttonText = isRecommended ? '추천 해제' : '추천';
+        const buttonClass = isRecommended ? 'btn-danger' : 'btn-primary';
 
         html += `
             <tr>
                 <td>${product.productNo}</td>
-                <td>${product.productName}</td>
+                <td class="product-name" title="${product.productName}">${product.productName}</td>
                 <td>${product.brandName || '-'}</td>
+                <td>${recommendStatus}</td>
                 <td>
-                    ${recommended ?
-            `<span class="promotion-status active">추천</span>` :
-            `<span class="promotion-status inactive">-</span>`
-        }
-                </td>
-                <td>${recommended ? recommended.promotionPriority || 0 : '-'}</td>
-                <td>
-                    ${sale ?
-            `<span class="promotion-status active">세일</span>` :
-            `<span class="promotion-status inactive">-</span>`
-        }
-                </td>
-                <td>${sale ? sale.salePercentage + '%' : '-'}</td>
-                <td>${sale ? (sale.originalPrice || 0).toLocaleString() + '원' : '-'}</td>
-                <td>
-                    ${sale ?
-            `<span class="sale-price">${(sale.salePrice || 0).toLocaleString()}원</span>` :
-            '-'
-        }
-                </td>
-                <td>
-                    ${sale && sale.saleStartDate ?
-            `${formatDate(sale.saleStartDate)} ~ ${sale.saleEndDate ? formatDate(sale.saleEndDate) : '무제한'}` :
-            '-'
-        }
-                </td>
-                <td>
-                    <button class="btn btn-sm btn-primary" onclick="editPromotion(${product.productNo})">수정</button>
-                    <button class="btn btn-sm btn-danger" onclick="deletePromotion(${product.productNo})">삭제</button>
+                    <button class="btn btn-sm ${buttonClass}" 
+                            onclick="toggleRecommendation(${product.productNo}, ${isRecommended})"
+                            data-product-no="${product.productNo}">
+                        ${buttonText}
+                    </button>
                 </td>
             </tr>
         `;
     });
 
     tbody.innerHTML = html;
+    renderPagination('recommend', filteredProducts.length);
 }
 
-// 상품 검색 (추천용)
-async function searchProducts() {
-    const searchTerm = document.getElementById('product-search').value.trim();
-    if (!searchTerm) {
-        alert('검색어를 입력해주세요.');
+// 🆕 세일 상품 테이블 렌더링 (25, 50, 75 버튼 제거 + 페이지네이션)
+function renderSaleTable() {
+    const tbody = document.querySelector('#sale-table tbody');
+
+    if (allProducts.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-state">표시할 상품이 없습니다.</td></tr>';
+        renderPagination('sale', 0);
         return;
     }
 
-    try {
-        showLoading('search-results');
-
-        const response = await fetch('/api/products/ranking');
-        const data = await response.json();
-
-        if (data.success) {
-            const filteredProducts = data.products.filter(product =>
-                product.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                product.productNo.toString().includes(searchTerm)
-            );
-
-            renderSearchResults(filteredProducts, 'search-results', 'recommended');
-        }
-    } catch (error) {
-        console.error('상품 검색 실패:', error);
-        showError('상품 검색 중 오류가 발생했습니다.');
-    }
-}
-
-// 상품 검색 (세일용)
-async function searchProductsForSale() {
-    const searchTerm = document.getElementById('sale-product-search').value.trim();
-    if (!searchTerm) {
-        alert('검색어를 입력해주세요.');
-        return;
-    }
-
-    try {
-        showLoading('sale-search-results');
-
-        const response = await fetch('/api/products/ranking');
-        const data = await response.json();
-
-        if (data.success) {
-            const filteredProducts = data.products.filter(product =>
-                product.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                product.productNo.toString().includes(searchTerm)
-            );
-
-            renderSearchResults(filteredProducts, 'sale-search-results', 'sale');
-        }
-    } catch (error) {
-        console.error('상품 검색 실패:', error);
-        showError('상품 검색 중 오류가 발생했습니다.');
-    }
-}
-
-// 검색 결과 렌더링
-function renderSearchResults(products, containerId, type) {
-    const container = document.getElementById(containerId);
-
-    if (products.length === 0) {
-        container.innerHTML = '<div class="empty-state"><p>검색 결과가 없습니다.</p></div>';
-        return;
-    }
+    // 페이지네이션 계산
+    totalPages = Math.ceil(allProducts.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentPageProducts = allProducts.slice(startIndex, endIndex);
 
     let html = '';
-    products.forEach(product => {
-        const imageUrl = product.imageUrls && product.imageUrls.length > 0 ? product.imageUrls[0] : '/img/common/no-image.png';
+    currentPageProducts.forEach(product => {
+        const saleInfo = saleProducts.get(product.productNo);
+        const isOnSale = saleInfo && saleInfo.isActiveSale;
 
-        html += `
-            <div class="search-result-item">
-                <img src="${imageUrl}" alt="${product.productName}" class="search-result-image">
-                <div class="search-result-info">
-                    <h4>${product.productName}</h4>
-                    <p>상품번호: ${product.productNo}</p>
-                    <p>브랜드: ${product.brandName || '-'}</p>
-                    <p>가격: ${(product.price || 0).toLocaleString()}원</p>
-                </div>
-                <div class="search-result-actions">
-                    <button class="btn btn-sm btn-primary" onclick="openPromotionModal(${product.productNo}, '${type}')">
-                        ${type === 'recommended' ? '추천 설정' : '세일 설정'}
-                    </button>
-                </div>
-            </div>
-        `;
-    });
-
-    container.innerHTML = html;
-}
-
-// 현재 추천 상품 목록 로드
-async function loadRecommendedProducts() {
-    try {
-        const response = await fetch('/admin/promotion/recommended');
-        const data = await response.json();
-
-        if (data.success) {
-            renderPromotionList(data.promotions, 'recommended-list', 'recommended');
-        }
-    } catch (error) {
-        console.error('추천 상품 로드 실패:', error);
-        showError('추천 상품을 불러오는 중 오류가 발생했습니다.');
-    }
-}
-
-// 현재 세일 상품 목록 로드
-async function loadSaleProducts() {
-    try {
-        const response = await fetch('/admin/promotion/sale');
-        const data = await response.json();
-
-        if (data.success) {
-            renderPromotionList(data.promotions, 'sale-list', 'sale');
-        }
-    } catch (error) {
-        console.error('세일 상품 로드 실패:', error);
-        showError('세일 상품을 불러오는 중 오류가 발생했습니다.');
-    }
-}
-
-// 프로모션 목록 렌더링
-function renderPromotionList(promotions, containerId, type) {
-    const container = document.getElementById(containerId);
-
-    if (promotions.length === 0) {
-        container.innerHTML = `<div class="empty-state"><p>설정된 ${type === 'recommended' ? '추천' : '세일'} 상품이 없습니다.</p></div>`;
-        return;
-    }
-
-    let html = '';
-    promotions.forEach(promotion => {
-        const badgeClass = type === 'recommended' ? 'recommended' : 'sale';
-        const badgeText = type === 'recommended' ? '추천' : '세일';
-
-        html += `
-            <div class="promotion-item">
-                <div class="promotion-item-header">
-                    <span class="promotion-badge ${badgeClass}">${badgeText}</span>
-                </div>
-                <h4>상품번호: ${promotion.productNo}</h4>
-                ${type === 'recommended' ?
-            `<p>우선순위: ${promotion.promotionPriority || 0}</p>` :
-            `
-                    <p>할인율: ${promotion.salePercentage}%</p>
-                    <p>원가: ${(promotion.originalPrice || 0).toLocaleString()}원</p>
-                    <p>세일가: ${(promotion.salePrice || 0).toLocaleString()}원</p>
-                    ${promotion.saleStartDate ? `<p>기간: ${formatDate(promotion.saleStartDate)} ~ ${promotion.saleEndDate ? formatDate(promotion.saleEndDate) : '무제한'}</p>` : ''}
-                    `
-        }
-                <div class="promotion-item-actions">
-                    <button class="btn btn-sm btn-warning" onclick="editPromotionDirect(${promotion.productNo}, '${type}')">수정</button>
-                    <button class="btn btn-sm btn-danger" onclick="removePromotionDirect(${promotion.productNo}, '${type}')">해제</button>
-                </div>
-            </div>
-        `;
-    });
-
-    container.innerHTML = html;
-}
-
-// 프로모션 모달 열기
-async function openPromotionModal(productNo, type) {
-    try {
-        // 상품 정보 가져오기
-        const productResponse = await fetch(`/api/select/product/${productNo}`);
-        const productData = await productResponse.json();
-
-        if (type === 'recommended') {
-            document.getElementById('recommended-product-no').value = productNo;
-            renderProductInfo(productData, 'recommended-product-info');
-            document.getElementById('recommended-modal').style.display = 'block';
+        // 세일 상태 표시
+        let saleStatus = '';
+        if (isOnSale) {
+            saleStatus = `<span class="status-badge on-sale">${saleInfo.percentage}% 세일</span>`;
         } else {
-            document.getElementById('sale-product-no').value = productNo;
-            document.getElementById('original-price').value = productData.price || 0;
-            renderProductInfo(productData, 'sale-product-info');
-            calculateSalePrice();
-            document.getElementById('sale-modal').style.display = 'block';
+            saleStatus = '<span class="status-badge not-on-sale">세일 안함</span>';
         }
-    } catch (error) {
-        console.error('상품 정보 로드 실패:', error);
-        showError('상품 정보를 불러오는 중 오류가 발생했습니다.');
+
+        // 가격 표시
+        let priceDisplay = `<span class="price-display">${(product.price || 0).toLocaleString()}원</span>`;
+        if (isOnSale && saleInfo.salePrice) {
+            priceDisplay = `
+                <div class="price-display">
+                    <div class="original-price">${(saleInfo.originalPrice || product.price).toLocaleString()}원</div>
+                    <div class="sale-price">${saleInfo.salePrice.toLocaleString()}원</div>
+                </div>
+            `;
+        }
+
+        html += `
+            <tr>
+                <td>${product.productNo}</td>
+                <td class="product-name" title="${product.productName}">${product.productName}</td>
+                <td>${product.brandName || '-'}</td>
+                <td>${priceDisplay}</td>
+                <td>${saleStatus}</td>
+                <td>
+                    <div class="sale-btn-group">
+                        <!-- 사용자 정의 퍼센트 입력 필드만 유지 -->
+                        <div class="sale-input-group">
+                            <input type="number" 
+                                   class="sale-percentage-input" 
+                                   placeholder="%" 
+                                   min="1" 
+                                   max="99"
+                                   id="customSale${product.productNo}">
+                            <button class="sale-apply-btn" 
+                                    id="customSaleApply${product.productNo}"
+                                    onclick="applyCustomSale(${product.productNo}, document.getElementById('customSale${product.productNo}').value, ${product.price || 0})">
+                                적용
+                            </button>
+                        </div>
+                        
+                        <!-- 세일 해제 버튼만 유지 -->
+                        <button class="sale-off-btn" 
+                                onclick="removeSale(${product.productNo})">
+                            세일 해제
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    });
+
+    tbody.innerHTML = html;
+    renderPagination('sale', allProducts.length);
+}
+
+// 🆕 페이지네이션 렌더링 함수
+function renderPagination(tableType, totalItems) {
+    const existingPagination = document.querySelector(`#${tableType}-pagination`);
+    if (existingPagination) {
+        existingPagination.remove();
+    }
+
+    if (totalItems === 0) return;
+
+    totalPages = Math.ceil(totalItems / itemsPerPage);
+
+    if (totalPages <= 1) return; // 페이지가 1개 이하면 페이지네이션 표시 안함
+
+    const table = document.querySelector(`#${tableType}-table`);
+    const paginationDiv = document.createElement('div');
+    paginationDiv.id = `${tableType}-pagination`;
+    paginationDiv.className = 'pagination';
+
+    let paginationHtml = '';
+
+    // 이전 버튼
+    paginationHtml += `
+        <button class="pagination-btn" ${currentPage === 1 ? 'disabled' : ''} 
+                onclick="changePage(${currentPage - 1}, '${tableType}')">
+            이전
+        </button>
+    `;
+
+    // 페이지 번호들
+    const startPage = Math.max(1, currentPage - 2);
+    const endPage = Math.min(totalPages, currentPage + 2);
+
+    if (startPage > 1) {
+        paginationHtml += `<button class="pagination-btn" onclick="changePage(1, '${tableType}')">1</button>`;
+        if (startPage > 2) {
+            paginationHtml += `<span class="pagination-info">...</span>`;
+        }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+        paginationHtml += `
+            <button class="pagination-btn ${i === currentPage ? 'active' : ''}" 
+                    onclick="changePage(${i}, '${tableType}')">
+                ${i}
+            </button>
+        `;
+    }
+
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+            paginationHtml += `<span class="pagination-info">...</span>`;
+        }
+        paginationHtml += `<button class="pagination-btn" onclick="changePage(${totalPages}, '${tableType}')">${totalPages}</button>`;
+    }
+
+    // 다음 버튼
+    paginationHtml += `
+        <button class="pagination-btn" ${currentPage === totalPages ? 'disabled' : ''} 
+                onclick="changePage(${currentPage + 1}, '${tableType}')">
+            다음
+        </button>
+    `;
+
+    // 정보 표시
+    const startItem = (currentPage - 1) * itemsPerPage + 1;
+    const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+    paginationHtml += `<span class="pagination-info">${startItem}-${endItem} / ${totalItems}개</span>`;
+
+    paginationDiv.innerHTML = paginationHtml;
+    table.parentNode.insertBefore(paginationDiv, table.nextSibling);
+}
+
+// 🆕 페이지 변경 함수
+function changePage(newPage, tableType) {
+    if (newPage < 1 || newPage > totalPages) return;
+
+    currentPage = newPage;
+
+    if (tableType === 'recommend') {
+        renderRecommendTable();
+    } else if (tableType === 'sale') {
+        renderSaleTable();
     }
 }
 
-// 상품 정보 렌더링
-function renderProductInfo(product, containerId) {
-    const container = document.getElementById(containerId);
-    const imageUrl = product.imageUrls && product.imageUrls.length > 0 ? product.imageUrls[0] : '/img/common/no-image.png';
-
-    container.innerHTML = `
-        <img src="${imageUrl}" alt="${product.productName}">
-        <div class="product-info-details">
-            <h4>${product.productName}</h4>
-            <p>상품번호: ${product.productNo}</p>
-            <p>브랜드: ${product.brandName || '-'}</p>
-            <p>가격: ${(product.price || 0).toLocaleString()}원</p>
-        </div>
-    `;
-}
-
-// 세일가 자동 계산
-function calculateSalePrice() {
-    const salePercentage = parseFloat(document.getElementById('sale-percentage').value) || 0;
-    const originalPrice = parseFloat(document.getElementById('original-price').value) || 0;
-
-    const salePrice = originalPrice - (originalPrice * salePercentage / 100);
-    document.getElementById('calculated-sale-price').textContent = Math.round(salePrice).toLocaleString();
-}
-
-// 추천 설정
-async function setRecommended() {
-    const productNo = document.getElementById('recommended-product-no').value;
-    const priority = parseInt(document.getElementById('recommended-priority').value);
-
+// 추천 상태 토글
+async function toggleRecommendation(productNo, isCurrentlyRecommended) {
     try {
+        const button = document.querySelector(`button[data-product-no="${productNo}"]`);
+        button.disabled = true;
+        button.textContent = '처리 중...';
+
         const response = await fetch(`/admin/promotion/recommend/${productNo}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                isRecommended: true,
-                priority: priority
+                isRecommended: !isCurrentlyRecommended,
+                priority: isCurrentlyRecommended ? 0 : 50
             })
         });
 
         const data = await response.json();
 
         if (data.success) {
-            alert('추천 상품으로 설정되었습니다.');
-            closeModal('recommended-modal');
-            loadRecommendedProducts();
-            loadPromotionList();
+            if (isCurrentlyRecommended) {
+                recommendedProducts.delete(productNo);
+            } else {
+                recommendedProducts.add(productNo);
+            }
+
+            renderRecommendTable();
+            showSuccess(data.message);
         } else {
-            alert(data.message || '추천 설정에 실패했습니다.');
+            showError(data.message || '추천 설정 중 오류가 발생했습니다.');
+            button.disabled = false;
         }
     } catch (error) {
         console.error('추천 설정 실패:', error);
-        alert('추천 설정 중 오류가 발생했습니다.');
+        showError('추천 설정 중 오류가 발생했습니다.');
     }
 }
 
-// 추천 해제
-async function removeRecommended() {
-    const productNo = document.getElementById('recommended-product-no').value;
+// 사용자 정의 세일 퍼센트 적용 함수
+async function applyCustomSale(productNo, percentage, originalPrice) {
+    // 입력값 검증
+    const salePercentage = parseInt(percentage);
 
-    if (!confirm('추천 상품에서 해제하시겠습니까?')) {
+    if (!salePercentage || salePercentage < 1 || salePercentage > 99) {
+        showError('1~99 사이의 숫자를 입력해주세요.');
         return;
     }
 
     try {
-        const response = await fetch(`/admin/promotion/recommend/${productNo}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                isRecommended: false
-            })
-        });
+        console.log(`사용자 정의 세일 적용: ${productNo}번 상품에 ${salePercentage}% 세일`);
 
-        const data = await response.json();
-
-        if (data.success) {
-            alert('추천 상품에서 해제되었습니다.');
-            closeModal('recommended-modal');
-            loadRecommendedProducts();
-            loadPromotionList();
-        } else {
-            alert(data.message || '추천 해제에 실패했습니다.');
+        // 적용 버튼 로딩 상태로 변경
+        const applyBtn = document.querySelector(`#customSaleApply${productNo}`);
+        if (applyBtn) {
+            applyBtn.disabled = true;
+            applyBtn.textContent = '적용중...';
         }
+
+        // 기존 setSalePercentage 함수 호출
+        await setSalePercentage(productNo, salePercentage, originalPrice);
+
+        // 입력 필드 초기화
+        const input = document.getElementById(`customSale${productNo}`);
+        if (input) {
+            input.value = '';
+        }
+
+        // 버튼 상태 복원
+        if (applyBtn) {
+            applyBtn.disabled = false;
+            applyBtn.textContent = '적용';
+        }
+
+        showSuccess(`${salePercentage}% 세일이 적용되었습니다.`);
+
     } catch (error) {
-        console.error('추천 해제 실패:', error);
-        alert('추천 해제 중 오류가 발생했습니다.');
+        console.error('사용자 정의 세일 적용 실패:', error);
+        showError('세일 적용 중 오류가 발생했습니다.');
+
+        // 버튼 상태 복원
+        const applyBtn = document.querySelector(`#customSaleApply${productNo}`);
+        if (applyBtn) {
+            applyBtn.disabled = false;
+            applyBtn.textContent = '적용';
+        }
     }
 }
 
-// 세일 설정
-async function setSale() {
-    const productNo = document.getElementById('sale-product-no').value;
-    const salePercentage = parseInt(document.getElementById('sale-percentage').value);
-    const originalPrice = parseInt(document.getElementById('original-price').value);
-    const startDate = document.getElementById('sale-start-date').value;
-    const endDate = document.getElementById('sale-end-date').value;
-
-    if (!salePercentage || !originalPrice) {
-        alert('할인율과 원가를 모두 입력해주세요.');
-        return;
-    }
-
+// 세일 퍼센티지 설정
+async function setSalePercentage(productNo, percentage, originalPrice) {
     try {
-        const requestBody = {
-            isSale: true,
-            salePercentage: salePercentage,
-            originalPrice: originalPrice
-        };
-
-        // 날짜가 입력된 경우에만 추가
-        if (startDate) requestBody.saleStartDate = startDate;
-        if (endDate) requestBody.saleEndDate = endDate;
+        showButtonLoading(productNo, '세일 설정 중...');
 
         const response = await fetch(`/admin/promotion/sale/${productNo}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(requestBody)
+            body: JSON.stringify({
+                isSale: true,
+                salePercentage: percentage,
+                originalPrice: originalPrice
+            })
         });
 
         const data = await response.json();
 
         if (data.success) {
-            alert('세일 상품으로 설정되었습니다.');
-            closeModal('sale-modal');
-            loadSaleProducts();
-            loadPromotionList();
+            // 세일 정보 업데이트
+            const salePrice = originalPrice - (originalPrice * percentage / 100);
+            saleProducts.set(productNo, {
+                percentage: percentage,
+                originalPrice: originalPrice,
+                salePrice: salePrice,
+                isActiveSale: true
+            });
+
+            renderSaleTable();
+            showSuccess(`${percentage}% 세일이 적용되었습니다.`);
         } else {
-            alert(data.message || '세일 설정에 실패했습니다.');
+            showError(data.message || '세일 설정 중 오류가 발생했습니다.');
         }
     } catch (error) {
         console.error('세일 설정 실패:', error);
-        alert('세일 설정 중 오류가 발생했습니다.');
+        showError('세일 설정 중 오류가 발생했습니다.');
     }
 }
 
 // 세일 해제
-async function removeSale() {
-    const productNo = document.getElementById('sale-product-no').value;
-
-    if (!confirm('세일 상품에서 해제하시겠습니까?')) {
-        return;
-    }
-
+async function removeSale(productNo) {
     try {
+        showButtonLoading(productNo, '세일 해제 중...');
+
         const response = await fetch(`/admin/promotion/sale/${productNo}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                isSale: false
+                isSale: false,
+                salePercentage: null,
+                originalPrice: null
             })
         });
 
         const data = await response.json();
 
         if (data.success) {
-            alert('세일 상품에서 해제되었습니다.');
-            closeModal('sale-modal');
-            loadSaleProducts();
-            loadPromotionList();
+            saleProducts.delete(productNo);
+            renderSaleTable();
+            showSuccess('세일이 해제되었습니다.');
         } else {
-            alert(data.message || '세일 해제에 실패했습니다.');
+            showError(data.message || '세일 해제 중 오류가 발생했습니다.');
         }
     } catch (error) {
         console.error('세일 해제 실패:', error);
-        alert('세일 해제 중 오류가 발생했습니다.');
-    }
-}
-
-// 프로모션 직접 수정
-function editPromotionDirect(productNo, type) {
-    openPromotionModal(productNo, type);
-}
-
-// 프로모션 직접 해제
-async function removePromotionDirect(productNo, type) {
-    if (type === 'recommended') {
-        document.getElementById('recommended-product-no').value = productNo;
-        await removeRecommended();
-    } else {
-        document.getElementById('sale-product-no').value = productNo;
-        await removeSale();
-    }
-}
-
-// 프로모션 수정 (테이블에서)
-async function editPromotion(productNo) {
-    try {
-        const response = await fetch(`/admin/promotion/${productNo}`);
-        const data = await response.json();
-
-        if (data.success && data.promotion) {
-            const promotion = data.promotion;
-
-            // 추천과 세일 중 어떤 것을 수정할지 선택
-            const choice = prompt('수정할 프로모션을 선택하세요:\n1. 추천\n2. 세일\n번호를 입력하세요:');
-
-            if (choice === '1' && promotion.isRecommended) {
-                openPromotionModal(productNo, 'recommended');
-            } else if (choice === '2' && promotion.isSale) {
-                openPromotionModal(productNo, 'sale');
-            } else {
-                alert('잘못된 선택이거나 해당 프로모션이 설정되어 있지 않습니다.');
-            }
-        }
-    } catch (error) {
-        console.error('프로모션 정보 로드 실패:', error);
-        alert('프로모션 정보를 불러오는 중 오류가 발생했습니다.');
-    }
-}
-
-// 프로모션 삭제 (테이블에서)
-async function deletePromotion(productNo) {
-    if (!confirm('이 상품의 모든 프로모션을 삭제하시겠습니까?')) {
-        return;
-    }
-
-    try {
-        const response = await fetch(`/admin/promotion/${productNo}`, {
-            method: 'DELETE'
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            alert('프로모션이 삭제되었습니다.');
-            loadPromotionList();
-        } else {
-            alert(data.message || '프로모션 삭제에 실패했습니다.');
-        }
-    } catch (error) {
-        console.error('프로모션 삭제 실패:', error);
-        alert('프로모션 삭제 중 오류가 발생했습니다.');
+        showError('세일 해제 중 오류가 발생했습니다.');
     }
 }
 
 // 만료된 세일 정리
 async function cleanupExpiredSales() {
-    if (!confirm('만료된 세일을 정리하시겠습니까?')) {
-        return;
-    }
-
     try {
         const response = await fetch('/admin/promotion/cleanup-expired', {
-            method: 'POST'
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
         });
 
         const data = await response.json();
 
         if (data.success) {
-            alert('만료된 세일이 정리되었습니다.');
-            loadPromotionList();
-            loadSaleProducts();
+            loadSaleData(); // 데이터 새로고침
+            showSuccess('만료된 세일이 정리되었습니다.');
         } else {
-            alert(data.message || '세일 정리에 실패했습니다.');
+            showError(data.message || '세일 정리 중 오류가 발생했습니다.');
         }
     } catch (error) {
         console.error('세일 정리 실패:', error);
-        alert('세일 정리 중 오류가 발생했습니다.');
+        showError('세일 정리 중 오류가 발생했습니다.');
     }
 }
 
-// 프로모션 필터링
-function filterPromotions() {
-    const filterType = document.getElementById('filter-type').value;
-
-    let filteredPromotions = [];
+// 추천 상품 필터링
+function filterRecommendProducts() {
+    const filterType = document.getElementById('filter-type-recommend').value;
 
     switch(filterType) {
         case 'all':
-            filteredPromotions = [...currentPromotions];
+            filteredProducts = [...allProducts];
             break;
         case 'recommended':
-            filteredPromotions = currentPromotions.filter(p => p.promotion?.recommended);
+            filteredProducts = allProducts.filter(product =>
+                recommendedProducts.has(product.productNo)
+            );
             break;
-        case 'sale':
-            filteredPromotions = currentPromotions.filter(p => p.promotion?.sale);
-            break;
-        case 'both':
-            filteredPromotions = currentPromotions.filter(p => p.promotion?.recommended && p.promotion?.sale);
+        case 'not-recommended':
+            filteredProducts = allProducts.filter(product =>
+                !recommendedProducts.has(product.productNo)
+            );
             break;
     }
 
-    // 임시로 currentPromotions 변경
-    const originalPromotions = [...currentPromotions];
-    currentPromotions = filteredPromotions;
-    renderPromotionTable();
-    currentPromotions = originalPromotions;
+    currentPage = 1; // 필터 변경 시 첫 페이지로
+    renderRecommendTable();
 }
 
-// 프로모션 목록 새로고침
-function refreshPromotionList() {
-    loadPromotionList();
-}
+// 세일 상품 필터링
+function filterSaleProducts() {
+    const filterType = document.getElementById('filter-type-sale').value;
+    let filteredSaleProducts = [];
 
-// 모달 닫기
-function closeModal(modalId) {
-    document.getElementById(modalId).style.display = 'none';
-
-    // 폼 초기화
-    if (modalId === 'recommended-modal') {
-        document.getElementById('recommended-form').reset();
-        document.getElementById('recommended-priority').value = 50;
-    } else if (modalId === 'sale-modal') {
-        document.getElementById('sale-form').reset();
-        document.getElementById('calculated-sale-price').textContent = '0';
+    switch(filterType) {
+        case 'all':
+            filteredSaleProducts = [...allProducts];
+            break;
+        case 'on-sale':
+            filteredSaleProducts = allProducts.filter(product => {
+                const saleInfo = saleProducts.get(product.productNo);
+                return saleInfo && saleInfo.isActiveSale;
+            });
+            break;
+        case 'not-on-sale':
+            filteredSaleProducts = allProducts.filter(product => {
+                const saleInfo = saleProducts.get(product.productNo);
+                return !saleInfo || !saleInfo.isActiveSale;
+            });
+            break;
     }
+
+    // 임시로 allProducts를 교체해서 렌더링
+    const originalProducts = [...allProducts];
+    allProducts = filteredSaleProducts;
+    currentPage = 1; // 필터 변경 시 첫 페이지로
+    renderSaleTable();
+    allProducts = originalProducts;
+}
+
+// 상품 목록 새로고침
+function refreshProductList() {
+    currentPage = 1;
+    loadAllProducts();
+}
+
+// 세일 상품 목록 새로고침
+function refreshSaleProductList() {
+    currentPage = 1;
+    loadSaleData();
+}
+
+// 버튼 로딩 상태 표시
+function showButtonLoading(productNo, message) {
+    const buttons = document.querySelectorAll(`tr:has([onclick*="${productNo}"]) button`);
+    buttons.forEach(btn => {
+        btn.disabled = true;
+        if (btn.textContent !== message) {
+            btn.dataset.originalText = btn.textContent;
+            btn.textContent = message;
+        }
+    });
 }
 
 // 로딩 표시
-function showLoading(containerId) {
-    const container = document.getElementById(containerId);
-    if (container) {
-        if (containerId.includes('table')) {
-            container.querySelector('tbody').innerHTML = '<tr><td colspan="11" class="loading">로딩 중...</td></tr>';
-        } else {
-            container.innerHTML = '<div class="loading">로딩 중...</div>';
-        }
-    }
+function showLoading(tableType) {
+    const tbody = document.querySelector(`#${tableType}-table tbody`);
+    const colspan = tableType === 'recommend' ? 5 : 6;
+    tbody.innerHTML = `<tr><td colspan="${colspan}" class="loading">상품 목록을 불러오는 중...</td></tr>`;
 }
 
 // 에러 표시
 function showError(message) {
-    alert(message);
+    alert('❌ ' + message);
 }
 
-// 날짜 포맷팅
-function formatDate(dateString) {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ko-KR');
-}
+// 성공 메시지 표시
+function showSuccess(message) {
+    const toast = document.createElement('div');
+    toast.className = 'toast toast-success';
+    toast.textContent = '✅ ' + message;
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #4CAF50;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 1000;
+        font-weight: 500;
+    `;
 
-// 모달 외부 클릭 시 닫기
-window.onclick = function(event) {
-    const modals = document.querySelectorAll('.modal');
-    modals.forEach(modal => {
-        if (event.target === modal) {
-            modal.style.display = 'none';
-        }
-    });
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
 }

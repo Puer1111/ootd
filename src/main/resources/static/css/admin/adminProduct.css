@@ -1,4 +1,3 @@
-
 /* 전체 폼 스타일링 */
 main{
     width:100%;
@@ -320,7 +319,6 @@ input[name="productName"]:focus {
     z-index: -10 !important;
 }
 
-
 /* 카테고리 선택 */
 #category-select {
     padding: 12px 15px;
@@ -359,18 +357,6 @@ input[name="productName"]:focus {
     position: relative;
     display: inline-block;
 }
-
-
-/*#add-color-btn{*/
-/*    background-color: #f1f1f1;*/
-/*    color: #555;*/
-/*    border: 1px solid #ddd;*/
-/*    border-radius: 4px;*/
-/*    padding: 10px 15px;*/
-/*    font-size: 13px;*/
-/*    cursor: pointer;*/
-/*    transition: all 0.2s ease;*/
-/*}*/
 
 /* 등록 버튼 */
 .register {
@@ -584,44 +570,132 @@ input:focus, select:focus, textarea:focus {
     color: #dc3545;
 }
 
-@media (max-width: 768px) {
-    .size-item, .size-header {
-        grid-template-columns: 1fr;
-    }
-
-    .container {
-        padding: 20px;
-    }
+/* 세일 설정 섹션 스타일 */
+.sale-section {
+    margin-top: 30px;
+    padding: 25px;
+    background-color: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
 }
 
-
-
-
-
-/* 반응형 스타일링 */
-@media (max-width: 768px) {
-    .outline {
-        padding: 20px;
-    }
-
-    .select-container {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    #brand-select, #category-select {
-        width: 100%;
-        margin-bottom: 10px;
-    }
-
-    .modal-content {
-        width: 90%;
-        max-width: 400px;
-    }
-
+.sale-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
-/* --- 접이식 행(Accordion Row) 스타일 --- */
+.sale-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#isSale {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #007bff;
+}
+
+.toggle-label {
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    cursor: pointer;
+    margin-bottom: 0;
+}
+
+.sale-percentage {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 20px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.percentage-label {
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.percentage-input-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 120px;
+}
+
+#salePercentage {
+    width: 100%;
+    padding: 12px 35px 12px 12px;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    transition: border-color 0.3s ease;
+}
+
+#salePercentage:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.percentage-symbol {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+    font-weight: 600;
+    pointer-events: none;
+}
+
+.sale-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 15px;
+    background-color: #f1f8ff;
+    border: 1px solid #b8daff;
+    border-radius: 6px;
+}
+
+.original-price {
+    color: #6c757d;
+    text-decoration: line-through;
+    font-size: 14px;
+}
+
+.sale-price {
+    color: #dc3545;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+/* 테이블에 세일 컬럼 추가 스타일 */
+.admin-table th:nth-child(8),
+.admin-table td:nth-child(8) {
+    width: 80px;
+    text-align: center;
+}
+
+.sale-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+    background-color: #dc3545;
+}
+
+/* 접이식 행(Accordion Row) 스타일 */
 
 /* 펼치기/접기 버튼 */
 .toggle-options-btn {
@@ -666,4 +740,50 @@ input:focus, select:focus, textarea:focus {
 .options-table th {
     background-color: #efefef;
     font-weight: 600;
+}
+
+/* 반응형 스타일링 */
+@media (max-width: 768px) {
+    .size-item, .size-header {
+        grid-template-columns: 1fr;
+    }
+
+    .container {
+        padding: 20px;
+    }
+
+    .outline {
+        padding: 20px;
+    }
+
+    .select-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    #brand-select, #category-select {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .modal-content {
+        width: 90%;
+        max-width: 400px;
+    }
+
+    .sale-controls {
+        gap: 15px;
+    }
+
+    .sale-percentage {
+        padding: 15px;
+    }
+
+    .percentage-input-wrapper {
+        width: 100px;
+    }
+
+    .sale-preview {
+        padding: 12px;
+    }
 }

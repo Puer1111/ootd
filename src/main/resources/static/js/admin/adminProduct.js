@@ -39,10 +39,14 @@ document.getElementById('submit-btn').addEventListener('click', function (e) {
     submitFormWithAjax();
 });
 
+// --- 세일 설정 이벤트 리스너 ---
+document.addEventListener('DOMContentLoaded', function() {
+    initializeSaleEvents();
+});
 
 let allProductsData = []; // 모든 상품 데이터를 저장할 전역 변수
 
-// --- 상품 목록 로드 ---
+// --- 상품 목록 로드 (세일 정보 포함) ---
 function loadProducts() {
     fetch('/admin/select/product')
         .then(response => response.json())
@@ -55,6 +59,13 @@ function loadProducts() {
                 // 1. 메인 상품 정보 행 생성
                 const productRow = document.createElement('tr');
                 productRow.classList.add('product-row');
+
+                // 세일 정보 표시
+                let saleInfo = '';
+                if (product.isActiveSale && product.salePercentage) {
+                    saleInfo = `<span class="sale-badge">${product.salePercentage}% OFF</span>`;
+                }
+
                 productRow.innerHTML = `
                     <td>
                         <button class="toggle-options-btn">▼</button>
@@ -65,6 +76,7 @@ function loadProducts() {
                     <td>${product.brandName}</td>
                     <td>${product.subCategory}</td>
                     <td>${product.price.toLocaleString()}원</td>
+                    <td>${saleInfo}</td>
                     <td>
                         <button class="btn-edit" data-id="${product.productNo}">수정</button>
                         <button class="btn-delete" data-id="${product.productNo}">삭제</button>
@@ -79,7 +91,7 @@ function loadProducts() {
 
                 // 상세 옵션 테이블 HTML 생성
                 let optionsTableHtml = `
-                    <td colspan="8">
+                    <td colspan="9">
                         <table class="options-table">
                             <thead>
                                 <tr>
@@ -157,7 +169,7 @@ function handleDelete(event) {
     }
 }
 
-// --- 상품 수정 처리 ---
+// --- 상품 수정 처리 (세일 정보 포함) ---
 function handleEdit(event) {
     const productNo = event.target.dataset.id;
     const productData = allProductsData.find(p => p.productNo == productNo);
@@ -173,8 +185,18 @@ function handleEdit(event) {
     // 폼에 기본 데이터 채우기
     document.getElementById('productNo').value = productData.productNo;
     document.getElementById('productName').value = productData.productName;
-    document.getElementById('description').value = productData.description; // DTO에 description이 있어야 함
-    
+    document.getElementById('description').value = productData.description;
+
+    // 세일 정보 설정
+    if (productData.isActiveSale) {
+        document.getElementById('isSale').checked = true;
+        document.querySelector('.sale-percentage').style.display = 'block';
+        if (productData.salePercentage) {
+            document.getElementById('salePercentage').value = productData.salePercentage;
+            updateSalePreview(); // 미리보기 업데이트
+        }
+    }
+
     // 브랜드 및 카테고리 설정 (비동기적으로 로드될 수 있으므로 약간의 지연 후 설정)
     setTimeout(() => {
         const brandSelect = document.getElementById('brand-select');
@@ -203,8 +225,6 @@ function handleEdit(event) {
     const sizesContainer = document.getElementById('sizesContainer');
     sizesContainer.innerHTML = '';
     productData.options.forEach(option => {
-        // window.api.size.addSizeItem 함수가 옵션 데이터를 받아 채울 수 있도록 수정 필요
-        // 임시로 직접 DOM 생성
         const sizeItem = document.createElement('div');
         sizeItem.classList.add('size-item');
         sizeItem.innerHTML = `
@@ -233,13 +253,30 @@ function resetForm() {
     document.getElementById('submit-btn').textContent = '등록하기';
     document.getElementById('preview-area').innerHTML = '';
     document.getElementById('sizesContainer').innerHTML = '';
+
+    // 세일 설정 초기화
+    document.getElementById('isSale').checked = false;
+    document.querySelector('.sale-percentage').style.display = 'none';
+    document.getElementById('salePercentage').value = '';
+    document.getElementById('salePreview').style.display = 'none';
 }
 
-// --- 폼 제출 (등록/수정) ---
+// --- 폼 제출 (등록/수정) - 세일 정보 포함 ---
 function submitFormWithAjax() {
     const form = document.getElementById('product-form');
     const formData = new FormData(form);
     const productId = document.getElementById('productNo').value;
+
+    // 세일 정보 추가
+    const isSale = document.getElementById('isSale').checked;
+    const salePercentage = document.getElementById('salePercentage').value;
+
+    if (isSale && salePercentage) {
+        formData.append('isActiveSale', 'true');
+        formData.append('salePercentage', salePercentage);
+    } else {
+        formData.append('isActiveSale', 'false');
+    }
 
     const url = productId ? `/admin/update/products/${productId}` : '/admin/insert/products';
     const method = productId ? 'PUT' : 'POST';
@@ -265,6 +302,79 @@ function submitFormWithAjax() {
             console.error('Error:', error);
             alert(`처리 중 오류가 발생했습니다.`);
         });
+}
+
+// --- 세일 설정 초기화 ---
+function initializeSaleEvents() {
+    const isSaleCheckbox = document.getElementById('isSale');
+    const salePercentageDiv = document.querySelector('.sale-percentage');
+    const salePercentageInput = document.getElementById('salePercentage');
+
+    // 세일 체크박스 변경 이벤트
+    isSaleCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            salePercentageDiv.style.display = 'block';
+        } else {
+            salePercentageDiv.style.display = 'none';
+            document.getElementById('salePreview').style.display = 'none';
+            salePercentageInput.value = '';
+        }
+    });
+
+    // 세일 퍼센티지 입력 이벤트
+    salePercentageInput.addEventListener('input', function() {
+        const percentage = parseInt(this.value) || 0;
+
+        if (percentage < 0) {
+            this.value = 0;
+            return;
+        }
+        if (percentage > 100) {
+            this.value = 100;
+            return;
+        }
+
+        updateSalePreview();
+    });
+
+    // 가격 입력 필드 변경 시 미리보기 업데이트
+    document.addEventListener('input', function(e) {
+        if (e.target.matches('input[name="product.price[]"]')) {
+            updateSalePreview();
+        }
+    });
+}
+
+// --- 세일 미리보기 업데이트 ---
+function updateSalePreview() {
+    const salePercentageInput = document.getElementById('salePercentage');
+    const salePreview = document.getElementById('salePreview');
+    const originalPriceText = document.getElementById('originalPriceText');
+    const salePriceText = document.getElementById('salePriceText');
+
+    const percentage = parseInt(salePercentageInput.value) || 0;
+
+    if (percentage > 0) {
+        // 사이즈 컨테이너에서 첫 번째 가격 가져오기
+        const priceInputs = document.querySelectorAll('input[name="product.price[]"]');
+        let originalPrice = 0;
+
+        if (priceInputs.length > 0) {
+            originalPrice = parseInt(priceInputs[0].value) || 0;
+        }
+
+        if (originalPrice > 0) {
+            const salePrice = Math.round(originalPrice * (100 - percentage) / 100);
+
+            originalPriceText.textContent = originalPrice.toLocaleString();
+            salePriceText.textContent = salePrice.toLocaleString();
+            salePreview.style.display = 'block';
+        } else {
+            salePreview.style.display = 'none';
+        }
+    } else {
+        salePreview.style.display = 'none';
+    }
 }
 
 // --- API 및 유틸리티 초기화 ---
@@ -293,5 +403,8 @@ function initializeApiAndUtils() {
 
             // 이미지 업로드
             window.api.utils.init('fileInput', 'preview-area');
+
+            // 세일 이벤트 초기화
+            initializeSaleEvents();
         });
 }

@@ -12,12 +12,15 @@ import com.ootd.ootd.repository.product.ProductOptionRepository;
 import com.ootd.ootd.repository.product.ProductRepository;
 import com.ootd.ootd.repository.product.ProductReviewRepository;
 import com.ootd.ootd.service.product.ProductService;
+import com.ootd.ootd.model.dto.promotion.ProductPromotionDTO;
+import com.ootd.ootd.service.promotion.ProductPromotionService;
 
 import com.ootd.ootd.utils.RandomGenerate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +40,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private ProductOptionRepository productOptionRepository;
+
+    @Autowired
+    private ProductPromotionService promotionService;
 
     public ProductServiceImpl(ProductRepository productRepository) {
         this.productRepository = productRepository;
@@ -168,5 +174,68 @@ public class ProductServiceImpl implements ProductService {
                             .build();
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ProductDTO> getSaleProducts() {
+        try {
+            System.out.println("🔥 세일 상품 조회 시작");
+
+            // 1. 세일 중인 프로모션 목록 가져오기
+            List<ProductPromotionDTO> salePromotions = promotionService.getSaleProducts();
+            System.out.println("세일 프로모션 개수: " + salePromotions.size());
+
+            List<ProductDTO> saleProducts = new ArrayList<>();
+
+            // 2. 각 세일 상품의 상세 정보와 프로모션 정보 결합
+            for (ProductPromotionDTO promotion : salePromotions) {
+                try {
+                    Product product = productRepository.findById(promotion.getProductNo().toString())
+                            .orElse(null);
+
+                    if (product != null) {
+                        ProductDTO productDTO = ProductDTO.convertToDTO(product);
+
+                        // 3. 프로모션 정보 설정
+                        productDTO.setPromotionInfo(promotion);
+
+                        // 4. 세일 관련 정보 설정
+                        productDTO.setIsSale(true);
+                        productDTO.setIsActiveSale(promotion.getIsActiveSale());
+                        productDTO.setSalePercentage(promotion.getSalePercentage());
+
+                        // 5. 세일 가격 계산
+                        Integer originalPrice = productDTO.getPrice();
+                        Integer salePrice = promotion.getSalePrice();
+
+                        if (salePrice != null) {
+                            productDTO.setSalePrice(salePrice);
+                        } else if (promotion.getSalePercentage() != null && originalPrice != null) {
+                            // 세일 가격이 없으면 퍼센티지로 계산
+                            int calculatedSalePrice = originalPrice - (originalPrice * promotion.getSalePercentage() / 100);
+                            productDTO.setSalePrice(calculatedSalePrice);
+                        }
+
+                        // 6. 좋아요 수와 리뷰 수 설정
+                        productDTO.setLikeCount(productLikeRepository.countByProductNo(product.getProductNo()));
+                        productDTO.setReviewCount(productReviewRepository.countByProductNo(product.getProductNo()));
+
+                        saleProducts.add(productDTO);
+                        System.out.println("세일 상품 추가: " + productDTO.getProductName() +
+                                " (원가: " + originalPrice + "원, 세일가: " + productDTO.getSalePrice() + "원)");
+                    }
+                } catch (Exception e) {
+                    System.err.println("세일 상품 처리 실패 - productNo: " + promotion.getProductNo() + ", 에러: " + e.getMessage());
+                }
+            }
+
+            System.out.println("✅ 최종 세일 상품 개수: " + saleProducts.size());
+            return saleProducts;
+
+        } catch (Exception e) {
+            System.err.println("❌ 세일 상품 조회 실패: " + e.getMessage());
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 }

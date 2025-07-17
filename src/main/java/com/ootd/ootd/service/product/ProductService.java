@@ -32,4 +32,6 @@ public interface ProductService {
     void deleteProduct(Long productId);
 
     List<AdminProductDTO> getAdminProducts();
+
+    List<ProductDTO> getSaleProducts();
 }

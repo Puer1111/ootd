@@ -204,10 +204,100 @@
     border: 1px solid #e9ecef;
 }
 
+/* 🆕 세일 정보 섹션 스타일 */
+.sale-info-section {
+    margin-bottom: 1.5rem;
+}
+
+.sale-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+    animation: pulse-sale 2s infinite;
+}
+
+.sale-icon {
+    font-size: 1.1rem;
+    animation: bounce 1.5s infinite;
+}
+
+.sale-text {
+    font-weight: 700;
+}
+
+.sale-percentage {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+@keyframes pulse-sale {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 6px 16px rgba(255, 107, 107, 0.4);
+    }
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    60% { transform: translateY(-5px); }
+}
+
 .price-section {
     margin-bottom: 2rem;
 }
 
+/* 🆕 세일 가격 컨테이너 스타일 */
+.sale-price-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 1rem;
+    background: linear-gradient(135deg, #fff5f5, #ffe6e6);
+    border-radius: 12px;
+    border: 2px solid #ffebee;
+}
+
+.original-price {
+    font-size: 1.2rem;
+    color: #999;
+    text-decoration: line-through;
+    font-weight: 500;
+}
+
+.sale-price {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #dc3545;
+    text-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
+}
+
+.savings-amount {
+    font-size: 1rem;
+    color: #28a745;
+    font-weight: 600;
+    background: #e8f5e8;
+    padding: 4px 12px;
+    border-radius: 20px;
+    align-self: flex-start;
+    border: 1px solid #c3e6cb;
+}
+
+/* 기존 price 스타일과 구분 */
 .price {
     font-size: 2rem;
     font-weight: 700;
@@ -327,6 +417,17 @@
     border-radius: 8px;
     color: white;
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* 🆕 세일 중일 때 총 주문금액 섹션 스타일 개선 */
+.total-price-section.sale-active {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    border: 2px solid #b21f2d;
+}
+
+.total-price-section.sale-active .total-price-label::before {
+    content: '🔥 ';
+    margin-right: 4px;
 }
 
 .total-price-container {
@@ -508,6 +609,43 @@
     background-color: #f8f9fa;
     font-weight: 600;
     width: 150px;
+}
+
+/* 🆕 상품 정보 탭 내 세일 정보 스타일 */
+.sale-info-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sale-percentage-detail {
+    display: inline-block;
+    background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    width: fit-content;
+}
+
+.price-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 8px;
+}
+
+.original-price-detail {
+    color: #999;
+    text-decoration: line-through;
+    font-size: 0.9rem;
+}
+
+.sale-price-detail {
+    color: #dc3545;
+    font-weight: 600;
+    font-size: 1.1rem;
 }
 
 /* 리뷰 섹션 스타일 */
@@ -766,7 +904,7 @@
         font-size: 1.5rem;
     }
 
-    .price {
+    .price, .sale-price {
         font-size: 1.5rem;
     }
 
@@ -834,59 +972,30 @@
     .total-price {
         font-size: 20px;
     }
-}
-/* 🆕 구매 후기 전용 스타일 - productDetail.css 파일 끝에 추가 */
 
-/* 구매 후기 아이템 */
-.after-review-item {
-    border-left: 4px solid #28a745;
-    background-color: #f8fff9;
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-    border-radius: 8px;
-    border-bottom: 1px solid #e0f5e0;
-}
+    /* 모바일에서 세일 스타일 반응형 */
+    .sale-badge {
+        flex-wrap: wrap;
+        justify-content: center;
+        text-align: center;
+        padding: 10px 12px;
+    }
 
-.after-review-item:last-child {
-    border-bottom: none;
-}
+    .sale-price-container {
+        padding: 12px;
+        text-align: center;
+    }
 
-/* 구매 확인 배지 */
-.verified-purchase {
-    display: inline-block;
-    background-color: #28a745;
-    color: white;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    margin-bottom: 8px;
-    margin-right: 8px;
-}
+    .sale-price {
+        font-size: 1.8rem;
+    }
 
-/* 구매 후기 설명 텍스트 */
-.after-review-description {
-    color: #666;
-    font-size: 0.9rem;
-    margin-bottom: 1rem;
-    font-style: italic;
-}
+    .original-price {
+        font-size: 1rem;
+    }
 
-/* 구매 후기 섹션 헤더 */
-.after-reviews-header h3 {
-    color: #28a745;
-}
-
-/* 구매 후기 별점 (일반 리뷰와 구분) */
-.after-star {
-    font-size: 24px;
-    color: #ddd;
-    cursor: pointer;
-    transition: color 0.2s;
-    user-select: none;
-}
-
-.after-star:hover,
-.after-star.active {
-    color: #28a745; /* 일반 리뷰는 노란색, 구매 후기는 초록색 */
+    .savings-amount {
+        align-self: center;
+        font-size: 0.9rem;
+    }
 }

@@ -1,12 +1,35 @@
 package com.ootd.ootd.controller.page;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import com.ootd.ootd.service.promotion.ProductPromotionService;
+import com.ootd.ootd.service.product.ProductService;
+import com.ootd.ootd.model.dto.promotion.ProductPromotionDTO;
+import com.ootd.ootd.model.dto.product.ProductDTO;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 public class PageController {
 
-    // 🔥 올바른 경로로 매핑
+    @Autowired
+    private ProductPromotionService promotionService;
+
+    @Autowired
+    private ProductService productService;
+
+    // 🆕 루트 경로 추가
+    @GetMapping("/")
+    public String homePage() {
+        return "redirect:/recommended";
+    }
+
     @GetMapping("/recommended")
     public String recommendedPage() {
         return "view/promotion/recommended";
@@ -17,4 +40,71 @@ public class PageController {
         return "view/promotion/sale";
     }
 
+    // 🆕 추천 상품 API
+    @GetMapping("/api/promotion/recommended")
+    @ResponseBody
+    public ResponseEntity<?> getRecommendedProducts() {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            System.out.println("=== 추천 상품 API 호출 ===");
+
+            // 추천 상품 목록 가져오기
+            List<ProductPromotionDTO> promotions = promotionService.getRecommendedProducts();
+            System.out.println("추천 프로모션 개수: " + promotions.size());
+
+            List<ProductDTO> products = new ArrayList<>();
+
+            // 각 추천 상품의 상세 정보 가져오기
+            for (ProductPromotionDTO promotion : promotions) {
+                try {
+                    System.out.println("상품 조회 중 - productNo: " + promotion.getProductNo());
+                    ProductDTO product = productService.getProductById(promotion.getProductNo());
+                    if (product != null) {
+                        System.out.println("상품 조회 성공: " + product.getProductName());
+
+                        // 프로모션 정보 설정
+                        product.setPromotionInfo(promotion);
+
+                        // null 값 안전 처리
+                        if (product.getIsRecommended() == null) {
+                            product.setIsRecommended(true);
+                        }
+                        if (product.getIsActiveSale() == null) {
+                            product.setIsActiveSale(false);
+                        }
+                        if (product.getIsSale() == null) {
+                            product.setIsSale(false);
+                        }
+
+                        products.add(product);
+                    } else {
+                        System.err.println("상품 정보가 null - productNo: " + promotion.getProductNo());
+                    }
+                } catch (Exception e) {
+                    System.err.println("상품 정보 조회 실패 - productNo: " + promotion.getProductNo() + ", 에러: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+
+            System.out.println("최종 추천 상품 개수: " + products.size());
+
+            response.put("success", true);
+            response.put("products", products);
+            response.put("totalCount", products.size());
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            System.err.println("추천 상품 API 실패: " + e.getMessage());
+            e.printStackTrace();
+
+            response.put("success", false);
+            response.put("message", "추천 상품을 불러오는 중 오류가 발생했습니다: " + e.getMessage());
+            response.put("products", new ArrayList<>());
+            response.put("totalCount", 0);
+
+            return ResponseEntity.ok(response);
+        }
+    }
 }

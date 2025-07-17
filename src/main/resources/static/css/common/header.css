@@ -87,14 +87,120 @@ header {
     cursor: pointer;
 }
 
-/*간편 검색어*/
+/*간편 검색어 - 기존 스타일 + 새로운 활성화 스타일*/
 .simpleSearchTerm{
     padding:5px 5px;
     display: flex;
     height:40px;
+    position: relative;
 }
 .simpleSearch{
     margin:5px 0 5px 10px;
     text-decoration-line: none;
     color: darkgray;
+    position: relative;
+    padding: 5px 15px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+/* 호버 효과 */
+.simpleSearch:hover {
+    color: #007bff;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* 활성화된 탭 스타일 */
+.simpleSearch.active {
+    color: #007bff !important;
+    font-weight: 600;
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* 밑줄 효과 */
+.simpleSearch.active::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 20px);
+    height: 3px;
+    background: linear-gradient(90deg, #007bff, #0056b3);
+    border-radius: 2px;
+    box-shadow: 0 2px 6px rgba(0, 123, 255, 0.4);
+    animation: slideIn 0.3s ease-out;
+}
+
+/* 애니메이션 */
+@keyframes slideIn {
+    from {
+        width: 0;
+        opacity: 0;
+    }
+    to {
+        width: calc(100% - 20px);
+        opacity: 1;
+    }
+}
+
+/* 호버 시 미묘한 위쪽 이동 */
+.simpleSearch:hover .searchTerm {
+    transform: translateY(-1px);
+}
+
+.searchTermDiv {
+    transition: transform 0.2s ease;
+}
+
+.searchTerm {
+    display: inline-block;
+    transition: transform 0.2s ease;
+}
+
+/* 메인페이지에서 기본 추천 강조 */
+body.main-page .simpleSearch[href="/recommended"] {
+    color: #007bff !important;
+    font-weight: 600;
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+body.main-page .simpleSearch[href="/recommended"]::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 20px);
+    height: 3px;
+    background: linear-gradient(90deg, #007bff, #0056b3);
+    border-radius: 2px;
+    box-shadow: 0 2px 6px rgba(0, 123, 255, 0.4);
+}
+
+/* 클릭 효과 (즉시 피드백) */
+.simpleSearch:active {
+    transform: scale(0.98);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .simpleSearchTerm {
+        padding: 5px 2px;
+    }
+
+    .simpleSearch {
+        margin: 5px 0 5px 5px;
+        padding: 5px 10px;
+        font-size: 0.9rem;
+    }
+
+    .simpleSearch.active::after {
+        width: calc(100% - 10px);
+    }
+
+    body.main-page .simpleSearch[href="/recommended"]::after {
+        width: calc(100% - 10px);
+    }
 }

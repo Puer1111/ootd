@@ -1,14 +1,20 @@
 package com.ootd.ootd.controller.product;
 
 import com.ootd.ootd.model.dto.product.ProductDTO;
+import com.ootd.ootd.model.dto.promotion.ProductPromotionDTO;
 import com.ootd.ootd.model.entity.like.ProductLike;
 import com.ootd.ootd.model.entity.review.ProductReview;
 import com.ootd.ootd.model.entity.user.User;
+import com.ootd.ootd.model.entity.order.Order;
+import com.ootd.ootd.model.entity.order.UserOrder;
 import com.ootd.ootd.repository.product.ProductLikeRepository;
 import com.ootd.ootd.repository.product.ProductReviewRepository;
 import com.ootd.ootd.repository.user.UserRepository;
+import com.ootd.ootd.repository.order.OrderRepository;
+import com.ootd.ootd.repository.order.UserOrderRepository;
 import com.ootd.ootd.service.colors.ColorsService;
 import com.ootd.ootd.service.product.ProductService;
+import com.ootd.ootd.service.promotion.ProductPromotionService;
 import com.ootd.ootd.utils.service.GoogleCloudStorageService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,15 +26,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
-import com.ootd.ootd.model.entity.order.UserOrder;
-import com.ootd.ootd.repository.order.UserOrderRepository;
 
 import java.io.IOException;
 import java.util.*;
 
 @Controller
 public class ProductController {
-
 
     @InitBinder
     public void initBinder(WebDataBinder binder) {
@@ -49,7 +52,10 @@ public class ProductController {
     UserRepository userRepository;
     @Autowired
     private UserOrderRepository userOrderRepository;
-
+    @Autowired
+    private ProductPromotionService promotionService;
+    @Autowired
+    private OrderRepository orderRepository;
 
     public ProductController(ProductService productService, GoogleCloudStorageService googleCloudStorageService, ColorsService colorsService) {
         this.productService = productService;
@@ -57,60 +63,50 @@ public class ProductController {
         this.colorsService = colorsService;
     }
 
-
-    @GetMapping("/")
-    public String test(Model model) {
-        List<ProductDTO> products = productService.getAllProducts();
-        model.addAttribute("products", products);
-        return "view/index";
-    }
-
-//    @GetMapping("/api/products")
-//    @ResponseBody
-//    public List<ProductDTO> getAllProducts() {
-//        return productService.getAllProducts();
-//    }
-
-    // View 전달용
+    // View 전달용 - 🆕 프로모션 정보 포함하도록 수정
     @GetMapping("/products/{productNo}")
     public String productDetail(@PathVariable Long productNo, Model model) {
         ProductDTO product = productService.getProductById(productNo);
+
+        // 🆕 프로모션 정보 추가
+        if (product != null) {
+            ProductPromotionDTO promotion = promotionService.getPromotionByProductNo(productNo);
+            if (promotion != null) {
+                product.setPromotionInfo(promotion);
+                System.out.println("상품 상세 페이지 - 프로모션 정보 포함: " + promotion);
+            }
+        }
+
         model.addAttribute("product", product);
         return "view/product/productDetail";
     }
 
-
-    // JS 응답용
+    // JS 응답용 - 🆕 프로모션 정보 포함하도록 수정
     @GetMapping("/api/select/product/{productNo}")
-    @ResponseBody // JSON 형태로 데이터를 반환하도록 지정
+    @ResponseBody
     public ResponseEntity<ProductDTO> getProductDetailsApi(@PathVariable Long productNo) {
         ProductDTO product = productService.getProductById(productNo);
+
+        // 🆕 프로모션 정보 추가
         if (product != null) {
+            ProductPromotionDTO promotion = promotionService.getPromotionByProductNo(productNo);
+            if (promotion != null) {
+                product.setPromotionInfo(promotion);
+            }
             return ResponseEntity.ok(product);
         } else {
             return ResponseEntity.notFound().build();
         }
     }
 
-
     @PostMapping("/api/insert/product")
     public ResponseEntity<?> insertProduct(@ModelAttribute ProductDTO dto,
                                            HttpServletRequest request
     )  {
-//        String[] rawColors = request.getParameterValues("colorsNo");
-//        System.out.println("rawColors: " + Arrays.toString(rawColors));
         ProductDTO productDTO;
 
         try {
-//            if (rawColors != null && rawColors.length > 0) {
-//                List<Long> colorsNoList = Arrays.stream(rawColors)
-//                        .map(Long::parseLong)
-//                        .collect(Collectors.toList());
-//                dto.setColorsNo(colorsNoList);
-//            }
-
             if (dto.getImages() != null && dto.getImages().length > 0) {
-                // 배열 전체를 한 번에 전달
                 List<String> images;
                 images = googleCloudStorageService.uploadImages(dto.getImages());
                 System.out.println("Uploaded " + dto.getImages().length + " images");
@@ -120,9 +116,6 @@ public class ProductController {
                 System.out.println("No images to upload");
             }
 
-            // 상품색깔 테이블에 들어가는 데이터
-//            ProductColors productColors = colorsService.initToProductColor(dto.getColorsNo());
-//            dto.setProductColorsNo(productColors.getProductColorsNo());
             productDTO = productService.insertProduct(dto);
 
         } catch (IOException e) {
@@ -131,7 +124,7 @@ public class ProductController {
         Map<String, Object> response = new HashMap<>();
         response.put("status", "success");
         response.put("product",productDTO);
-        response.put("redirectUrl", "/");  // 마이페이지로 이동 엔드포인트 차후 수정.
+        response.put("redirectUrl", "/");
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -156,11 +149,9 @@ public class ProductController {
 
             boolean isLiked;
             if (existingLike.isPresent()) {
-                // 좋아요 취소
                 productLikeRepository.delete(existingLike.get());
                 isLiked = false;
             } else {
-                // 좋아요 추가
                 ProductLike like = new ProductLike(productNo, user.getId());
                 productLikeRepository.save(like);
                 isLiked = true;
@@ -230,7 +221,6 @@ public class ProductController {
             User user = userRepository.findByEmail(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
 
-            // 이미 리뷰를 작성했는지 확인
             if (productReviewRepository.existsByProductNoAndUserId(productNo, user.getId())) {
                 response.put("success", false);
                 response.put("message", "이미 리뷰를 작성하셨습니다");
@@ -249,7 +239,6 @@ public class ProductController {
             ProductReview review = new ProductReview(productNo, user.getId(), rating, content);
             productReviewRepository.save(review);
 
-            // 업데이트된 통계 정보
             int reviewCount = productReviewRepository.countByProductNo(productNo);
             Double avgRating = productReviewRepository.findAverageRatingByProductNo(productNo);
 
@@ -291,7 +280,7 @@ public class ProductController {
         }
     }
 
-    // 주문하기 (수량 지원 추가)
+    // 🆕 주문하기 (기존 메서드 - Order 연결 없음)
     @PostMapping("/products/{productNo}/order")
     public ResponseEntity<?> orderProduct(@PathVariable Long productNo,
                                           @RequestBody(required = false) Map<String, Object> orderRequest,
@@ -308,11 +297,13 @@ public class ProductController {
             User user = userRepository.findByEmail(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
 
-            // 요청에서 수량과 총 금액 가져오기 (기본값 설정)
+            // 요청에서 정보 가져오기
             Integer quantity = 1;
             Long totalPrice = 0L;
+            Integer unitPrice = 0;
+            Boolean isActiveSale = false;
+            Integer salePercentage = 0;
 
-            // orderRequest가 있는 경우에만 값 추출 (수량 조절 기능 사용 시)
             if (orderRequest != null) {
                 if (orderRequest.containsKey("quantity")) {
                     quantity = Integer.parseInt(orderRequest.get("quantity").toString());
@@ -320,16 +311,23 @@ public class ProductController {
                 if (orderRequest.containsKey("totalPrice")) {
                     totalPrice = Long.parseLong(orderRequest.get("totalPrice").toString());
                 }
+                if (orderRequest.containsKey("unitPrice")) {
+                    unitPrice = Integer.parseInt(orderRequest.get("unitPrice").toString());
+                }
+                if (orderRequest.containsKey("isActiveSale")) {
+                    isActiveSale = (Boolean) orderRequest.get("isActiveSale");
+                }
+                if (orderRequest.containsKey("salePercentage")) {
+                    salePercentage = Integer.parseInt(orderRequest.get("salePercentage").toString());
+                }
             }
 
-            // 유효성 검사
             if (quantity < 1 || quantity > 99) {
                 response.put("success", false);
                 response.put("message", "수량은 1개 이상 99개 이하여야 합니다");
                 return ResponseEntity.badRequest().body(response);
             }
 
-            // 이미 주문했는지 확인
             boolean alreadyOrdered = userOrderRepository.existsByUserIdAndProductNoAndStatus(
                     user.getId(), productNo, UserOrder.OrderStatus.ORDERED);
 
@@ -339,7 +337,7 @@ public class ProductController {
                 return ResponseEntity.badRequest().body(response);
             }
 
-            // 상품 정보 가져와서 총 금액 계산
+            // 🆕 서버에서 가격 검증 (프로모션 정보 포함)
             ProductDTO product = productService.getProductById(productNo);
             if (product == null) {
                 response.put("success", false);
@@ -347,15 +345,25 @@ public class ProductController {
                 return ResponseEntity.badRequest().body(response);
             }
 
-            Long expectedTotalPrice = (long) (product.getPrice() * quantity);
+            // 프로모션 정보 확인
+            ProductPromotionDTO promotion = promotionService.getPromotionByProductNo(productNo);
+            if (promotion != null) {
+                product.setPromotionInfo(promotion);
+            }
 
-            // 클라이언트에서 전송한 총 금액이 없거나 잘못된 경우 서버에서 계산
+            // 서버에서 실제 가격 계산
+            Long expectedTotalPrice;
+            if (product.getIsActiveSale() != null && product.getIsActiveSale() && product.getSalePrice() != null) {
+                expectedTotalPrice = (long) (product.getSalePrice() * quantity);
+            } else {
+                expectedTotalPrice = (long) (product.getPrice() * quantity);
+            }
+
+            // 클라이언트와 서버 가격 비교
             if (totalPrice == 0L || !totalPrice.equals(expectedTotalPrice)) {
                 totalPrice = expectedTotalPrice;
             }
 
-            // 주문 추가 (수량과 총 금액 포함)
-            // 기존: UserOrder order = new UserOrder(productNo, user.getId());
             UserOrder order = new UserOrder(productNo, user.getId(), quantity, totalPrice);
             userOrderRepository.save(order);
 
@@ -365,6 +373,8 @@ public class ProductController {
             response.put("orderId", order.getId());
             response.put("quantity", quantity);
             response.put("totalPrice", totalPrice);
+            response.put("isActiveSale", product.getIsActiveSale());
+            response.put("salePercentage", product.getSalePercentage());
 
             return ResponseEntity.ok(response);
 
@@ -453,136 +463,34 @@ public class ProductController {
         }
     }
 
-    // 🆕 구매 후기 작성 (주문한 사용자만 가능)
-    @PostMapping("/products/{productNo}/after-review")
-    public ResponseEntity<?> createAfterReview(@PathVariable Long productNo,
-                                               @RequestBody Map<String, Object> reviewData,
-                                               @AuthenticationPrincipal UserDetails userDetails) {
+    // 🆕 세일 상품 목록 API
+    @GetMapping("/api/products/sale")
+    @ResponseBody
+    public ResponseEntity<?> getSaleProducts() {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            if (userDetails == null) {
-                response.put("success", false);
-                response.put("message", "로그인이 필요합니다");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-            }
+            System.out.println("=== 세일 상품 API 호출 ===");
 
-            User user = userRepository.findByEmail(userDetails.getUsername())
-                    .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
-
-            // 🔥 주문 여부 확인 (구매 후기는 실제 구매한 사람만 작성 가능)
-            boolean hasOrdered = userOrderRepository.existsByUserIdAndProductNoAndStatus(
-                    user.getId(), productNo, UserOrder.OrderStatus.ORDERED);
-
-            if (!hasOrdered) {
-                response.put("success", false);
-                response.put("message", "구매 후기는 실제 구매하신 고객만 작성 가능합니다");
-                return ResponseEntity.badRequest().body(response);
-            }
-
-            // 이미 구매 후기를 작성했는지 확인
-            if (productReviewRepository.existsByProductNoAndUserId(productNo, user.getId())) {
-                response.put("success", false);
-                response.put("message", "이미 구매 후기를 작성하셨습니다");
-                return ResponseEntity.badRequest().body(response);
-            }
-
-            int rating = Integer.parseInt(reviewData.get("rating").toString());
-            String content = reviewData.get("content").toString();
-
-            if (rating < 1 || rating > 5) {
-                response.put("success", false);
-                response.put("message", "평점은 1-5점 사이여야 합니다");
-                return ResponseEntity.badRequest().body(response);
-            }
-
-            // 🔥 구매 후기는 별도 필드로 구분 (예: type 필드 추가 고려)
-            ProductReview afterReview = new ProductReview(productNo, user.getId(), rating, content);
-            // afterReview.setReviewType("AFTER_REVIEW"); // 필요시 타입 구분
-            productReviewRepository.save(afterReview);
+            List<ProductDTO> saleProducts = productService.getSaleProducts();
+            System.out.println("세일 상품 개수: " + saleProducts.size());
 
             response.put("success", true);
-            response.put("message", "구매 후기가 작성되었습니다");
+            response.put("products", saleProducts);
+            response.put("totalCount", saleProducts.size());
 
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
+            System.err.println("세일 상품 API 실패: " + e.getMessage());
+            e.printStackTrace();
+
             response.put("success", false);
-            response.put("message", "구매 후기 작성 중 오류가 발생했습니다: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-    }
-
-    // 🆕 구매 후기 목록 조회 (주문한 사용자의 후기만)
-    @GetMapping("/products/{productNo}/after-reviews")
-    public ResponseEntity<?> getAfterReviews(@PathVariable Long productNo) {
-        Map<String, Object> response = new HashMap<>();
-
-        try {
-            // 🔥 실제 구매한 사용자들의 리뷰만 조회하는 로직 필요
-            // 현재는 모든 리뷰를 구매 후기로 간주
-            List<ProductReview> afterReviews = productReviewRepository.findByProductNoOrderByCreatedAtDesc(productNo);
-
-            // 🔥 실제로는 주문 여부를 확인하여 필터링해야 함
-            // afterReviews = afterReviews.stream()
-            //     .filter(review -> userOrderRepository.existsByUserIdAndProductNoAndStatus(
-            //         review.getUserId(), productNo, UserOrder.OrderStatus.ORDERED))
-            //     .collect(Collectors.toList());
-
-            response.put("success", true);
-            response.put("afterReviews", afterReviews);
-            response.put("afterReviewCount", afterReviews.size());
+            response.put("message", "세일 상품을 불러오는 중 오류가 발생했습니다: " + e.getMessage());
+            response.put("products", new ArrayList<>());
+            response.put("totalCount", 0);
 
             return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "구매 후기를 가져오는 중 오류가 발생했습니다");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-
-    // 🆕 구매 후기 작성 권한 확인
-    @GetMapping("/products/{productNo}/after-review-permission")
-    public ResponseEntity<?> getAfterReviewPermission(@PathVariable Long productNo,
-                                                      @AuthenticationPrincipal UserDetails userDetails) {
-        Map<String, Object> response = new HashMap<>();
-
-        try {
-            boolean canWriteAfterReview = false;
-            boolean isLoggedIn = userDetails != null;
-
-            if (isLoggedIn) {
-                User user = userRepository.findByEmail(userDetails.getUsername()).orElse(null);
-                if (user != null) {
-                    // 주문했는지 확인
-                    boolean hasOrdered = userOrderRepository.existsByUserIdAndProductNoAndStatus(
-                            user.getId(), productNo, UserOrder.OrderStatus.ORDERED);
-
-                    // 이미 후기를 작성했는지 확인
-                    boolean alreadyReviewed = productReviewRepository.existsByProductNoAndUserId(productNo, user.getId());
-
-                    canWriteAfterReview = hasOrdered && !alreadyReviewed;
-                }
-            }
-
-            response.put("success", true);
-            response.put("canWriteAfterReview", canWriteAfterReview);
-            response.put("isLoggedIn", isLoggedIn);
-
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "권한 확인 중 오류가 발생했습니다");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-    }
-
-
-
 }
-
-
-
-

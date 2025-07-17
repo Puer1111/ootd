@@ -162,6 +162,11 @@ async function cancelOrderFromHistory(orderId) {
     }
 
     try {
+        // 결제 취소 API 호출 (있다면)
+        if (window.cancelPay) {
+            await window.cancelPay();
+        }
+
         const token = AuthManager.getToken();
         const response = await fetch(`/api/auth/cancel-order/${orderId}`, {
             method: 'POST',
@@ -171,7 +176,20 @@ async function cancelOrderFromHistory(orderId) {
             }
         });
 
-        const data = await response.json();
+        let data;
+        const contentType = response.headers.get('content-type');
+
+        if (contentType && contentType.includes('application/json')) {
+            data = await response.json();
+        } else {
+            // JSON이 아닌 경우 텍스트로 읽기
+            const text = await response.text();
+            console.error('서버에서 JSON이 아닌 응답을 받았습니다:', text);
+            data = {
+                success: false,
+                message: text || '알 수 없는 오류가 발생했습니다.'
+            };
+        }
 
         if (response.ok && data.success) {
             alert(data.message || '주문이 취소되었습니다.');

@@ -6,6 +6,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Getter
+@Setter  // 🆕 Setter 추가 (새로운 필드들 때문에 필요)
 @ToString
 @Builder
 @NoArgsConstructor
@@ -25,6 +26,7 @@ public class OrderDTO {
     private Long totalPrice;
 
     private String orderStatus;
+
 
     public static OrderDTO convertToDTO(Order order){
         return OrderDTO.builder()

@@ -93,6 +93,151 @@
     font-weight: 500;
 }
 
+/* 🆕 카테고리별 섹션 스타일 */
+.category-section {
+    margin-bottom: 3rem;
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #f8f9fa;
+}
+
+.category-title {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+}
+
+.category-icon {
+    font-size: 2rem;
+}
+
+.category-count {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* 🆕 가로 스크롤 그리드 */
+.horizontal-grid {
+    display: flex;
+    gap: 1.5rem;
+    overflow-x: auto;
+    padding: 1rem 0;
+    scroll-behavior: smooth;
+}
+
+/* 스크롤바 스타일링 */
+.horizontal-grid::-webkit-scrollbar {
+    height: 8px;
+}
+
+.horizontal-grid::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.horizontal-grid::-webkit-scrollbar-thumb {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    border-radius: 4px;
+}
+
+.horizontal-grid::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(45deg, #5a67d8, #6b46c1);
+}
+
+/* 🆕 상품 카드 (가로 스크롤용) */
+.product-card-horizontal {
+    flex: 0 0 280px; /* 고정 너비 */
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.product-card-horizontal:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.product-card-horizontal .product-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.product-card-horizontal:hover .product-image {
+    transform: scale(1.05);
+}
+
+.product-card-horizontal .product-info {
+    padding: 1.2rem;
+}
+
+.product-card-horizontal .product-brand {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 0.3rem;
+    font-weight: 500;
+}
+
+.product-card-horizontal .product-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.product-card-horizontal .product-price {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #667eea;
+    margin-bottom: 0.8rem;
+}
+
+.product-card-horizontal .product-stats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.product-card-horizontal .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.product-card-horizontal .heart-icon,
+.product-card-horizontal .star-icon {
+    color: #ff6b6b;
+}
+
 /* 상품 배지 */
 .product-badge {
     position: absolute;
@@ -120,7 +265,7 @@
 .discount-info {
     position: absolute;
     top: 10px;
-    right: 50px;
+    right: 10px;
     background: #dc3545;
     color: white;
     padding: 0.25rem 0.5rem;
@@ -183,6 +328,29 @@
     line-height: 1.6;
 }
 
+/* 더보기 버튼 */
+.view-more-btn {
+    flex: 0 0 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border: 2px dashed #dee2e6;
+    border-radius: 12px;
+    color: #6c757d;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    min-height: 300px;
+}
+
+.view-more-btn:hover {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border-color: #667eea;
+    transform: scale(1.02);
+}
+
 /* 반응형 */
 @media (max-width: 768px) {
     .promotion-header {
@@ -210,5 +378,27 @@
 
     .stat-number {
         font-size: 2rem;
+    }
+
+    .category-section {
+        padding: 1.5rem;
+    }
+
+    .category-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .category-title {
+        font-size: 1.5rem;
+    }
+
+    .product-card-horizontal {
+        flex: 0 0 250px;
+    }
+
+    .horizontal-grid {
+        gap: 1rem;
     }
 }

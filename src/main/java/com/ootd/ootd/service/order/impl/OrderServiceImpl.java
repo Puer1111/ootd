@@ -4,9 +4,13 @@ import com.ootd.ootd.model.dto.order.OrderDTO;
 import com.ootd.ootd.model.entity.order.Order;
 import com.ootd.ootd.repository.order.OrderRepository;
 import com.ootd.ootd.service.order.OrderService;
+import com.ootd.ootd.service.payment.PaymentService;
+import com.siot.IamportRestClient.response.IamportResponse;
+import com.siot.IamportRestClient.response.Payment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -15,8 +19,14 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrderRepository orderRepository;
 
-    public OrderServiceImpl(OrderRepository orderRepository) {
+    // 💡 PaymentService 주입
+    @Autowired
+    private PaymentService paymentService;
+
+    // 생성자
+    public OrderServiceImpl(OrderRepository orderRepository, PaymentService paymentService) {
         this.orderRepository = orderRepository;
+        this.paymentService = paymentService;
     }
 
     @Override
@@ -27,29 +37,4 @@ public class OrderServiceImpl implements OrderService {
         return OrderDTO.convertToDTO(order);
     }
 
-    @Override
-    public OrderDTO updateOrderQuantity(Long orderId, Long quantity, Long totalPrice) {
-        try {
-            System.out.println("🔄 주문 수량 업데이트 시작 - OrderID: " + orderId + ", Quantity: " + quantity + ", TotalPrice: " + totalPrice);
-
-            Optional<Order> orderOpt = orderRepository.findById(orderId);
-            if (orderOpt.isEmpty()) {
-                throw new RuntimeException("주문을 찾을 수 없습니다: " + orderId);
-            }
-
-            Order order = orderOpt.get();
-            order.setQuantity(quantity);
-            order.setTotalPrice(totalPrice);
-
-            Order updatedOrder = orderRepository.save(order);
-
-            System.out.println("✅ 주문 수량 업데이트 완료 - OrderID: " + updatedOrder.getOrderId());
-
-            return OrderDTO.convertToDTO(updatedOrder);
-
-        } catch (Exception e) {
-            System.err.println("❌ 주문 수량 업데이트 실패: " + e.getMessage());
-            throw new RuntimeException("주문 수량 업데이트에 실패했습니다: " + e.getMessage());
-        }
-    }
 }

@@ -40,6 +40,7 @@
                     <th>브랜드</th>
                     <th>카테고리</th>
                     <th>가격</th>
+                    <th>세일</th>
                     <th>관리</th>
                 </tr>
                 </thead>
@@ -133,6 +134,30 @@
                         <button type="button" class="btn-add">
                             <span>+</span>사이즈 추가
                         </button>
+                    </div>
+
+                    <!-- 세일 설정 섹션 -->
+                    <div class="sale-section">
+                        <div class="form-group">
+                            <label style="margin-bottom: 15px; display: block; font-weight: 600; color: #555;">세일 설정</label>
+                            <div class="sale-controls">
+                                <div class="sale-toggle">
+                                    <input type="checkbox" id="isSale" name="isSale" value="true">
+                                    <label for="isSale" class="toggle-label">세일 적용</label>
+                                </div>
+                                <div class="sale-percentage" style="display: none;">
+                                    <label for="salePercentage" class="percentage-label">세일율 (%)</label>
+                                    <div class="percentage-input-wrapper">
+                                        <input type="number" id="salePercentage" name="salePercentage" min="0" max="100" placeholder="0">
+                                        <span class="percentage-symbol">%</span>
+                                    </div>
+                                    <div class="sale-preview" id="salePreview" style="display: none;">
+                                        <span class="original-price">원래가격: <span id="originalPriceText">0</span>원</span>
+                                        <span class="sale-price">할인가격: <span id="salePriceText">0</span>원</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-actions">

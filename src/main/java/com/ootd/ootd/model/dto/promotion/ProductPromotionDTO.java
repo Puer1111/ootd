@@ -14,17 +14,19 @@ import java.time.LocalDateTime;
 public class ProductPromotionDTO {
 
     private Long productNo;
-    private Boolean isRecommended;
-    private Boolean isSale;
+
+    // 🔧 기본값 설정으로 null 방지
+    private Boolean isRecommended = false;
+    private Boolean isSale = false;
     private Integer salePercentage;
     private Integer originalPrice;
     private LocalDateTime saleStartDate;
     private LocalDateTime saleEndDate;
     private Integer promotionPriority;
 
-    // 계산된 필드들
+    // 계산된 필드들 - 기본값 설정
     private Integer salePrice;
-    private Boolean isActiveSale;
+    private Boolean isActiveSale = false;
 
     public static ProductPromotionDTO convertToDTO(ProductPromotion entity) {
         if (entity == null) {
@@ -33,15 +35,15 @@ public class ProductPromotionDTO {
 
         return ProductPromotionDTO.builder()
                 .productNo(entity.getProductNo())
-                .isRecommended(entity.getIsRecommended())
-                .isSale(entity.getIsSale())
+                .isRecommended(entity.getIsRecommended() != null ? entity.getIsRecommended() : false)
+                .isSale(entity.getIsSale() != null ? entity.getIsSale() : false)
                 .salePercentage(entity.getSalePercentage())
                 .originalPrice(entity.getOriginalPrice())
                 .saleStartDate(entity.getSaleStartDate())
                 .saleEndDate(entity.getSaleEndDate())
                 .promotionPriority(entity.getPromotionPriority())
                 .salePrice(entity.calculateSalePrice())
-                .isActiveSale(entity.isActiveSale())
+                .isActiveSale(entity.isActiveSale()) // primitive boolean이면 null 체크 불필요
                 .build();
     }
 

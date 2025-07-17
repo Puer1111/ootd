@@ -53,17 +53,6 @@
                     <div class="sub-categories" id="sub-categories"></div>
                 </div>
             </div>
-
-            <!-- 기간 필터 -->
-            <div class="filter-group">
-                <h3>기간</h3>
-                <div class="period-filters">
-                    <button class="period-btn active" data-period="all" onclick="filterByPeriod('all')">전체</button>
-                    <button class="period-btn" data-period="week" onclick="filterByPeriod('week')">최근 1주</button>
-                    <button class="period-btn" data-period="month" onclick="filterByPeriod('month')">최근 1개월</button>
-                    <button class="period-btn" data-period="year" onclick="filterByPeriod('year')">최근 1년</button>
-                </div>
-            </div>
         </div>
 
         <!-- 랭킹 결과 섹션 -->
@@ -71,8 +60,10 @@
             <div class="ranking-section-header">
                 <h2 class="section-title" id="section-title">리뷰 랭킹</h2>
                 <div class="section-controls">
-                    <button id="filter-liked-btn" class="filter-btn" onclick="toggleLikedFilter()">
-                        <span class="heart-icon">♥</span> 좋아요만 보기
+                    <!-- 🆕 버튼 텍스트 및 설명 변경 -->
+                    <button id="filter-liked-btn" class="filter-btn" onclick="toggleLikedFilter()"
+                            title="좋아요 1개 이상인 상품만 보기">
+                        <span class="heart-icon">♥</span> 좋아요 많은 상품만
                     </button>
                     <div class="view-options">
                         <button class="view-btn active" data-view="grid" onclick="changeView('grid')">
@@ -96,14 +87,18 @@
                 <!-- 상품 카드들이 JavaScript로 동적 생성됨 -->
             </div>
 
-            <!-- 좋아요 필터링 시 빈 상태 -->
+            <!-- 🆕 인기상품 필터링 시 빈 상태 메시지 변경 -->
             <div id="no-liked-products" class="empty-state" style="display: none;">
-                <p>좋아요한 상품이 없습니다.</p>
+                <div class="empty-icon">🔥</div>
+                <h3>좋아요받은 상품이 없습니다</h3>
+                <p>좋아요 1개 이상인 상품이 현재 카테고리에 없습니다.</p>
                 <button class="btn btn-primary" onclick="toggleLikedFilter()">전체 상품 보기</button>
             </div>
 
             <!-- 상품이 없을 때 -->
             <div id="no-products" class="empty-state" style="display: none;">
+                <div class="empty-icon">📦</div>
+                <h3>상품이 없습니다</h3>
                 <p>해당 조건의 상품이 없습니다.</p>
                 <button class="btn btn-primary" onclick="resetFilters()">필터 초기화</button>
             </div>
@@ -127,7 +122,7 @@
 
 <footer th:replace="~{common/footer.html :: footer}"></footer>
 
-<!-- JavaScript 파일 -->
+<!-- JavaScript 파일 (중복 제거) -->
 <script src="/js/ranking/ranking.js"></script>
 
 </body>

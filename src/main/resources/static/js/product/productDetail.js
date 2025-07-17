@@ -7,6 +7,11 @@ let currentProductNo = 0;
 let selectedRating = 0;
 let isLoggedIn = false;
 
+// 🆕 세일 관련 전역 변수 추가
+let isActiveSale = false;
+let salePrice = 0;
+let originalPrice = 0;
+
 document.addEventListener('DOMContentLoaded', function () {
     // 기존 캐러셸 및 탭 초기화
     initializeCarousel();
@@ -19,62 +24,68 @@ document.addEventListener('DOMContentLoaded', function () {
     initializeQuantityControls();
 });
 
-// === 기존 캐러셸 기능들 ===
+// === 🔧 수정된 캐러셸 기능들 ===
 function initializeCarousel() {
     const slides = document.querySelectorAll('.carousel-slide');
+    const thumbnails = document.querySelectorAll('.thumbnail');
+
     totalSlides = slides.length;
+    currentSlide = 0;
 
-    console.log('=== 캐러셸 디버깅 ===');
+    console.log('=== 캐러셸 초기화 ===');
     console.log('총 슬라이드 수:', totalSlides);
-    console.log('슬라이드 요소들:', slides);
-
-    slides.forEach((slide, index) => {
-        console.log(`슬라이드 ${index}:`, slide);
-        console.log(`- data-slide:`, slide.getAttribute('data-slide'));
-        console.log(`- active class:`, slide.classList.contains('active'));
-        const img = slide.querySelector('img');
-        if (img) {
-            console.log(`- 이미지 src:`, img.src);
-        }
-    });
 
     if (totalSlides <= 1) {
+        // 이미지가 1개 이하면 컨트롤 숨김
         const controls = document.querySelector('.carousel-controls');
-        const indicators = document.querySelector('.carousel-indicators');
-        const thumbnails = document.querySelector('.image-thumbnails');
+        const thumbnailsContainer = document.querySelector('.image-thumbnails');
 
         if (controls) controls.style.display = 'none';
-        if (indicators) indicators.style.display = 'none';
-        if (thumbnails) thumbnails.style.display = 'none';
+        if (thumbnailsContainer) thumbnailsContainer.style.display = 'none';
 
         console.log('이미지가 1개 이하여서 컨트롤 숨김');
-    } else {
-        console.log('이미지가 여러개 - 캐러셸 활성화');
+        return;
     }
+
+    // 썸네일 클릭 이벤트 등록
+    thumbnails.forEach((thumbnail, index) => {
+        thumbnail.addEventListener('click', () => {
+            console.log('썸네일 클릭:', index);
+            goToSlide(index);
+        });
+    });
+
+    // 초기 슬라이드 설정
+    updateCarousel();
+
+    console.log('캐러셸 초기화 완료');
 }
 
 function nextSlide() {
-    console.log('다음 슬라이드:', currentSlide, '->', (currentSlide + 1) % totalSlides);
     if (totalSlides <= 1) return;
+
     currentSlide = (currentSlide + 1) % totalSlides;
+    console.log('다음 슬라이드로 이동:', currentSlide);
     updateCarousel();
 }
 
 function prevSlide() {
-    console.log('이전 슬라이드:', currentSlide, '->', (currentSlide - 1 + totalSlides) % totalSlides);
     if (totalSlides <= 1) return;
+
     currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+    console.log('이전 슬라이드로 이동:', currentSlide);
     updateCarousel();
 }
 
 function goToSlide(slideIndex) {
-    console.log('슬라이드 이동:', currentSlide, '->', slideIndex);
-    if (slideIndex >= 0 && slideIndex < totalSlides) {
-        currentSlide = slideIndex;
-        updateCarousel();
-    }
+    if (slideIndex < 0 || slideIndex >= totalSlides) return;
+
+    currentSlide = slideIndex;
+    console.log('슬라이드 이동:', currentSlide);
+    updateCarousel();
 }
 
+// 🔧 썸네일에서 호출하는 함수 (HTML에서 onclick으로 호출)
 function goToSlideFromThumbnail(thumbnail) {
     const slideIndex = parseInt(thumbnail.getAttribute('data-slide'));
     console.log('썸네일에서 슬라이드 이동:', slideIndex);
@@ -82,26 +93,27 @@ function goToSlideFromThumbnail(thumbnail) {
 }
 
 function updateCarousel() {
-    console.log('캐러셸 업데이트 - 현재 슬라이드:', currentSlide);
-
     const slides = document.querySelectorAll('.carousel-slide');
-    const indicators = document.querySelectorAll('.indicator');
     const thumbnails = document.querySelectorAll('.thumbnail');
 
+    console.log('캐러셸 업데이트 - 현재 슬라이드:', currentSlide);
+
+    // 모든 슬라이드 비활성화
     slides.forEach((slide, index) => {
-        const isActive = index === currentSlide;
-        slide.classList.toggle('active', isActive);
-        if (isActive) {
-            console.log(`슬라이드 ${index} 활성화됨`);
+        slide.classList.remove('active');
+        if (index === currentSlide) {
+            slide.classList.add('active');
+            console.log(`슬라이드 ${index} 활성화`);
         }
     });
 
-    indicators.forEach((indicator, index) => {
-        indicator.classList.toggle('active', index === currentSlide);
-    });
-
+    // 모든 썸네일 비활성화
     thumbnails.forEach((thumbnail, index) => {
-        thumbnail.classList.toggle('active', index === currentSlide);
+        thumbnail.classList.remove('active');
+        if (index === currentSlide) {
+            thumbnail.classList.add('active');
+            console.log(`썸네일 ${index} 활성화`);
+        }
     });
 }
 
@@ -163,11 +175,50 @@ function initializeProductInteraction() {
         console.log('현재 상품 번호:', currentProductNo);
     }
 
+    // 🆕 세일 정보 초기화
+    initializeSaleInfo();
+
     // 페이지 초기화
     initializePage();
     loadLikeInfo();
     loadReviews();
     setupReviewForm();
+}
+
+// 🆕 세일 정보 초기화 함수
+function initializeSaleInfo() {
+    const isActiveSaleElement = document.getElementById('is-active-sale');
+    const salePriceElement = document.getElementById('sale-price');
+    const originalPriceElement = document.getElementById('original-price');
+
+    if (isActiveSaleElement) {
+        isActiveSale = isActiveSaleElement.value === 'true';
+    }
+
+    if (salePriceElement && salePriceElement.value) {
+        salePrice = parseInt(salePriceElement.value);
+    }
+
+    if (originalPriceElement) {
+        originalPrice = parseInt(originalPriceElement.value);
+    }
+
+    console.log('세일 정보 초기화:', {
+        isActiveSale: isActiveSale,
+        salePrice: salePrice,
+        originalPrice: originalPrice
+    });
+
+    // 초기 총 가격 설정
+    updateTotalPrice();
+}
+
+// 🆕 현재 적용 가격 반환 (세일 중이면 세일가, 아니면 원가)
+function getCurrentPrice() {
+    if (isActiveSale && salePrice > 0) {
+        return salePrice;
+    }
+    return originalPrice;
 }
 
 // JWT 토큰 가져오기
@@ -505,18 +556,24 @@ function getSelectedQuantity() {
     return quantityInput ? parseInt(quantityInput.value) || 1 : 1;
 }
 
-// 총 가격 업데이트
+// 총 가격 업데이트 (수정된 버전)
 function updateTotalPrice() {
     const quantityInput = document.getElementById('quantity');
-    const priceElement = document.getElementById('product-price');
     const totalPriceElement = document.getElementById('total-price');
 
-    if (quantityInput && priceElement && totalPriceElement) {
+    if (quantityInput && totalPriceElement) {
         const quantity = parseInt(quantityInput.value) || 1;
-        const unitPrice = parseInt(priceElement.textContent.replace(/[^0-9]/g, ''));
-        const totalPrice = unitPrice * quantity;
+        const currentUnitPrice = getCurrentPrice(); // 🆕 세일 가격 반영
+        const totalPrice = currentUnitPrice * quantity;
 
         totalPriceElement.textContent = totalPrice.toLocaleString() + '원';
+
+        console.log('가격 업데이트:', {
+            quantity: quantity,
+            unitPrice: currentUnitPrice,
+            totalPrice: totalPrice,
+            isActiveSale: isActiveSale
+        });
     }
 }
 
@@ -570,7 +627,7 @@ function initializeQuantityControls() {
     }
 }
 
-// 간단한 주문하기 함수 (결제 없이 단순 주문)
+// 🆕 수정된 주문하기 함수 (세일 가격 정보를 정확히 전달)
 async function orderProductWithQuantity() {
     console.log('주문하기 버튼 클릭, 로그인 상태:', isLoggedIn);
 
@@ -583,59 +640,33 @@ async function orderProductWithQuantity() {
     // 현재 선택된 수량 가져오기
     const quantity = getSelectedQuantity();
     const productName = document.getElementById('product-name').textContent;
-    const unitPrice = parseInt(document.getElementById('product-price').textContent.replace(/[^0-9]/g, ''));
+    const unitPrice = getCurrentPrice(); // 이미 세일이 적용된 최종 단가
     const totalPrice = unitPrice * quantity;
 
-    // 주문 확인
-    if (!confirm(`${productName}\n수량: ${quantity}개\n단가: ${unitPrice.toLocaleString()}원\n총 금액: ${totalPrice.toLocaleString()}원\n\n주문하시겠습니까?`)) {
-        return;
-    }
-
     try {
-        const token = getJwtToken();
-        console.log('주문 요청 전송:', `/products/${currentProductNo}/order`);
+        // 🔥 수정: 결제 페이지에서 추가 할인이 적용되지 않도록 salePercentage를 0으로 설정
+        const orderInfo = {
+            productNo: currentProductNo,
+            productName: productName,
+            unitPrice: unitPrice, // 이미 세일이 적용된 가격
+            quantity: quantity,
+            totalPrice: totalPrice,
+            isActiveSale: isActiveSale,
+            salePercentage: 0, // 🔥 중요: 이미 할인된 가격이므로 추가 할인 방지
+            originalPrice: originalPrice, // 원래 가격 정보는 참조용으로만 전달
+            finalUnitPrice: unitPrice // 최종 단가 명시
+        };
 
-        const response = await fetch(`/products/${currentProductNo}/order`, {
-            method: 'POST',
-            headers: {
-                'Authorization': 'Bearer ' + token,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                quantity: quantity,
-                totalPrice: totalPrice
-            })
-        });
+        sessionStorage.setItem('orderInfo', JSON.stringify(orderInfo));
+        console.log('주문 정보 세션 저장:', orderInfo);
 
-        console.log('주문 응답 상태:', response.status);
-
-        if (response.status === 401) {
-            alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
-            localStorage.removeItem('token');
-            sessionStorage.removeItem('token');
-            window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
-            return;
+        // 결제 페이지로 바로 이동
+        if (confirm('결제를 진행하시겠습니까?')) {
+            window.location.href = '/goPay';
         }
 
-        if (response.ok) {
-            const data = await response.json();
-            console.log('주문 응답 데이터:', data);
-
-            // 주문 완료 알림
-            alert(`주문이 완료되었습니다!\n\n상품: ${productName}\n수량: ${data.quantity}개\n총 금액: ${data.totalPrice.toLocaleString()}원`);
-
-            // 주문 내역으로 이동할지 묻기
-            if (confirm('주문 내역을 확인하시겠습니까?')) {
-                window.location.href = '/order-history';
-            }
-
-        } else {
-            const data = await response.json();
-            console.error('주문 실패:', data);
-            alert(data.message || '주문 처리에 실패했습니다.');
-        }
     } catch (error) {
-        console.error('주문 실패:', error);
+        console.error('주문 처리 실패:', error);
         alert('오류가 발생했습니다. 다시 시도해주세요.');
     }
 }
@@ -645,11 +676,11 @@ async function orderProduct() {
     return orderProductWithQuantity();
 }
 
-// 장바구니에 담기 (수량 포함)
+// 장바구니에 담기 (세일 가격 적용 수정)
 async function addToCartWithQuantity() {
     const quantity = getSelectedQuantity();
     const productName = document.getElementById('product-name').textContent;
-    const productPrice = parseInt(document.getElementById('product-price').textContent.replace(/[^0-9]/g, ''));
+    const productPrice = getCurrentPrice(); // 🆕 세일 가격 적용
 
     // 첫 번째 이미지 URL 가져오기
     const firstImage = document.querySelector('.product-image');
@@ -658,7 +689,9 @@ async function addToCartWithQuantity() {
     const cartData = {
         productNo: currentProductNo,
         productName: productName,
-        price: productPrice,
+        price: productPrice, // 🆕 세일 가격 적용
+        originalPrice: originalPrice, // 🆕 원가 정보도 전송
+        isActiveSale: isActiveSale, // 🆕 세일 여부 전송
         quantity: quantity,
         imageUrls: imageUrl
     };
@@ -675,7 +708,15 @@ async function addToCartWithQuantity() {
         const data = await response.json();
 
         if (response.ok && data.success) {
-            alert(`장바구니에 추가되었습니다!\n\n상품: ${productName}\n수량: ${quantity}개`);
+            let alertMessage = `장바구니에 추가되었습니다!\n\n상품: ${productName}\n수량: ${quantity}개`;
+
+            if (isActiveSale) {
+                alertMessage += `\n세일가: ${productPrice.toLocaleString()}원 (원가: ${originalPrice.toLocaleString()}원)`;
+            } else {
+                alertMessage += `\n가격: ${productPrice.toLocaleString()}원`;
+            }
+
+            alert(alertMessage);
 
             // 장바구니로 이동할지 묻기
             if (confirm('장바구니를 확인하시겠습니까?')) {

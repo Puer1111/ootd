@@ -2,6 +2,7 @@ window.IMP = null;
 
 // 결제 정보 변수들
 let paymentData = {
+    productNo: null, // 🆕 상품번호 추가
     productName: "Test Product",
     unitPrice: 5000,
     quantity: 1,
@@ -32,17 +33,32 @@ document.addEventListener("DOMContentLoaded", function () {
     updateDisplay();
 });
 
-// ==================== 데이터 초기화 ====================
+// ==================== 데이터 초기화 (수정된 버전) ====================
 function initializePaymentData() {
     try {
         const orderInfo = sessionStorage.getItem('orderInfo');
         if (orderInfo) {
             const orderData = JSON.parse(orderInfo);
+            paymentData.productNo = orderData.productNo || null;
             paymentData.productName = orderData.productName || "상품명";
-            paymentData.unitPrice = orderData.unitPrice || 5000;
+
+            // 🔥 수정: 이미 할인이 적용된 가격을 사용
+            paymentData.unitPrice = orderData.unitPrice || orderData.finalUnitPrice || 5000;
             paymentData.quantity = orderData.quantity || 1;
             paymentData.orderId = orderData.orderId;
-            console.log("📦 주문 정보 로드:", orderData);
+
+            // 🔥 중요: 추가 할인 방지를 위해 salePercent를 0으로 고정
+            paymentData.salePercent = 0; // 이미 할인된 가격이므로 추가 할인 없음
+
+            console.log("📦 주문 정보 로드:", {
+                productNo: paymentData.productNo, // 🆕 추가
+                productName: orderData.productName,
+                unitPrice: paymentData.unitPrice,
+                quantity: paymentData.quantity,
+                isActiveSale: orderData.isActiveSale,
+                originalSalePercentage: orderData.salePercentage, // 참조용
+                appliedSalePercentage: paymentData.salePercent // 실제 적용값 (0)
+            });
         } else {
             console.log("📦 기본 결제 데이터 사용");
         }
@@ -86,6 +102,7 @@ function updateDisplay() {
     updateQuantityButtonState();
 
     console.log("💰 결제 정보 업데이트:", {
+        productNo: paymentData.productNo, // 🆕 추가
         quantity: paymentData.quantity,
         unitPrice: paymentData.unitPrice,
         totalPrice: paymentData.totalPrice,
@@ -129,37 +146,97 @@ function setupQuantityControls() {
     }
 }
 
-// ==================== 주문 수량 업데이트 ====================
-async function updateOrderQuantity() {
-    if (!paymentData.orderId) {
-        console.log("❌ 주문 ID가 없어 수량 업데이트를 건너뜁니다.");
-        return null;
+// ==================== 🆕 결제 성공 시 UserOrder 저장 (수정된 버전) ====================
+// async function saveUserOrder() {
+//     if (!paymentData.productNo) {
+//         console.log("❌ 상품번호가 없어 UserOrder 저장을 건너뜁니다.");
+//         return null;
+//     }
+//
+//     try {
+//         const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+//         if (!token) {
+//             console.log("❌ 로그인 토큰이 없습니다.");
+//             return null;
+//         }
+//
+//         console.log("📦 UserOrder 저장 시작:", {
+//             productNo: paymentData.productNo,
+//             quantity: paymentData.quantity,
+//             totalPrice: paymentData.totalPrice
+//         });
+//
+//         // 🔥 수정: productNo 변수 대신 paymentData.productNo 사용
+//         const response = await fetch(`/user-orders/${paymentData.productNo}`, {
+//             method: "POST",
+//             headers: {
+//                 "Content-Type": "application/json",
+//                 "Authorization": "Bearer " + token
+//             },
+//             body: JSON.stringify({
+//                 quantity: paymentData.quantity,
+//                 totalPrice: paymentData.totalPrice,
+//                 unitPrice: paymentData.unitPrice,
+//                 isActiveSale: paymentData.salePercent > 0,
+//                 salePercentage: paymentData.salePercent
+//             })
+//         });
+//
+//         if (response.ok) {
+//             const result = await response.json();
+//             console.log("✅ UserOrder 저장 성공:", result);
+//             return result;
+//         } else {
+//             const errorText = await response.text();
+//             console.error("❌ UserOrder 저장 실패:", response.status, errorText);
+//             return null;
+//         }
+//     } catch (error) {
+//         console.error("❌ UserOrder 저장 오류:", error);
+//         console.error("❌ 오류 상세:", error.message);
+//         return null;
+//     }
+// }
+
+// ==================== 🆕 결제 완료 후 Order 업데이트 ====================
+async function updateOrderPayment(imp_uid,orderId) {
+
+    const sendData = {
+        impUid: imp_uid,
+        orderId: orderId
     }
 
+    console.log(sendData);
     try {
-        const response = await fetch("/orders/update", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                orderId: paymentData.orderId,
-                quantity: paymentData.quantity,
-                totalPrice: paymentData.totalPrice
-            })
-        });
-
-        if (response.ok) {
-            const result = await response.json();
-            console.log("✅ 주문 수량 업데이트 성공:", result);
-            return result;
-        } else {
-            console.error("❌ 주문 수량 업데이트 실패:", response.status);
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        if (!token) {
+            console.log("❌ 로그인 토큰이 없습니다.");
             return null;
         }
+
+        const response = await fetch(`/sendImpUid`,{
+            method : "Patch",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(sendData)
+
+
+        })
+            if (response.ok) {
+                return response.json();
+            }else{
+                throw new Error('Network response was not ok');
+            }
+
+
+
     } catch (error) {
-        console.error("❌ 주문 수량 업데이트 오류:", error);
+        console.error('❌ 결제 정보 업데이트 오류:', error);
         return null;
     }
 }
+
+// ==================== 주문 수량 업데이트 ====================
+
 
 // ==================== 결제 데이터 반환 ====================
 function getItem() {
@@ -232,19 +309,20 @@ async function requestPay() {
         merchant_uid: data.merchantUid,
         name: currentItem.productName,
         amount: currentItem.totalPrice,
-        buyer_email: "Hello@naver.com",
+        buyer_email: "Hello@naver.com", // 유저의 데이터로 바꿔야함
         buyer_name: "홍길동",
         buyer_tel: "01012345678",
     }, async function (rsp) {
         if (rsp.success) {
             console.log("✅ 결제 성공, imp_uid:", rsp.imp_uid);
-            await handlePaymentSuccess(rsp, data, currentItem);
+            await handlePaymentSuccess(rsp, data, currentItem); // data는 orders |  current 상품의 정보
         } else {
             console.error("🚨 결제 실패:", rsp.error_msg);
             alert(`결제가 실패했습니다: ${rsp.error_msg}`);
         }
     });
 }
+window.requestPay = requestPay;
 
 // ==================== 결제 성공 처리 ====================
 async function handlePaymentSuccess(rsp, data, currentItem) {
@@ -263,12 +341,38 @@ async function handlePaymentSuccess(rsp, data, currentItem) {
 
         const validationResult = await validationResponse.json();
 
+
         if (!validationResult) {
             alert("결제 검증에 실패했습니다.");
             return;
         }
 
         console.log("✅ 결제검증 완료");
+
+
+
+        // const sendImpUid = await fetch(`/sendImpUid`,{
+        //     method : "POST",
+        //     headers: {"Content-Type": "application/json"},
+        //     body: JSON.stringify(sendData)
+        //
+        // });
+
+        // 🆕 결제 완료 후 Order 업데이트 (impUid 저장)
+        const orderUpdateResult = await updateOrderPayment(rsp.imp_uid, data.orderId);
+        // if (orderUpdateResult) {
+        //     console.log('✅ 결제 정보 업데이트 완료 - 결제 취소 가능');
+        // } else {
+        //     console.error('❌ 결제 정보 업데이트 실패 - 결제 취소 불가능');
+        // }
+
+        // // 🆕 결제 성공 시 UserOrder 저장
+        // const userOrderResult = await saveUserOrder();
+        // if (userOrderResult) {
+        //     console.log("✅ 주문 내역이 마이페이지에 저장되었습니다.");
+        // } else {
+        //     console.log("⚠️ 주문 내역 저장에 실패했지만 결제는 완료되었습니다.");
+        // }
 
         // 결제 정보 저장
         const buyerInfo = {
@@ -293,7 +397,7 @@ async function handlePaymentSuccess(rsp, data, currentItem) {
 
         if (saveResponse.ok) {
             console.log("✅ 결제 정보 저장 완료");
-            sessionStorage.removeItem('orderInfo');
+            sessionStorage.removeItem('orderInfo'); // 🆕 세션 정리
 
             // 💡 적립금 안내 포함한 최종 완료 메시지
             const earnPoints = Math.floor(parseInt(rsp.paid_amount) * 0.01);
@@ -367,8 +471,6 @@ async function cancelPay() {
                     throw new Error("결제 취소에 실패했습니다.");
                 }
 
-                alert("취소가 완료되었습니다!");
-                location.href = "/";
             }
         } else {
             alert("유효한 예약 번호가 아닙니다.");
@@ -377,6 +479,8 @@ async function cancelPay() {
         alert(error.message);
     }
 }
+
+window.cancelPay = cancelPay;
 
 function setupCancelButton() {
     const cancelButton = document.querySelector(".cancel-button");

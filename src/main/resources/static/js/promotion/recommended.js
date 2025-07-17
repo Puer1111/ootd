@@ -1,279 +1,263 @@
-// 토큰 관리
-const AuthManager = {
-    getToken: function() {
-        return localStorage.getItem('token') || sessionStorage.getItem('token');
-    },
-
-    isLoggedIn: function() {
-        return this.getToken() !== null;
-    },
-
-    removeToken: function() {
-        localStorage.removeItem('token');
-        sessionStorage.removeItem('token');
-    }
-};
-
-// 전역 상태
-let userLikedProducts = new Set();
-let recommendedProducts = [];
-
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🌟 추천 상품 페이지 로드');
-    loadUserLikedProducts();
     loadRecommendedProducts();
 });
 
-// 사용자 좋아요 목록 로드
-async function loadUserLikedProducts() {
-    if (!AuthManager.isLoggedIn()) {
-        console.log('💡 비로그인 상태 - 좋아요 목록 로드 스킵');
-        return;
-    }
+function loadRecommendedProducts() {
+    showLoadingState();
 
-    try {
-        const token = AuthManager.getToken();
-        const response = await fetch('/api/auth/liked-products', {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
+    fetch('/api/promotion/recommended')
+        .then(response => {
+            console.log('API 응답 상태:', response.status);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: 추천 상품을 불러올 수 없습니다.`);
             }
+            return response.json();
+        })
+        .then(data => {
+            console.log('추천 상품 데이터:', data);
+
+            if (data.success && data.products) {
+                displayProductsByCategory(data.products);
+                updateStats(data.products);
+            } else {
+                console.warn('추천 상품이 없거나 응답 형식이 올바르지 않습니다.');
+                displayProductsByCategory([]); // 빈 배열로 처리
+            }
+        })
+        .catch(error => {
+            console.error('추천 상품 로드 에러:', error);
+            displayProductsByCategory([]); // 에러 시에도 빈 상태로 처리
+        })
+        .finally(() => {
+            hideLoadingState();
         });
-
-        if (response.ok) {
-            const data = await response.json();
-            if (data.success && data.likedProducts) {
-                userLikedProducts = new Set(
-                    data.likedProducts.map(p => p.productNo.toString())
-                );
-                console.log('💖 좋아요 목록 로드 완료');
-            }
-        }
-    } catch (error) {
-        console.log('⚠️ 좋아요 목록 로드 실패:', error);
-    }
 }
 
-// 추천 상품 목록 로드
-async function loadRecommendedProducts() {
-    showLoading(true);
+function displayProductsByCategory(products) {
+    // 카테고리별로 상품 분류
+    const categories = {
+        tops: products.filter(product => isTopCategory(product)),
+        bottoms: products.filter(product => isBottomCategory(product)),
+        shoes: products.filter(product => isShoeCategory(product))
+    };
 
-    try {
-        console.log('🌟 추천 상품 API 호출 시작');
-        const response = await fetch('/api/products/recommended');
-        const data = await response.json();
+    // 각 카테고리별로 상품 표시
+    displayCategoryProducts('tops', categories.tops);
+    displayCategoryProducts('bottoms', categories.bottoms);
+    displayCategoryProducts('shoes', categories.shoes);
 
-        console.log('📡 추천 상품 API 응답:', data);
-
-        if (data.success && data.products) {
-            recommendedProducts = data.products;
-            renderProducts();
-            updateStats();
-
-            console.log(`✅ 추천 상품 ${recommendedProducts.length}개 로드 완료`);
-        } else {
-            console.error('❌ 추천 상품 로드 실패:', data.message);
-            showEmptyState();
-        }
-    } catch (error) {
-        console.error('❌ 추천 상품 로드 에러:', error);
-        showEmptyState();
-    } finally {
-        showLoading(false);
-    }
+    // 카테고리별 개수 업데이트
+    updateCategoryCount('top', categories.tops.length);
+    updateCategoryCount('bottom', categories.bottoms.length);
+    updateCategoryCount('shoes', categories.shoes.length);
 }
 
-// 상품 목록 렌더링
-function renderProducts() {
-    const productsGrid = document.getElementById('products-grid');
-    const noProductsDiv = document.getElementById('no-products');
+function isTopCategory(product) {
+    const topCategories = ['상의', '티셔츠', '셔츠', '블라우스', '니트', '후드', '재킷', '코트', '조끼', '탑', 'top'];
+    const productName = product.productName ? product.productName.toLowerCase() : '';
 
-    if (recommendedProducts.length === 0) {
-        productsGrid.innerHTML = '';
-        noProductsDiv.style.display = 'block';
+    return topCategories.some(category =>
+        product.mainCategory?.toLowerCase().includes(category.toLowerCase()) ||
+        product.subCategory?.toLowerCase().includes(category.toLowerCase()) ||
+        product.categoryName?.toLowerCase().includes(category.toLowerCase()) ||
+        productName.includes('셔츠') || productName.includes('티셔츠') ||
+        productName.includes('블라우스') || productName.includes('니트') ||
+        productName.includes('후드') || productName.includes('재킷')
+    );
+}
+
+function isBottomCategory(product) {
+    const bottomCategories = ['하의', '바지', '팬츠', '청바지', '슬랙스', '반바지', '치마', '스커트', '레깅스', '팬츠', 'bottom'];
+    const productName = product.productName ? product.productName.toLowerCase() : '';
+
+    return bottomCategories.some(category =>
+        product.mainCategory?.toLowerCase().includes(category.toLowerCase()) ||
+        product.subCategory?.toLowerCase().includes(category.toLowerCase()) ||
+        product.categoryName?.toLowerCase().includes(category.toLowerCase()) ||
+        productName.includes('바지') || productName.includes('팬츠') ||
+        productName.includes('치마') || productName.includes('스커트') ||
+        productName.includes('레깅스') || productName.includes('청바지')
+    );
+}
+
+function isShoeCategory(product) {
+    const shoeCategories = ['신발', '운동화', '구두', '부츠', '샌들', '슬리퍼', '하이힐', '스니커즈', 'shoes'];
+    const productName = product.productName ? product.productName.toLowerCase() : '';
+
+    return shoeCategories.some(category =>
+        product.mainCategory?.toLowerCase().includes(category.toLowerCase()) ||
+        product.subCategory?.toLowerCase().includes(category.toLowerCase()) ||
+        product.categoryName?.toLowerCase().includes(category.toLowerCase()) ||
+        productName.includes('신발') || productName.includes('운동화') ||
+        productName.includes('구두') || productName.includes('부츠') ||
+        productName.includes('샌들') || productName.includes('스니커즈')
+    );
+}
+
+function displayCategoryProducts(categoryType, products) {
+    const gridId = categoryType === 'tops' ? 'tops-grid' :
+        categoryType === 'bottoms' ? 'bottoms-grid' : 'shoes-grid';
+
+    const grid = document.getElementById(gridId);
+
+    if (!grid) {
+        console.error(`Grid element not found: ${gridId}`);
         return;
     }
 
-    noProductsDiv.style.display = 'none';
+    grid.innerHTML = '';
 
-    let html = '';
-    recommendedProducts.forEach(product => {
-        const isLiked = userLikedProducts.has(product.productNo.toString());
-        const imageUrl = product.imageUrls && product.imageUrls.length > 0
-            ? product.imageUrls[0]
-            : '/img/common/no-image.png';
+    console.log(`${categoryType} 카테고리 상품 수:`, products.length);
 
-        html += `
-            <div class="card promotion-card" data-product-no="${product.productNo}" onclick="goToProduct(this)">
-                <!-- 추천 배지 -->
-                <div class="product-badge recommended">
-                    <span>⭐ 추천</span>
-                </div>
-
-                <!-- 좋아요 버튼 -->
-                <button class="like-btn-card ${isLiked ? 'liked' : ''}" 
-                        data-product-no="${product.productNo}" 
-                        onclick="toggleLikeFromMain(event, this)">
-                    <span class="heart">${isLiked ? '♥' : '♡'}</span>
-                </button>
-
-                <div class="card-image">
-                    <img src="${imageUrl}" alt="${product.productName}">
-                </div>
-
-                <div class="card-content">
-                    <div class="card-subtitle">${product.brandName || '브랜드명'}</div>
-                    <div class="card-title">${product.productName}</div>
-                    <div class="card-tag">${product.subCategory || '카테고리'}</div>
-                    
-                    <div class="card-price">
-                        <span class="current-price">${product.price.toLocaleString()}원</span>
-                    </div>
-
-                    <div class="card-stats">
-                        <div class="stat-item">
-                            <span class="icon heart-icon">♥</span>
-                            <span>${product.likeCount}</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="icon star-icon">★</span>
-                            <span>리뷰 ${product.reviewCount}개</span>
-                        </div>
-                    </div>
-                </div>
+    if (products.length === 0) {
+        // 해당 카테고리에 상품이 없을 때
+        grid.innerHTML = `
+            <div class="no-category-products">
+                <p>해당 카테고리의 추천 상품이 없습니다.</p>
             </div>
         `;
-    });
-
-    productsGrid.innerHTML = html;
-}
-
-// 통계 정보 업데이트
-function updateStats() {
-    const recommendedCountElement = document.getElementById('recommended-count');
-    const avgRatingElement = document.getElementById('avg-rating');
-    const totalReviewsElement = document.getElementById('total-reviews');
-
-    if (recommendedCountElement) {
-        recommendedCountElement.textContent = recommendedProducts.length;
-    }
-
-    if (recommendedProducts.length > 0) {
-        // 평균 평점 계산 (리뷰가 있는 상품들만)
-        const productsWithReviews = recommendedProducts.filter(p => p.reviewCount > 0);
-        const avgRating = productsWithReviews.length > 0
-            ? (productsWithReviews.reduce((sum, p) => sum + (p.avgRating || 0), 0) / productsWithReviews.length)
-            : 0;
-
-        // 총 리뷰 수
-        const totalReviews = recommendedProducts.reduce((sum, p) => sum + p.reviewCount, 0);
-
-        if (avgRatingElement) {
-            avgRatingElement.textContent = avgRating.toFixed(1);
-        }
-
-        if (totalReviewsElement) {
-            totalReviewsElement.textContent = totalReviews.toLocaleString();
-        }
-    }
-}
-
-// 좋아요 토글
-async function toggleLikeFromMain(event, button) {
-    event.stopPropagation();
-
-    if (!AuthManager.isLoggedIn()) {
-        alert('로그인이 필요합니다.');
-        window.location.href = '/login';
         return;
     }
 
-    const productNo = button.dataset.productNo;
-    const token = AuthManager.getToken();
-    const heart = button.querySelector('.heart');
-
-    button.disabled = true;
-    button.style.opacity = '0.5';
-
-    try {
-        const response = await fetch(`/products/${productNo}/like`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (response.status === 401) {
-            alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
-            AuthManager.removeToken();
-            window.location.href = '/login';
-            return;
+    products.forEach((product, index) => {
+        try {
+            console.log(`${categoryType} 상품 ${index + 1}:`, product.productName);
+            const productCard = createHorizontalProductCard(product);
+            grid.appendChild(productCard);
+        } catch (error) {
+            console.error(`상품 카드 생성 실패 - ${product.productName}:`, error);
         }
+    });
 
-        if (response.ok) {
-            const data = await response.json();
+}
 
-            if (data.isLiked) {
-                userLikedProducts.add(productNo);
-                button.classList.add('liked');
-                heart.textContent = '♥';
-            } else {
-                userLikedProducts.delete(productNo);
-                button.classList.remove('liked');
-                heart.textContent = '♡';
-            }
+function createHorizontalProductCard(product) {
+    const card = document.createElement('div');
+    card.className = 'product-card-horizontal';
+    card.setAttribute('data-product-no', product.productNo);
 
-            // 좋아요 수 업데이트
-            const card = button.closest('.card');
-            const likeCountElement = card.querySelector('.stat-item .heart-icon + span');
-            if (likeCountElement) {
-                likeCountElement.textContent = data.likeCount;
-            }
+    // 이미지 URL 처리
+    const imageUrl = (product.imageUrls && product.imageUrls.length > 0)
+        ? product.imageUrls[0]
+        : '/images/no-image.png';
 
-        } else {
-            const errorData = await response.json();
-            console.error('❌ 좋아요 토글 실패:', errorData);
-            alert(errorData.message || '오류가 발생했습니다.');
-        }
-    } catch (error) {
-        console.error('❌ 좋아요 토글 네트워크 에러:', error);
-        alert('네트워크 오류가 발생했습니다. 다시 시도해주세요.');
-    } finally {
-        button.disabled = false;
-        button.style.opacity = '1';
+    // 가격 포맷팅
+    const formattedPrice = new Intl.NumberFormat('ko-KR').format(product.price);
+
+    card.innerHTML = `
+        ${product.isRecommended ? '<div class="product-badge recommended">추천</div>' : ''}
+        ${product.isSale ? '<div class="discount-info">-' + (product.salePercentage || 0) + '%</div>' : ''}
+        
+        <img src="${imageUrl}" 
+             alt="${product.productName}" 
+             class="product-image"
+             onerror="this.src='/images/no-image.png'">
+        
+        <div class="product-info">
+            <div class="product-brand">${product.brandName || '브랜드명'}</div>
+            <div class="product-name">${product.productName}</div>
+            
+            ${product.isSale && product.salePrice ? `
+                <div class="card-price sale-price">
+                    <div class="original-price">${formattedPrice}원</div>
+                    <div class="current-price">${new Intl.NumberFormat('ko-KR').format(product.salePrice)}원</div>
+                </div>
+            ` : `
+                <div class="product-price">${formattedPrice}원</div>
+            `}
+            
+            <div class="product-stats">
+                <div class="stat-item">
+                    <span class="heart-icon">♥</span>
+                    <span>${product.likeCount || 0}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="star-icon">★</span>
+                    <span>${product.reviewCount || 0}</span>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // 카드 클릭 이벤트
+    card.addEventListener('click', function() {
+        goToProduct(product.productNo);
+    });
+
+    return card;
+}
+
+function createViewMoreButton(categoryType) {
+    const button = document.createElement('a');
+    button.className = 'view-more-btn';
+    button.href = `/products/category/${categoryType}`;
+    button.innerHTML = `
+        <div>
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">→</div>
+            <div>더보기</div>
+        </div>
+    `;
+    return button;
+}
+
+function updateCategoryCount(categoryType, count) {
+    const countElement = document.getElementById(`${categoryType}-count`);
+    if (countElement) {
+        countElement.textContent = count;
     }
 }
 
-// 상품 상세 페이지로 이동
-function goToProduct(element) {
-    const productNo = element.getAttribute('data-product-no');
-    if (productNo) {
-        console.log('🔗 상품 상세로 이동:', productNo);
-        location.href = '/products/' + productNo;
+function updateStats(products) {
+    // 전체 추천 상품 수
+    const recommendedCountElement = document.getElementById('recommended-count');
+    if (recommendedCountElement) {
+        recommendedCountElement.textContent = products.length;
     }
 }
 
-// 로딩 상태 표시
-function showLoading(show) {
+function showLoadingState() {
     const loadingState = document.getElementById('loading-state');
-    const productsGrid = document.getElementById('products-grid');
-
-    if (show) {
+    if (loadingState) {
         loadingState.style.display = 'block';
-        productsGrid.style.display = 'none';
-    } else {
-        loadingState.style.display = 'none';
-        productsGrid.style.display = 'grid';
     }
 }
 
-// 빈 상태 표시
-function showEmptyState() {
-    const productsGrid = document.getElementById('products-grid');
-    const noProductsDiv = document.getElementById('no-products');
-
-    productsGrid.innerHTML = '';
-    productsGrid.style.display = 'none';
-    noProductsDiv.style.display = 'block';
+function hideLoadingState() {
+    const loadingState = document.getElementById('loading-state');
+    if (loadingState) {
+        loadingState.style.display = 'none';
+    }
 }
+
+function goToProduct(productNo) {
+    window.location.href = `/products/${productNo}`;
+}
+
+// 터치 스크롤 지원 (모바일)
+document.querySelectorAll('.horizontal-grid').forEach(grid => {
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    grid.addEventListener('mousedown', (e) => {
+        isDown = true;
+        startX = e.pageX - grid.offsetLeft;
+        scrollLeft = grid.scrollLeft;
+    });
+
+    grid.addEventListener('mouseleave', () => {
+        isDown = false;
+    });
+
+    grid.addEventListener('mouseup', () => {
+        isDown = false;
+    });
+
+    grid.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - grid.offsetLeft;
+        const walk = (x - startX) * 2;
+        grid.scrollLeft = scrollLeft - walk;
+    });
+});

@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 public interface OrderRepository extends JpaRepository<Order, Long> {
    @Modifying
    @Transactional
@@ -24,4 +26,29 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query("SELECT o.orderStatus FROM Order o WHERE o.merchantUid = (SELECT p.merchantUid FROM Payment p WHERE p.impUid = :impUid)")
     String findOrderStatusByImpUid(@Param("impUid") String impUid);
+
+    List<Order> findByMerchantUid(String merchantUid);
+
+    /**
+     * merchantUid로 Order 찾기 (최신순 정렬)
+     */
+    List<Order> findByMerchantUidOrderByOrderDateDesc(String merchantUid);
+
+    /**
+     * 사용자별 Order 조회 (최신순)
+     */
+    List<Order> findByUserIdOrderByOrderDateDesc(Long userId);
+
+    /**
+     * impUid가 있는 Order 조회 (결제 취소 가능한 주문)
+     */
+    List<Order> findByUserIdAndImpUidIsNotNullOrderByOrderDateDesc(Long userId);
+
+    @Transactional
+    @Modifying
+    @Query
+            ("UPDATE Order o set o.impUid=:impUid WHERE  o.orderId=:orderId ")
+    void updateOrderImpUid(String orderId,String impUid);
+
+
 }

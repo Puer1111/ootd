@@ -40,19 +40,11 @@
             </div>
         </div>
 
-        <!-- 통계 정보 -->
+        <!-- 통계 정보 (추천 상품 개수만) -->
         <div class="promotion-stats">
             <div class="stat-card">
                 <div class="stat-number" id="recommended-count">0</div>
                 <div class="stat-label">추천 상품</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="avg-rating">0.0</div>
-                <div class="stat-label">평균 평점</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="total-reviews">0</div>
-                <div class="stat-label">총 리뷰</div>
             </div>
         </div>
 
@@ -62,18 +54,54 @@
             <p>추천 상품을 불러오는 중...</p>
         </div>
 
-        <!-- 상품 목록 -->
+        <!-- 상품 목록 - 카테고리별 섹션 -->
         <div class="promotion-products">
-            <div id="products-grid" class="grid-container">
-                <!-- 추천 상품들이 동적으로 추가됩니다 -->
+            <!-- 상의 섹션 -->
+            <div class="category-section">
+                <div class="category-header">
+                    <h2 class="category-title">
+                        <span class="category-icon">👕</span>
+                        상의
+                    </h2>
+                    <div class="category-count">
+                        <span id="top-count">0</span>개
+                    </div>
+                </div>
+                <div id="tops-grid" class="horizontal-grid">
+                    <!-- 상의 상품들이 여기에 추가됩니다 -->
+                </div>
             </div>
 
-            <!-- 빈 상태 -->
-            <div id="no-products" class="empty-state" style="display: none;">
-                <div class="empty-icon">📦</div>
-                <h3>추천 상품이 없습니다</h3>
-                <p>아직 추천으로 설정된 상품이 없습니다.</p>
-                <a href="/" class="btn btn-primary">전체 상품 보기</a>
+            <!-- 하의 섹션 -->
+            <div class="category-section">
+                <div class="category-header">
+                    <h2 class="category-title">
+                        <span class="category-icon">👖</span>
+                        하의
+                    </h2>
+                    <div class="category-count">
+                        <span id="bottom-count">0</span>개
+                    </div>
+                </div>
+                <div id="bottoms-grid" class="horizontal-grid">
+                    <!-- 하의 상품들이 여기에 추가됩니다 -->
+                </div>
+            </div>
+
+            <!-- 신발 섹션 -->
+            <div class="category-section">
+                <div class="category-header">
+                    <h2 class="category-title">
+                        <span class="category-icon">👟</span>
+                        신발
+                    </h2>
+                    <div class="category-count">
+                        <span id="shoes-count">0</span>개
+                    </div>
+                </div>
+                <div id="shoes-grid" class="horizontal-grid">
+                    <!-- 신발 상품들이 여기에 추가됩니다 -->
+                </div>
             </div>
         </div>
     </div>
