@@ -19,4 +19,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     @Transactional
     @Query("UPDATE Payment p SET p.paymentStatus = 'cancel' WHERE p.impUid = :impUid")
     int changeStatus(@Param("impUid") String impUid);
+
+    @Query("SELECT EXISTS (SELECT 1 FROM Payment WHERE userId=:userId)")
+    boolean findbyUserId(Long userId);
 }

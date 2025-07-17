@@ -3,7 +3,7 @@ window.IMP = null;
 // 결제 정보 변수들
 let paymentData = {
     productName: "Test Product",
-    unitPrice: 5000,
+    unitPrice: 100,
     quantity: 1,
     salePercent: 0,
     orderId: null, // 주문 ID
@@ -139,7 +139,7 @@ async function updateOrderQuantity() {
     try {
         const response = await fetch("/orders/update", {
             method: "PUT",
-            headers: { "Content-Type": "application/json" },
+            headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
                 orderId: paymentData.orderId,
                 quantity: paymentData.quantity,
@@ -199,7 +199,7 @@ async function createOrder() {
     console.log("🆕 새 주문 생성");
     const orderResponse = await fetch("/orders", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
             quantity: item.quantity,
             merchantUid: "merchant_" + new Date().getTime(),
@@ -211,6 +211,22 @@ async function createOrder() {
     });
 
     return await orderResponse.json();
+}
+
+// =================== 유저 ID 확인 ==================
+async function checkUserId() {
+    try {
+        const response = await fetch("/api/auth/info");
+        if (!response.ok) {
+            console.error("사용자 정보 조회 실패:", response.status);
+            return null; // 실패 시 null을 반환하여 후속 처리를 막습니다.
+        }
+        return await response.json();
+    } catch (error) {
+        // 네트워크 오류 등 예외 발생 시
+        console.error("사용자 ID 조회 중 예외 발생:", error);
+        return null;
+    }
 }
 
 // ==================== 결제 요청 ====================
@@ -225,6 +241,8 @@ async function requestPay() {
 
     const currentItem = getItem();
 
+    const userData = await checkUserId();
+    console.log("userData 확인: " + userData);
     // 결제 요청
     IMP.request_pay({
         pg: "html5_inicis.INIpayTest",
@@ -232,9 +250,9 @@ async function requestPay() {
         merchant_uid: data.merchantUid,
         name: currentItem.productName,
         amount: currentItem.totalPrice,
-        buyer_email: "Hello@naver.com",
-        buyer_name: "홍길동",
-        buyer_tel: "01012345678",
+        buyer_email: userData.email,
+        buyer_name: userData.id,
+        buyer_tel: userData.phone,
     }, async function (rsp) {
         if (rsp.success) {
             console.log("✅ 결제 성공, imp_uid:", rsp.imp_uid);
@@ -341,7 +359,7 @@ async function cancelPay() {
     try {
         const response = await fetch("/api/getImpUid", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {"Content-Type": "application/json"},
             body: JSON.stringify({orderNo})
         });
 
@@ -357,7 +375,7 @@ async function cancelPay() {
             if (isConfirmed) {
                 const cancelResponse = await fetch(`/payments/cancel/${imp_uid}`, {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {"Content-Type": "application/json"},
                     body: JSON.stringify({
                         reason: "고객 요청으로 취소"
                     })

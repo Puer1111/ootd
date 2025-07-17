@@ -36,15 +36,17 @@ public class CouponController {
         couponService.deleteCoupon(deleteCouponDTO.getCouponId());
         return ResponseEntity.ok().build();
     }
+
     @GetMapping("/all")
     public ResponseEntity<?> getAllCoupons() {
         return ResponseEntity.ok(couponService.getAllCoupons());
     }
+
     @PostMapping("/{couponId}/issue")
     public ResponseEntity<Void> issueCoupon(@PathVariable Long couponId,
-    @AuthenticationPrincipal UserDetailsImpl userDetails) {
+                                            @AuthenticationPrincipal UserDetailsImpl userDetails) {
         Long userId = userDetails.getUser().getId();
-        couponService.issueCoupon(couponId,userId);
+        couponService.issueCoupon(couponId, userId);
         return ResponseEntity.ok().build();
     }
 

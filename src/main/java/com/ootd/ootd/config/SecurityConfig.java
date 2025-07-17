@@ -105,12 +105,8 @@ public class SecurityConfig {
                                 "/admin/**",   // 모든 관리자 페이지
 
                                 // 쿠폰 관련 (임시로 공개)
-//                                "/api/coupon/insert", // 쿠폰 등록 api
-//                                "/api/coupon/update", // 쿠폰 수정 api
-//                                "/api/coupon/delete", // 쿠폰 삭제 api
-//                                "/api/coupon/all",    // 쿠폰 전체 조회 api
-                                    "/api/coupons/**",  // 쿠폰
-
+                                "/api/coupons/**",  // 쿠폰 api
+                                "/coupon/**",   // 쿠폰 지급 페이지
                                 // 카테고리
                                 "/api/categories", // 카테고리 전체 조회
 
