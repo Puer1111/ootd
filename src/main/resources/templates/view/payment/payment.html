@@ -50,28 +50,28 @@
             gap: 10px;
         }
 
-        .quantity-btn {
-            width: 35px;
-            height: 35px;
-            border: 1px solid #ddd;
-            background: #f5f5f5;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 18px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        /*.quantity-btn {*/
+        /*    width: 35px;*/
+        /*    height: 35px;*/
+        /*    border: 1px solid #ddd;*/
+        /*    background: #f5f5f5;*/
+        /*    border-radius: 5px;*/
+        /*    cursor: pointer;*/
+        /*    font-size: 18px;*/
+        /*    font-weight: bold;*/
+        /*    display: flex;*/
+        /*    align-items: center;*/
+        /*    justify-content: center;*/
+        /*}*/
 
-        .quantity-btn:hover {
-            background: #e0e0e0;
-        }
+        /*.quantity-btn:hover {*/
+        /*    background: #e0e0e0;*/
+        /*}*/
 
-        .quantity-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
+        /*.quantity-btn:disabled {*/
+        /*    opacity: 0.5;*/
+        /*    cursor: not-allowed;*/
+        /*}*/
 
         #quantity {
             font-size: 16px;
@@ -137,6 +137,90 @@
         .price-value {
             font-weight: bold;
         }
+
+        #check-available-coupon {
+            width: 100%;
+            background-color: #d3d3d9;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Coupon Modal CSS */
+        .coupon-modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+        }
+
+        .coupon-modal-content {
+            background-color: #fefefe;
+            margin: 15% auto; /* 15% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; /* Could be more or less, depending on screen size */
+            max-width: 500px;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .coupon-modal-close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .coupon-modal-close:hover,
+        .coupon-modal-close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Styles for coupon items in the modal */
+        .coupon-item {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+
+        .coupon-item div {
+            margin-bottom: 5px;
+        }
+
+        .discount-area {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            margin-bottom: 5px;
+            border: 1px solid #ccc; /* Gray border */
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #f9f9f9; /* Light background for visibility */
+            transition: background-color 0.2s ease;
+        }
+
+        .coupon-discount-text {
+            font-weight: bold;
+            color: #333; /* Dark text for contrast */
+            font-size: 1.1em;
+        }
+
+        input[type="radio"][name="selectedCoupon"] {
+            transform: scale(1.2); /* Slightly larger radio button */
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -158,15 +242,17 @@
                 <div class="price-row">
                     <span>수량 :</span>
                     <div class="quantity-controls">
-                        <button type="button" id="minus-btn" class="quantity-btn">-</button>
                         <span id="quantity">1</span>
-                        <button type="button" id="plus-btn" class="quantity-btn">+</button>
                     </div>
                 </div>
 
                 <div class="price-row">
+                    <button id="check-available-coupon">사용가능 쿠폰 확인하기</button>
+                </div>
+
+                <div class="price-row">
                     <span>할인율 :</span>
-                    <span class="sale-percent"><span id="salePercent">0</span>%</span>
+                    <span class="sale-percent" id="salePercent"></span>
                 </div>
 
                 <div class="price-row">
@@ -188,9 +274,28 @@
             </div>
         </div>
     </div>
+
+    <div class="coupon-modal">
+
+    </div>
 </main>
+
+<!-- Coupon Modal Structure -->
+<div id="coupon-modal" class="coupon-modal">
+    <div class="coupon-modal-content">
+        <span class="coupon-modal-close">&times;</span>
+        <h2 id="coupon-modal-title">장바구니 쿠폰</h2>
+        <div id="coupon-list-container">
+            <!-- 쿠폰 목록이 여기에 동적으로 로드됩니다. -->
+            <input type="radio" name="select-coupon">
+        </div>
+    </div>
+</div>
+
 <footer th:replace="~{common/footer :: footer}"></footer>
+<script src="/js/user/auth.js"></script>
 <script src="/js/api/payment/payment.js"></script>
+<script src="/js/api/coupon/couponAPI.js"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.iamport.kr/v1/iamport.js" defer></script>
 </body>

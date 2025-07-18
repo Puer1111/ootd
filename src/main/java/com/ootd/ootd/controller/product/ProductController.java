@@ -41,12 +41,16 @@ public class ProductController {
 
     @Autowired
     ProductService productService;
+
     @Autowired
     ColorsService colorsService;
+
     @Autowired
     GoogleCloudStorageService googleCloudStorageService;
+
     @Autowired
     ProductReviewRepository productReviewRepository;
+
     @Autowired
     ProductLikeRepository productLikeRepository;
     @Autowired

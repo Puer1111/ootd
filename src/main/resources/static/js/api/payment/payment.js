@@ -47,8 +47,7 @@ function initializePaymentData() {
             paymentData.quantity = orderData.quantity || 1;
             paymentData.orderId = orderData.orderId;
 
-            // 🔥 중요: 추가 할인 방지를 위해 salePercent를 0으로 고정
-            paymentData.salePercent = 0; // 이미 할인된 가격이므로 추가 할인 없음
+            // paymentdata.salePercent = 0;
 
             console.log("📦 주문 정보 로드:", {
                 productNo: paymentData.productNo, // 🆕 추가
@@ -86,10 +85,10 @@ function updateDisplay() {
         elements.productPrice.textContent = paymentData.unitPrice.toLocaleString();
     }
     if (elements.quantity) {
-        elements.quantity.textContent = paymentData.quantity;
+        elements.quantity.textContent = paymentData.quantity + "개";
     }
     if (elements.salePercent) {
-        elements.salePercent.textContent = paymentData.salePercent;
+        elements.salePercent.textContent = paymentData.salePercent + "%";
     }
     if (elements.discountAmount) {
         elements.discountAmount.textContent = paymentData.discountAmount.toLocaleString();
@@ -145,58 +144,6 @@ function setupQuantityControls() {
         });
     }
 }
-
-// ==================== 🆕 결제 성공 시 UserOrder 저장 (수정된 버전) ====================
-// async function saveUserOrder() {
-//     if (!paymentData.productNo) {
-//         console.log("❌ 상품번호가 없어 UserOrder 저장을 건너뜁니다.");
-//         return null;
-//     }
-//
-//     try {
-//         const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-//         if (!token) {
-//             console.log("❌ 로그인 토큰이 없습니다.");
-//             return null;
-//         }
-//
-//         console.log("📦 UserOrder 저장 시작:", {
-//             productNo: paymentData.productNo,
-//             quantity: paymentData.quantity,
-//             totalPrice: paymentData.totalPrice
-//         });
-//
-//         // 🔥 수정: productNo 변수 대신 paymentData.productNo 사용
-//         const response = await fetch(`/user-orders/${paymentData.productNo}`, {
-//             method: "POST",
-//             headers: {
-//                 "Content-Type": "application/json",
-//                 "Authorization": "Bearer " + token
-//             },
-//             body: JSON.stringify({
-//                 quantity: paymentData.quantity,
-//                 totalPrice: paymentData.totalPrice,
-//                 unitPrice: paymentData.unitPrice,
-//                 isActiveSale: paymentData.salePercent > 0,
-//                 salePercentage: paymentData.salePercent
-//             })
-//         });
-//
-//         if (response.ok) {
-//             const result = await response.json();
-//             console.log("✅ UserOrder 저장 성공:", result);
-//             return result;
-//         } else {
-//             const errorText = await response.text();
-//             console.error("❌ UserOrder 저장 실패:", response.status, errorText);
-//             return null;
-//         }
-//     } catch (error) {
-//         console.error("❌ UserOrder 저장 오류:", error);
-//         console.error("❌ 오류 상세:", error.message);
-//         return null;
-//     }
-// }
 
 // ==================== 🆕 결제 완료 후 Order 업데이트 ====================
 async function updateOrderPayment(imp_uid,orderId) {
@@ -338,10 +285,10 @@ async function requestPay() {
         merchant_uid: data.merchantUid,
         name: currentItem.productName,
         amount: currentItem.totalPrice,
-
-        buyer_email: "Hello@naver.com", // 유저의 데이터로 바꿔야함
-        buyer_name: "홍길동",
-        buyer_tel: "01012345678",
+        //
+        // buyer_email: "Hello@naver.com", // 유저의 데이터로 바꿔야함
+        // buyer_name: "홍길동",
+        // buyer_tel: "01012345678",
 
         buyer_email: userData.email,
         buyer_name: userData.id,
@@ -528,8 +475,71 @@ function setupCancelButton() {
 
 // ==================== 할인율 업데이트 ====================
 function updateSalePercent(percent) {
+    console.log('payment.js: updateSalePercent called with:', percent);
     if (percent >= 0 && percent <= 100) {
         paymentData.salePercent = percent;
         updateDisplay();
     }
+}
+window.updateSalePercent = updateSalePercent;
+
+// ==================== 화면 업데이트 ====================
+function updateDisplay() {
+    const elements = {
+        productName: document.getElementById('productName'),
+        productPrice: document.getElementById('productPrice'),
+        quantity: document.getElementById('quantity'),
+        salePercent: document.getElementById('salePercent'),
+        discountAmount: document.getElementById('discountAmount'),
+        totalPrice: document.getElementById('totalPrice')
+    };
+
+    // 각 요소 업데이트
+    if (elements.productName) {
+        elements.productName.textContent = paymentData.productName;
+    }
+    if (elements.productPrice) {
+        elements.productPrice.textContent = paymentData.unitPrice.toLocaleString();
+    }
+    if (elements.quantity) {
+        elements.quantity.textContent = paymentData.quantity + "개";
+    }
+    if (elements.salePercent) {
+        elements.salePercent.textContent = paymentData.salePercent + "%"; // % 추가
+        console.log('payment.js: salePercentElement updated to:', elements.salePercent.textContent, 'from paymentData.salePercent:', paymentData.salePercent);
+    }
+    if (elements.discountAmount) {
+        elements.discountAmount.textContent = paymentData.discountAmount.toLocaleString();
+    }
+    if (elements.totalPrice) {
+        elements.totalPrice.textContent = paymentData.totalPrice.toLocaleString();
+    }
+
+    // 수량 버튼 상태 업데이트
+    updateQuantityButtonState();
+
+    console.log("💰 payment.js: 결제 정보 업데이트:", {
+        productNo: paymentData.productNo, // 🆕 추가
+        quantity: paymentData.quantity,
+        unitPrice: paymentData.unitPrice,
+        totalPrice: paymentData.totalPrice,
+        orderId: paymentData.orderId,
+        salePercent: paymentData.salePercent // salePercent도 로그에 포함
+    });
+}
+
+function updatePaymentDetails() {
+    // 숫자만 추출하도록 정규식 사용
+    const productPrice = parseFloat(productPriceElement.textContent.replace(/[^0-9.-]+/g, ""));
+    const quantity = parseInt(quantityElement.textContent.replace(/[^0-9]+/g, ""));
+    const currentSalePercent = parseFloat(salePercentElement.textContent.replace(/[^0-9.-]+/g, ""));
+
+    console.log('payment.js: updatePaymentDetails - productPrice:', productPrice, 'quantity:', quantity, 'currentSalePercent:', currentSalePercent);
+
+    const originalTotal = productPrice * quantity;
+    const discountAmount = originalTotal * (currentSalePercent / 100);
+    const finalPrice = originalTotal - discountAmount;
+
+    discountAmountElement.textContent = discountAmount.toFixed(0); // 소수점 제거
+    totalPriceElement.textContent = finalPrice.toFixed(0); // 소수점 제거
 }

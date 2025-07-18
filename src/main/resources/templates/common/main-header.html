@@ -49,5 +49,38 @@
         </a>
     </div>
 </header>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 현재 페이지 URL 확인
+        const currentPath = window.location.pathname;
+        const tabs = document.querySelectorAll('.simpleSearch');
+
+        // 모든 탭에서 active 클래스 제거
+        tabs.forEach(tab => tab.classList.remove('active'));
+
+        // 현재 페이지에 해당하는 탭 활성화
+        if (currentPath === '/main') {
+            document.querySelector('.simpleSearch[data-tab="main"]').classList.add('active');
+        } else if (currentPath === '/recommended') {
+            document.querySelector('.simpleSearch[data-tab="recommended"]').classList.add('active');
+        } else if (currentPath === '/ranking') {
+            document.querySelector('.simpleSearch[data-tab="ranking"]').classList.add('active');
+        } else if (currentPath === '/sale') {
+            document.querySelector('.simpleSearch[data-tab="sale"]').classList.add('active');
+        } else if (currentPath === '/') {
+            // 루트 경로일 때는 추천 탭 활성화 (기본값)
+            document.querySelector('.simpleSearch[data-tab="recommended"]').classList.add('active');
+        }
+
+        // 탭 클릭 이벤트 (즉시 피드백)
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                // 클릭된 탭 즉시 활성화 (페이지 로딩 전 시각적 피드백)
+                tabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    });
+</script>
 </body>
 </html>

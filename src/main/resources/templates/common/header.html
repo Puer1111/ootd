@@ -11,7 +11,7 @@
             <div class="nav-left">
                 <div id="header-logo">
                     <!-- 메인 페이지로 이동하도록 수정 -->
-                    <a href="/main">OOTD</a>
+                    <a href="/">OOTD</a>
                 </div>
                 <div class="category-area">
                     <a href="#" class="click-button_product">tops</a>
@@ -28,67 +28,6 @@
             </div>
         </div>
     </nav>
-
-    <div id="searchList">
-        <div class="label">
-            <input type="text" placeholder="검색어를 입력하세요." id ="search-input">
-            <button class="searchButton">
-                <img src="/img/common/search.png" alt="searchImg" id="search">
-            </button>
-        </div>
-    </div>
-    <div class="simpleSearchTerm">
-        <!-- 메인 페이지로 이동 -->
-        <a href="/main" class="simpleSearch" data-tab="main">
-            <div class="searchTermDiv"><span class="searchTerm">메인</span></div>
-        </a>
-        <!-- 추천 상품 페이지로 이동 -->
-        <a href="/recommended" class="simpleSearch" data-tab="recommended">
-            <div class="searchTermDiv"><span class="searchTerm">추천</span></div>
-        </a>
-        <a href="/ranking" class="simpleSearch" data-tab="ranking">
-            <div class="searchTermDiv"><span class="searchTerm">랭킹</span></div>
-        </a>
-        <!-- 세일 상품 페이지로 이동 -->
-        <a href="/sale" class="simpleSearch" data-tab="sale">
-            <div class="searchTermDiv"><span class="searchTerm">세일</span></div>
-        </a>
-    </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // 현재 페이지 URL 확인
-            const currentPath = window.location.pathname;
-            const tabs = document.querySelectorAll('.simpleSearch');
-
-            // 모든 탭에서 active 클래스 제거
-            tabs.forEach(tab => tab.classList.remove('active'));
-
-            // 현재 페이지에 해당하는 탭 활성화
-            if (currentPath === '/main') {
-                document.querySelector('.simpleSearch[data-tab="main"]').classList.add('active');
-            } else if (currentPath === '/recommended') {
-                document.querySelector('.simpleSearch[data-tab="recommended"]').classList.add('active');
-            } else if (currentPath === '/ranking') {
-                document.querySelector('.simpleSearch[data-tab="ranking"]').classList.add('active');
-            } else if (currentPath === '/sale') {
-                document.querySelector('.simpleSearch[data-tab="sale"]').classList.add('active');
-            } else if (currentPath === '/') {
-                // 루트 경로일 때는 추천 탭 활성화 (기본값)
-                document.querySelector('.simpleSearch[data-tab="recommended"]').classList.add('active');
-            }
-
-            // 탭 클릭 이벤트 (즉시 피드백)
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function(e) {
-                    // 클릭된 탭 즉시 활성화 (페이지 로딩 전 시각적 피드백)
-                    tabs.forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                });
-            });
-        });
-    </script>
-
 </header>
 </body>
 </html>
