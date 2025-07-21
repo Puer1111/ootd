@@ -1,10 +1,6 @@
 package com.ootd.ootd.service.product.impl;
 
-import com.ootd.ootd.model.dto.product.AdminProductDTO;
-import com.ootd.ootd.model.dto.product.AdminProductFlatDTO;
-import com.ootd.ootd.model.dto.product.ProductDTO;
-import com.ootd.ootd.model.dto.product.ProductDetailDTO;
-import com.ootd.ootd.model.dto.product.ProductOptionDTO;
+import com.ootd.ootd.model.dto.product.*;
 import com.ootd.ootd.model.entity.product.Product;
 import com.ootd.ootd.model.entity.productOption.ProductOption;
 import com.ootd.ootd.repository.product.ProductLikeRepository;
@@ -57,9 +53,15 @@ public class ProductServiceImpl implements ProductService {
             Product product = productRepository.save(productEntity);
             Long productId = product.getProductNo();
 
-            List<ProductOption> productOptions = ProductOptionDTO.convertToEntityList(dto.getProductOption(), productId);
-
-            // 🔥 변경: save → saveAll로 여러 옵션을 각각 별도 row로 저장
+            List<ProductOption> productOptions = dto.getProductOption().stream()
+                    .map(optionDto -> ProductOption.builder()
+                            .productNo(productId)
+                            .colorNo(optionDto.getColorsNo()) // ProductOptionDTO의 colorsNo 사용
+                            .size(optionDto.getSize())
+                            .inventory(optionDto.getInventory())
+                            .status(optionDto.getStatus())
+                            .build())
+                    .collect(Collectors.toList());
 
             List<ProductOption> savedOption = productOptionRepository.saveAll(productOptions);
 
@@ -94,30 +96,105 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDTO getProductById(Long productNo) {
-        Product product = productRepository.findById(productNo.toString())
+        Product product = productRepository.findById(productNo)
                 .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
         return ProductDTO.convertToDTO(product);
     }
 
     @Override
     @Transactional
-    public ProductDTO updateProduct(Long productId, ProductDTO dto) {
-        Product product = productRepository.findById(String.valueOf(productId))
-                .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
+    public ProductResponseInfoDTO updateProduct(Long productId, ProductResponseInfoDTO dto) {
+        return productRepository.findById(productId)
+                .map(existingProduct -> {
+                    // 각 필드를 업데이트하기 전에 dto의 해당 필드가 null이 아닌지 확인
+                    if (dto.getProductName() != null) {
+                        existingProduct.setProductName(dto.getProductName());
+                    }
+                    if (dto.getPrice() != null) {
+                        existingProduct.setPrice(dto.getPrice());
+                    }
+                    if (dto.getDescription() != null) {
+                        existingProduct.setDescription(dto.getDescription());
+                    }
+                    if (dto.getBrandNo() != null) {
+                        existingProduct.setBrandNo(dto.getBrandNo());
+                    }
+                    if (dto.getCategoryNo() != null) {
+                        existingProduct.setCategoryNo(dto.getCategoryNo());
+                    }
+                    if (dto.getImageUrls() != null && !dto.getImageUrls().isEmpty()) {
+                        existingProduct.setImageUrls(dto.getImageUrls());
+                    }
 
-        // 상품 정보 업데이트
-        product.setProductName(dto.getProductName());
-        product.setPrice(dto.getPrice());
-        product.setDescription(dto.getDescription());
-        // ... 기타 필요한 필드 업데이트
+//                    // 세일 정보 업데이트 (isActiveSale과 salePercentage는 함께 처리)
+//                    if (dto.getIsActiveSale() != null) {
+//                        existingProduct.setIsActiveSale(dto.getIsActiveSale());
+//                        if (dto.getIsActiveSale() && dto.getSalePercentage() != null) {
+//                            existingProduct.setSalePercentage(dto.getSalePercentage());
+//                        } else if (!dto.getIsActiveSale()) {
+//                            existingProduct.setSalePercentage(null);
+//                        }
+//                    }
 
-        // 상품 옵션 업데이트 (기존 옵션 삭제 후 새로 추가하는 방식)
-        productOptionRepository.deleteByProductNo(productId);
-        List<ProductOption> productOptions = ProductOptionDTO.convertToEntityList(dto.getProductOption(), productId);
-        productOptionRepository.saveAll(productOptions);
+                    // 상품 옵션 업데이트 (기존 옵션 삭제 후 새로 추가하는 방식)
+                    if (dto.getOptions() != null && !dto.getOptions().isEmpty()) {
+                        productOptionRepository.deleteByProductNo(productId);
+                        List<ProductOption> productOptions = dto.getOptions().stream()
+                                .map(optionDto -> ProductOption.builder()
+                                        .optionId(null)
+                                        .productNo(productId)
+                                        .colorNo(optionDto.getColorsNo())
+                                        .size(optionDto.getSize())
+                                        .inventory(optionDto.getInventory())
+                                        .status(optionDto.getStatus())
+                                        .build())
+                                .collect(Collectors.toList());
+                        productOptionRepository.saveAll(productOptions);
+                    }
 
-        Product updatedProduct = productRepository.save(product);
-        return ProductDTO.convertToDTO(updatedProduct);
+                    Product updatedProduct = productRepository.save(existingProduct);
+                    return ProductResponseInfoDTO.builder()
+                            .productNo(updatedProduct.getProductNo())
+                            .productName(updatedProduct.getProductName())
+                            .description(updatedProduct.getDescription())
+                            .price(updatedProduct.getPrice())
+                            .brandNo(updatedProduct.getBrandNo())
+                            .categoryNo(updatedProduct.getCategoryNo())
+//                            .isActiveSale(updatedProduct.getIsActiveSale())
+//                            .salePercentage(updatedProduct.getSalePercentage())
+                            .imageUrls(updatedProduct.getImageUrls())
+                            .options(dto.getOptions() != null ? dto.getOptions() : new ArrayList<>())
+                            .build();
+                })
+                .orElseGet(() -> {
+                    // 상품이 존재하지 않으면 새로 삽입 (기존 로직 유지)
+                    ProductDTO newProductDTO = ProductDTO.builder()
+                            .productName(dto.getProductName())
+                            .price(dto.getPrice())
+                            .description(dto.getDescription())
+                            .brandNo(dto.getBrandNo())
+                            .categoryNo(dto.getCategoryNo())
+                            .isActiveSale(dto.getIsActiveSale())
+                            .salePercentage(dto.getSalePercentage())
+                            .imageUrls(dto.getImageUrls())
+                            .productOption(dto.getOptions())
+                            .build();
+
+                    ProductDTO insertedProduct = insertProduct(newProductDTO);
+
+                    return ProductResponseInfoDTO.builder()
+                            .productNo(insertedProduct.getProductNo())
+                            .productName(insertedProduct.getProductName())
+                            .description(insertedProduct.getDescription())
+                            .price(insertedProduct.getPrice())
+                            .brandNo(insertedProduct.getBrandNo())
+                            .categoryNo(insertedProduct.getCategoryNo())
+                            .isActiveSale(insertedProduct.getIsActiveSale())
+                            .salePercentage(insertedProduct.getSalePercentage())
+                            .imageUrls(insertedProduct.getImageUrls())
+                            .options(dto.getOptions() != null ? dto.getOptions() : new ArrayList<>())
+                            .build();
+                });
     }
 
     @Override
@@ -129,7 +206,7 @@ public class ProductServiceImpl implements ProductService {
         productReviewRepository.deleteByProductNo(productId);
 
         // 상품 삭제
-        productRepository.deleteById(String.valueOf(productId));
+        productRepository.deleteById(productId);
     }
 
     @Override
@@ -156,7 +233,8 @@ public class ProductServiceImpl implements ProductService {
                                     flatDto.getSize() != null ? flatDto.getSize() : "",
                                     flatDto.getInventory() != null ? flatDto.getInventory() : 0,
                                     flatDto.getStatus() != null ? flatDto.getStatus() : "",
-                                    flatDto.getColorName() != null ? flatDto.getColorName() : ""
+                                    flatDto.getColorName() != null ? flatDto.getColorName() : "",
+                                    flatDto.getColorsNo()
                             ))
                             .collect(Collectors.toList());
 
@@ -190,7 +268,7 @@ public class ProductServiceImpl implements ProductService {
             // 2. 각 세일 상품의 상세 정보와 프로모션 정보 결합
             for (ProductPromotionDTO promotion : salePromotions) {
                 try {
-                    Product product = productRepository.findById(promotion.getProductNo().toString())
+                    Product product = productRepository.findById(promotion.getProductNo())
                             .orElse(null);
 
                     if (product != null) {

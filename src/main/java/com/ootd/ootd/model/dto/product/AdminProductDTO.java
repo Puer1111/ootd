@@ -16,11 +16,14 @@ public class AdminProductDTO {
     private String productName;
     private Integer price;
     private String description;
+    private List<String> imageUrls;
+
     private String brandName;
+
     private Long categoryNo;
     private String subCategory;
+
     private List<ProductOptionInfo> options;
-    private List<String> imageUrls;
 
     @Data
     @Builder
@@ -31,5 +34,7 @@ public class AdminProductDTO {
         private Integer inventory;
         private String status;
         private String colorName;
+        private Long colorsNo;
+
     }
 }

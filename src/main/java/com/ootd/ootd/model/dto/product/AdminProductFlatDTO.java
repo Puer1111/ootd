@@ -15,11 +15,16 @@ public class AdminProductFlatDTO {
     private Integer price;
     private String description;
     private List<String> imageUrls;
+    // brand
     private String brandName;
+    // category
     private Long categoryNo;
     private String subCategory;
+    //productOption
     private String size;
     private Integer inventory;
     private String status;
     private String colorName;
+    private Long colorsNo;
+
 }

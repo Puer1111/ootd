@@ -28,7 +28,7 @@ public class ProductDTO {
     private String mainCategory; // 메인 카테고리 추가
     private Long productColorsNo;
 
-    private ProductOptionDTO productOption;
+    private List<ProductOptionDTO> productOption;
 
     // 좋아요 리뷰
     private int likeCount = 0;
@@ -41,8 +41,8 @@ public class ProductDTO {
     // 편의 메서드들
     private Boolean isRecommended = false;
     private Boolean isSale = false;
-    private Integer salePercentage;
     private Integer salePrice;
+    private Integer salePercentage;
     private Boolean isActiveSale = false;
 
     // 기존 생성자

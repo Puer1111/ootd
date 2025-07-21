@@ -1,6 +1,7 @@
 package com.ootd.ootd.controller.product;
 
 import com.ootd.ootd.model.dto.product.ProductDTO;
+import com.ootd.ootd.model.dto.product.ProductOptionDTO;
 import com.ootd.ootd.model.dto.promotion.ProductPromotionDTO;
 import com.ootd.ootd.model.entity.like.ProductLike;
 import com.ootd.ootd.model.entity.review.ProductReview;
@@ -29,6 +30,7 @@ import org.springframework.ui.Model;
 
 import java.io.IOException;
 import java.util.*;
+import com.ootd.ootd.model.dto.product.ProductResponseInfoDTO;
 import java.util.stream.Collectors;
 
 @Controller
@@ -120,7 +122,7 @@ public class ProductController {
         }
     }
 
-    @PostMapping("/api/insert/product")
+    @PostMapping("/admin/insert/products")
     public ResponseEntity<?> insertProduct(@ModelAttribute ProductDTO dto, HttpServletRequest request) {
         ProductDTO productDTO;
 
@@ -146,6 +148,75 @@ public class ProductController {
         response.put("redirectUrl", "/");  // 마이페이지로 이동 엔드포인트 차후 수정.
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PutMapping("/admin/products/{productId}")
+    public ResponseEntity<?> updateProduct(
+            @PathVariable("productId") Long productNo,
+            @ModelAttribute ProductResponseInfoDTO dto,
+            @RequestParam(value = "size", required = false) List<String> sizes,
+            @RequestParam(value = "inventory", required = false) List<Integer> inventories,
+            @RequestParam(value = "colorsNo", required = false) List<Long> colorsNos,
+            @RequestParam(value = "status", required = false) List<String> statuses,
+            @RequestParam(value = "product.price[]", required = false) List<Integer> optionPrices
+    ) {
+        try {
+            // 이미지 업로드 처리
+            if (dto.getImages() != null && dto.getImages().length > 0) {
+                List<String> images = googleCloudStorageService.uploadImages(dto.getImages());
+                dto.setImageUrls(images);
+            }
+
+            // ProductOptionDTO 리스트를 수동으로 생성하여 dto에 설정
+            List<ProductOptionDTO> options = new ArrayList<>();
+            if (sizes != null && sizes.size() > 0) {
+                for (int i = 0; i < sizes.size(); i++) {
+                    ProductOptionDTO option = new ProductOptionDTO();
+                    option.setSize(sizes.get(i));
+                    if (colorsNos != null && i < colorsNos.size()) {
+                        option.setColorsNo(colorsNos.get(i));
+                    }
+                    if (inventories != null && i < inventories.size()) {
+                        option.setInventory(inventories.get(i));
+                    }
+                    if (statuses != null && i < statuses.size()) {
+                        option.setStatus(statuses.get(i));
+                    }
+                    options.add(option);
+                }
+            }
+            dto.setOptions(options); // ProductResponseInfoDTO의 options 필드에 설정
+
+            ProductResponseInfoDTO updatedProduct = productService.updateProduct(productNo, dto);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "success");
+            response.put("product", updatedProduct);
+            response.put("message", "상품이 성공적으로 수정되었습니다.");
+            return ResponseEntity.ok(response);
+
+        } catch (IOException e) {
+            return new ResponseEntity<>("이미지 업로드 중 오류가 발생했습니다: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>("상품 수정 중 오류가 발생했습니다: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>("서버 오류: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/admin/products/{productNo}")
+    public ResponseEntity<?> deleteProduct(@PathVariable Long productNo) {
+        try {
+            productService.deleteProduct(productNo);
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "success");
+            response.put("message", "상품이 성공적으로 삭제되었습니다.");
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>("상품 삭제 중 오류가 발생했습니다: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>("서버 오류: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     // 좋아요

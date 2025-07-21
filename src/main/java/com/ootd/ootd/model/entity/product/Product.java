@@ -51,6 +51,7 @@ public class Product {
     @Column(name="product_description")
     private String description;
 
+
 //    @ManyToOne
 //    @JoinColumn(name = "product_colors_no")
 //    private ProductColors productColors;

@@ -2,6 +2,7 @@ package com.ootd.ootd.service.product;
 
 import com.ootd.ootd.model.dto.product.AdminProductDTO;
 import com.ootd.ootd.model.dto.product.ProductDTO;
+import com.ootd.ootd.model.dto.product.ProductResponseInfoDTO;
 
 import java.util.List;
 
@@ -27,7 +28,7 @@ public interface ProductService {
     List<ProductDTO> getAllProducts();
     ProductDTO getProductById(Long productNo);
 
-    ProductDTO updateProduct(Long productId, ProductDTO dto);
+    ProductResponseInfoDTO updateProduct(Long productId, ProductResponseInfoDTO dto);
 
     void deleteProduct(Long productId);
 

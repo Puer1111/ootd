@@ -209,7 +209,7 @@ function handleDelete(event) {
 function handleEdit(event) {
     const productNo = event.target.dataset.id;
     const productData = allProductsData.find(p => p.productNo == productNo);
-
+    console.log("ProductData 확인: " + allProductsData);
     if (!productData) {
         alert('상품 정보를 찾을 수 없습니다.');
         return;
@@ -266,7 +266,7 @@ function handleEdit(event) {
         sizeItem.innerHTML = `
             <div><input type="text" name="productOption.size[]" value="${option.size}" ></div>
             <div><input type="number" name="product.price[]" value="${productData.price}"></div>
-            <div><input type="text" name="productOption.colorName[]" value="${option.colorName}" ></div>
+            <div><input type="text" name="productOption.colorName[]" value="${option.colorName}"></div>
             <div><input type="number" name="productOption.inventory[]" value="${option.inventory}"></div>
             <div><input type="text" name="productOption.status[]" value="${option.status}"></div>
             <button type="button" class="size-remove-btn">-</button>
@@ -301,11 +301,13 @@ function resetForm() {
 function submitFormWithAjax() {
     const form = document.getElementById('product-form');
     const formData = new FormData(form);
+    console.log("Show formData: " + formData);
     const productId = document.getElementById('productNo').value;
 
     // 세일 정보 추가
     const isSale = document.getElementById('isSale').checked;
     const salePercentage = document.getElementById('salePercentage').value;
+
 
     if (isSale && salePercentage) {
         formData.append('isActiveSale', 'true');
@@ -314,8 +316,15 @@ function submitFormWithAjax() {
         formData.append('isActiveSale', 'false');
     }
 
-    const url = productId ? `/admin/update/products/${productId}` : '/admin/insert/products';
+    const url = productId ? `/admin/products/${productId}` : '/admin/insert/products';
     const method = productId ? 'PUT' : 'POST';
+
+    console.log("--- FormData 내용 시작 ---");
+    for (let pair of formData.entries()) {
+        console.log(pair[0] + ': ' + pair[1]);
+    }
+    console.log("--- FormData 내용 끝 ---");
+
 
     fetch(url, {
         method: method,

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product, String> {
+public interface ProductRepository extends JpaRepository<Product, Long> {
 
     // 기존 쿼리
     @Query("SELECT new com.ootd.ootd.model.dto.product.ProductDTO(" +
@@ -101,7 +101,7 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     // 기존 관리자용 쿼리
     @Query("SELECT new com.ootd.ootd.model.dto.product.AdminProductFlatDTO(" +
             "p.productNo, p.productName, p.price, p.description, p.imageUrls, b.brandName, p.categoryNo, c.subCategory, " +
-            "po.size, po.inventory, po.status, co.colorName) " +
+            "po.size, po.inventory, po.status, co.colorName , co.colorsNo) " +
             "FROM Product p " +
             "JOIN Brand b ON p.brandNo = b.brandNo " +
             "JOIN Category c ON p.categoryNo = c.categoryNo " +
