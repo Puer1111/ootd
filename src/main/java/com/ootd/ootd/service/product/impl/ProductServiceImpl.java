@@ -138,7 +138,7 @@ public class ProductServiceImpl implements ProductService {
 
                     // 상품 옵션 업데이트 (기존 옵션 삭제 후 새로 추가하는 방식)
                     if (dto.getOptions() != null && !dto.getOptions().isEmpty()) {
-                        productOptionRepository.deleteByProductNo(productId);
+//                        productOptionRepository.deleteByProductNo(productId);
                         List<ProductOption> productOptions = dto.getOptions().stream()
                                 .map(optionDto -> ProductOption.builder()
                                         .optionId(null)
