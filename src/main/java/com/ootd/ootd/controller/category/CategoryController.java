@@ -34,18 +34,7 @@ public class CategoryController {
         }
     }
 
-    // 모든 카테고리 검색
-//    @GetMapping("/api/lookup/category")
-//    public ResponseEntity<?> lookupCategory() {
-//        try {
-//            List<Map<String, Object>> category = categoryService.getCategoryNoAndName();
-//            return ResponseEntity.ok(category);
-//        } catch (Exception e) {
-//            System.out.println("Insert cateGory error : " + e.getMessage());
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//                    .body(Map.of("error", e.getMessage()));
-//        }
-//    }
+    
 
     @GetMapping("/api/categories")
     public ResponseEntity<List<Category>> getAllCategories() {

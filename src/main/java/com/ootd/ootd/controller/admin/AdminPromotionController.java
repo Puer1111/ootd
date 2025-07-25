@@ -18,16 +18,14 @@ public class AdminPromotionController {
     @Autowired
     private ProductPromotionService promotionService;
 
-    /**
-     * 🆕 관리자 프로모션 관리 페이지
-     */
+    
     @GetMapping("")
     public String adminPromotionPage() {
         return "view/admin/promotion/adminPromotion";
     }
 
     /**
-     * 🆕 상품 추천 설정/해제
+     
      */
     @PostMapping("/recommend/{productNo}")
     @ResponseBody
@@ -54,9 +52,7 @@ public class AdminPromotionController {
         }
     }
 
-    /**
-     * 🆕 상품 세일 설정/해제
-     */
+    
     @PostMapping("/sale/{productNo}")
     @ResponseBody
     public ResponseEntity<?> setSale(@PathVariable Long productNo,
@@ -84,9 +80,7 @@ public class AdminPromotionController {
         }
     }
 
-    /**
-     * 🆕 프로모션 정보 조회
-     */
+    
     @GetMapping("/{productNo}")
     @ResponseBody
     public ResponseEntity<?> getPromotion(@PathVariable Long productNo) {
@@ -106,9 +100,7 @@ public class AdminPromotionController {
         }
     }
 
-    /**
-     * 🆕 추천 상품 목록 조회
-     */
+    
     @GetMapping("/recommended")
     @ResponseBody
     public ResponseEntity<?> getRecommendedProducts() {
@@ -129,9 +121,7 @@ public class AdminPromotionController {
         }
     }
 
-    /**
-     * 🆕 세일 상품 목록 조회
-     */
+    
     @GetMapping("/sale")
     @ResponseBody
     public ResponseEntity<?> getSaleProducts() {
@@ -152,9 +142,7 @@ public class AdminPromotionController {
         }
     }
 
-    /**
-     * 🆕 프로모션 삭제
-     */
+    
     @DeleteMapping("/{productNo}")
     @ResponseBody
     public ResponseEntity<?> deletePromotion(@PathVariable Long productNo) {
@@ -174,9 +162,7 @@ public class AdminPromotionController {
         }
     }
 
-    /**
-     * 🆕 만료된 세일 정리
-     */
+    
     @PostMapping("/cleanup-expired")
     @ResponseBody
     public ResponseEntity<?> cleanupExpiredSales() {

@@ -37,7 +37,7 @@ public class OrderController {
     @Autowired
     private UserRepository userRepository;
 
-    // 생성자 주입
+    
     public OrderController(OrderService orderService, UserOrderRepository userOrderRepository, OrderRepository orderRepository, UserService userService, UserRepository userRepository) {
         this.orderService = orderService;
         this.userOrderRepository = userOrderRepository;
@@ -46,9 +46,7 @@ public class OrderController {
         this.userRepository = userRepository;
     }
 
-    /**
-     * 새 주문 생성 (Order + UserOrder 연결)
-     */
+    
     @PostMapping("/orders")
     public ResponseEntity<?> createOrder(@RequestBody OrderDTO order) {
         try {

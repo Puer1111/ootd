@@ -20,9 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * 적립금 관리 API 컨트롤러
- */
+
 @RestController
 @RequestMapping("/api/points")
 public class PointController {
@@ -33,9 +31,7 @@ public class PointController {
     @Autowired
     private UserRepository userRepository;
 
-    /**
-     * 내 적립금 정보 조회
-     */
+    
     @GetMapping("/my-points")
     public ResponseEntity<?> getMyPoints(@AuthenticationPrincipal UserDetails userDetails) {
         Map<String, Object> response = new HashMap<>();
@@ -67,9 +63,7 @@ public class PointController {
         }
     }
 
-    /**
-     * 적립금 내역 조회
-     */
+    
     @GetMapping("/history")
     public ResponseEntity<?> getPointHistory(@AuthenticationPrincipal UserDetails userDetails,
                                              @RequestParam(defaultValue = "0") int page,
@@ -106,9 +100,7 @@ public class PointController {
         }
     }
 
-    /**
-     * 전체 적립금 내역 조회
-     */
+    
     @GetMapping("/history/all")
     public ResponseEntity<?> getAllPointHistory(@AuthenticationPrincipal UserDetails userDetails) {
         Map<String, Object> response = new HashMap<>();
@@ -138,9 +130,7 @@ public class PointController {
         }
     }
 
-    /**
-     * 적립금 사용
-     */
+    
     @PostMapping("/use")
     public ResponseEntity<?> usePoints(@RequestBody PointRequestDTO request,
                                        @AuthenticationPrincipal UserDetails userDetails) {

@@ -893,6 +893,54 @@ input:focus, select:focus, textarea:focus {
     border-color: #0056b3;
     background-color: #d0e9ff;
 }
+.btn-edit {
+    padding: 5px 8px; /* 크기 축소 */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px; /* 폰트 크기 축소 */
+    font-weight: 500;
+    background-color: #343a40; /* 검은 계열 색상 */
+    color: white;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.btn-edit:hover {
+    background-color: #23272b; /* 호버 시 더 어둡게 */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-edit:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.btn-delete {
+    padding: 5px 8px; /* 크기 축소 */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px; /* 폰트 크기 축소 */
+    font-weight: 500;
+    background-color: #6c757d; /* 회색 계열 색상 */
+    color: white;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.btn-delete:hover {
+    background-color: #5a6268; /* 호버 시 더 어둡게 */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-delete:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
 
 /* 사이즈 섹션 */
 .sizes-section {
@@ -966,12 +1014,20 @@ input:focus, select:focus, textarea:focus {
 
 .admin-table th, .admin-table td {
     /* ... */
+
+    text-align: center; /* 중앙 정렬 */
+    vertical-align: middle; /* 수직 중앙 정렬 */
 }
 
 .product-row {
     /* ... */
 }
-
+.product-row td:nth-child(6){
+    width:130px;
+}
+.product-row td:nth-child(7){
+    width:130px;
+}
 .options-row {
     /* ... */
 }
@@ -1002,4 +1058,4 @@ input:focus, select:focus, textarea:focus {
 .admin-sidebar .submenu.active {
     display: block;
 }
->>>>>>> Develop
+

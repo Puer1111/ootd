@@ -26,15 +26,11 @@ public class ColorsController {
 
     @PostMapping("/api/register/colors")
     public ResponseEntity<?> registerColors(@RequestBody ColorsDTO dto) {
-//        try{
-            ColorsDTO savedDto = colorsService.registerColors(dto);  // 저장된 DTO 반환
+            ColorsDTO savedDto = colorsService.registerColors(dto);  
             Map<String, Object> response = new HashMap<>();
             response.put("colorsNo", savedDto.getColorNo());
             response.put("colorName", savedDto.getColorName());
-            return ResponseEntity.ok(response);  // 응답에 데이터 포함
-//        }catch(Exception e){
-//            return ResponseEntity.badRequest().body(dto);
-//        }
+            return ResponseEntity.ok(response);  
     }
     @GetMapping("/api/lookup/colors")
     public ResponseEntity<?> lookupColors() {

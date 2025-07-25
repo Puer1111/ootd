@@ -34,7 +34,7 @@ public class PageController {
         return "view/promotion/sale";
     }
 
-    // 🆕 추천 상품 API
+    
     @GetMapping("/api/promotion/recommended")
     @ResponseBody
     public ResponseEntity<?> getRecommendedProducts() {

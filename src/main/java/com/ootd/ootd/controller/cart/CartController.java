@@ -32,7 +32,7 @@ public class CartController {
     @GetMapping("/cart")
     public String showCartPage(HttpServletRequest request, Model model) {
         String cartId = CookieUtils.getCookieValue(request, "CART_ID");
-        List<CartDTO> cartItems = cartService.getCartItems(cartId); // DB 조회
+        List<CartDTO> cartItems = cartService.getCartItems(cartId); 
         System.out.println("Check CartItems : " + cartItems);
         model.addAttribute("Cart", cartItems);
         return "view/cart/cart";
@@ -45,15 +45,15 @@ public class CartController {
                                        HttpServletRequest request,
                                        HttpServletResponse response) {
         System.out.println("Check For CartDTO : " + dto);
-        // 기존 쿠키 확인
+        
         String cartId = CookieUtils.getCookieValue(request, "CART_ID");
 
-        // 쿠키가 없으면 새로 생성
+        
         if (cartId == null) {
             cartId = UUID.randomUUID().toString();
             CookieUtils.setCookie(response, "CART_ID", cartId, 7 * 24 * 60 * 60);
         }
-        // 장바구니에 상품 추가
+        
         try {
             cartService.addToCart(dto, cartId);
             Map<String, Object> result = new HashMap<>();
