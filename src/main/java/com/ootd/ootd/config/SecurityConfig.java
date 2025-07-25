@@ -126,7 +126,9 @@ public class SecurityConfig {
                                 "/api/products/recommended",       // 추천 상품 API
                                 "/api/products/sale",             // 세일 상품 API
                                 "/sendImpUid",
-                                "/api/promotion/**"
+                                "/api/promotion/**",
+
+                                "/api/auth/info"
 
 
                         ).permitAll()                // 인증 없이 접근 허용
