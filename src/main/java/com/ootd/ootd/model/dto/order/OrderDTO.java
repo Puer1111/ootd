@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 public class OrderDTO {
 
     private Long orderId;
+    private long userId;
     private Long quantity;
     private LocalDateTime orderDate;
     private String merchantUid;
@@ -31,6 +32,7 @@ public class OrderDTO {
     public static OrderDTO convertToDTO(Order order){
         return OrderDTO.builder()
                 .orderId(order.getOrderId())
+                .userId(order.getUserId())
                 .quantity(order.getQuantity())
                 .orderDate(order.getOrderDate())
                 .merchantUid(order.getMerchantUid())
@@ -45,6 +47,7 @@ public class OrderDTO {
 
     public static Order convertToEntity(OrderDTO dto){
         return Order.builder()
+                .userId(dto.getUserId())
                 .quantity(dto.getQuantity())
                 .orderDate(dto.getOrderDate())
                 .merchantUid(dto.getMerchantUid())

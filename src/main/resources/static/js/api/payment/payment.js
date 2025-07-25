@@ -265,6 +265,12 @@ function getItem() {
 async function createOrder() {
     const item = getItem();
 
+    const userData = await checkUserId();
+    if(!userData){
+        console.log("로그인 못가져옴")
+        return null;
+    }
+
     // 기존 주문이 있으면 수량 업데이트
     if (item.orderId) {
         console.log("📝 기존 주문 수량 업데이트:", item.orderId);
@@ -284,11 +290,12 @@ async function createOrder() {
     }
 
     // 새 주문 생성
-    console.log("🆕 새 주문 생성");
+    console.log("🆕 새 주문 생성의 사용자 ID 들어오는지 : ", userData.id);
     const orderResponse = await fetch("/orders", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
+            userId: userData.id,
             quantity: item.quantity,
             merchantUid: "merchant_" + new Date().getTime(),
             productName: item.productName,
@@ -298,13 +305,25 @@ async function createOrder() {
         })
     });
 
-    return await orderResponse.json();
+    if (orderResponse.ok) {
+        const result = await orderResponse.json();
+        console.log("✅ 주문 생성 성공:", result);
+        return result;
+    } else {
+        console.error("❌ 주문 생성 실패:", orderResponse.status);
+        return null;
+    }
+    //
+    // return await orderResponse.json();
 }
 
 // =================== 유저 ID 확인 ==================
 async function checkUserId() {
     try {
-        const response = await fetch("/api/auth/info");
+        const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
+        const response = await fetch("/api/auth/info", {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
         if (!response.ok) {
             console.error("사용자 정보 조회 실패:", response.status);
             return null; // 실패 시 null을 반환하여 후속 처리를 막습니다.
@@ -330,6 +349,7 @@ async function requestPay() {
     const currentItem = getItem();
 
     const userData = await checkUserId();
+
     console.log("userData 확인: " + userData);
     // 결제 요청
     IMP.request_pay({
@@ -394,7 +414,7 @@ async function handlePaymentSuccess(rsp, data, currentItem) {
         // });
 
         // 🆕 결제 완료 후 Order 업데이트 (impUid 저장)
-        const orderUpdateResult = await updateOrderPayment(rsp.imp_uid, data.orderId);
+        // const orderUpdateResult = await updateOrderPayment(rsp.imp_uid, data.orderId);
         // if (orderUpdateResult) {
         //     console.log('✅ 결제 정보 업데이트 완료 - 결제 취소 가능');
         // } else {

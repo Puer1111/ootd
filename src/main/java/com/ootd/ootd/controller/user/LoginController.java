@@ -2,15 +2,20 @@ package com.ootd.ootd.controller.user;
 
 import com.ootd.ootd.model.dto.product.ProductDTO;
 import com.ootd.ootd.model.entity.category.Category;
+import com.ootd.ootd.model.entity.order.Order;
 import com.ootd.ootd.model.entity.user.User;
 import com.ootd.ootd.repository.category.CategoryRepository;
+import com.ootd.ootd.repository.order.OrderRepository;
 import com.ootd.ootd.repository.product.ProductLikeRepository;
 import com.ootd.ootd.repository.product.ProductReviewRepository;
 import com.ootd.ootd.repository.user.UserRepository;
 import com.ootd.ootd.security.JwtTokenProvider;
+import com.ootd.ootd.service.payment.PaymentService;
 import com.ootd.ootd.service.product.ProductService;
 import com.ootd.ootd.service.reward.RewardService;
 import com.ootd.ootd.service.user.UserService;
+import com.siot.IamportRestClient.response.IamportResponse;
+import com.siot.IamportRestClient.response.Payment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,12 +62,18 @@ public class LoginController {
     @Autowired
     private CategoryRepository categoryRepository;
 
+    @Autowired
+    private OrderRepository orderRepository;
+
     // 🆕 RewardService 사용 (pointService 대신)
     @Autowired
     private RewardService rewardService;
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private PaymentService paymentService;
 
     // 로그인 페이지 보여주기
     @GetMapping("/login")
@@ -319,70 +330,69 @@ public class LoginController {
         return "view/user/orderHistory";
     }
 
-    // 기존 getUserOrderHistory 메서드를 다음과 같이 수정
+
     @GetMapping("/api/auth/order-history")
     @ResponseBody
     public ResponseEntity<?> getUserOrderHistory(@AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("📋 주문 내역 조회 요청 - 사용자: " + userDetails.getUsername());
+            System.out.println("📋 주문 내역 조회 시작 - 사용자: " + userDetails.getUsername());
 
-            // 사용자 정보 조회
             User user = userRepository.findByEmail(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
 
-            // UserOrder 조회
-            List<UserOrder> userOrders = userOrderRepository.findByUserIdAndStatusOrderByCreatedAtDesc(
-                    user.getId(), UserOrder.OrderStatus.ORDERED
+            List<Order> orders = orderRepository.findByUserIdAndOrderStatusOrderByOrderDateDesc(
+                    user.getId(), "success"
             );
 
-            System.out.println("📋 조회된 주문 개수: " + userOrders.size());
+            System.out.println("📋 조회된 주문 개수: " + orders.size());
 
-            List<Map<String, Object>> orderedProducts = userOrders.stream()
+            List<Map<String, Object>> orderedProducts = orders.stream()
                     .map(order -> {
                         Map<String, Object> productMap = new HashMap<>();
-                        productMap.put("productNo", order.getProductNo());
 
-                        // 상품 정보 조회
-                        ProductDTO productDTO = null;
-                        try {
-                            productDTO = productService.getProductById(order.getProductNo());
-                        } catch(Exception e) {
-                            System.err.println("❌ 상품 정보 조회 실패: " + order.getProductNo());
-                        }
-
-                        if (productDTO != null) {
-                            productMap.put("productName", productDTO.getProductName());
-                            productMap.put("imageUrls", productDTO.getImageUrls() != null ? productDTO.getImageUrls() : new ArrayList<>());
-                            productMap.put("brandName", productDTO.getBrandName());
-                            productMap.put("categoryName", productDTO.getMainCategory() != null ? productDTO.getMainCategory() : "");
-                            productMap.put("subCategory", productDTO.getSubCategory() != null ? productDTO.getSubCategory() : "");
-                        } else {
-                            productMap.put("productName", "상품정보없음");
-                            productMap.put("imageUrls", new ArrayList<>());
-                            productMap.put("brandName", "");
-                            productMap.put("categoryName", "");
-                            productMap.put("subCategory", "");
-                        }
-
-                        productMap.put("price", order.getTotalPrice() / order.getQuantity());
+                        productMap.put("productName", order.getProductName());
+                        productMap.put("price", order.getProductPrice());
                         productMap.put("quantity", order.getQuantity());
                         productMap.put("totalPrice", order.getTotalPrice());
-                        productMap.put("orderDate", order.getCreatedAt().toString());
-                        productMap.put("orderStatus", order.getStatus().getDescription());
-                        productMap.put("orderId", order.getId());
+                        productMap.put("orderDate", order.getOrderDate().toString());
+                        productMap.put("orderStatus", order.getOrderStatus());
+                        productMap.put("orderId", order.getOrderId());
+
+                        // 🆕 이미지 추가 - 상품명으로 매칭
+                        List<String> imageUrls = new ArrayList<>();
+                        try {
+                            List<ProductDTO> allProducts = productService.getAllProducts();
+                            ProductDTO matchedProduct = allProducts.stream()
+                                    .filter(p -> p.getProductName().equals(order.getProductName()))
+                                    .findFirst()
+                                    .orElse(null);
+
+                            if (matchedProduct != null && matchedProduct.getImageUrls() != null) {
+                                imageUrls = matchedProduct.getImageUrls();
+                            }
+                        } catch (Exception e) {
+                            // 에러 시 빈 배열 유지
+                        }
+
+                        productMap.put("imageUrls", imageUrls); // 🔄 이 한 줄만 변경!
+                        productMap.put("brandName", "OOTD");
+                        productMap.put("categoryName", "패션");
+                        productMap.put("subCategory", "일반");
 
                         return productMap;
                     })
                     .collect(Collectors.toList());
 
+            System.out.println("📋 주문 내역 처리 완료");
+
             return ResponseEntity.ok(Map.of(
                     "success", true,
-                    "totalCount", userOrders.size(),
+                    "totalCount", orders.size(),
                     "orderedProducts", orderedProducts
             ));
+
         } catch (Exception e) {
             System.err.println("❌ 주문 내역 조회 실패: " + e.getMessage());
-            e.printStackTrace();
             return ResponseEntity.status(500).body(Map.of(
                     "success", false,
                     "message", "주문 내역을 불러올 수 없습니다."
@@ -400,134 +410,172 @@ public class LoginController {
     @GetMapping("/api/auth/cancel-history")
     @ResponseBody
     public ResponseEntity<?> getUserCancelHistory(@AuthenticationPrincipal UserDetails userDetails) {
-        Map<String, Object> response = new HashMap<>();
-
         try {
-            System.out.println("=== 취소 내역 API 시작 ===");
+            System.out.println("📋 취소 내역 조회 시작 - 사용자: " + userDetails.getUsername());
 
             if (userDetails == null) {
-                System.out.println("❌ userDetails가 null입니다");
-                response.put("success", false);
-                response.put("message", "로그인이 필요합니다");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                        "success", false,
+                        "message", "로그인이 필요합니다"
+                ));
             }
-
-            System.out.println("✅ 사용자 인증 확인: " + userDetails.getUsername());
 
             User user = userRepository.findByEmail(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
 
-            System.out.println("✅ 사용자 조회 성공: ID=" + user.getId());
+            List<Order> cancelledOrders = orderRepository.findByUserIdAndOrderStatusOrderByOrderDateDesc(
+                    user.getId(), "cancelled"
+            );
 
-            List<Long> cancelledProductNos = userOrderRepository.findCancelledProductNosByUserId(user.getId());
-            System.out.println("✅ 취소된 상품 번호 조회 성공: " + cancelledProductNos.size() + "개");
+            System.out.println("📋 조회된 취소 개수: " + cancelledOrders.size());
 
-            List<ProductDTO> cancelledProducts = new ArrayList<>();
+            List<Map<String, Object>> cancelledProducts = cancelledOrders.stream()
+                    .map(order -> {
+                        Map<String, Object> productMap = new HashMap<>();
 
-            for (Long productNo : cancelledProductNos) {
-                try {
-                    System.out.println("취소된 상품 조회 시작: productNo=" + productNo);
+                        productMap.put("productName", order.getProductName());
+                        productMap.put("price", order.getProductPrice());
+                        productMap.put("quantity", order.getQuantity());
+                        productMap.put("totalPrice", order.getTotalPrice());
+                        productMap.put("orderDate", order.getOrderDate().toString());
+                        productMap.put("orderStatus", order.getOrderStatus());
+                        productMap.put("orderId", order.getOrderId());
 
-                    ProductDTO product = productService.getProductById(productNo);
-                    if (product != null) {
-                        System.out.println("✅ 취소된 상품 조회 성공: " + product.getProductName());
+                        // 🆕 이미지 추가 - 상품명으로 매칭
+                        List<String> imageUrls = new ArrayList<>();
+                        try {
+                            List<ProductDTO> allProducts = productService.getAllProducts();
+                            ProductDTO matchedProduct = allProducts.stream()
+                                    .filter(p -> p.getProductName().equals(order.getProductName()))
+                                    .findFirst()
+                                    .orElse(null);
 
-                        // null 값 강제 설정으로 안전성 확보
-                        if (product.getIsActiveSale() == null) {
-                            product.setIsActiveSale(false);
+                            if (matchedProduct != null && matchedProduct.getImageUrls() != null) {
+                                imageUrls = matchedProduct.getImageUrls();
+                            }
+                        } catch (Exception e) {
+                            // 에러 시 빈 배열 유지
                         }
-                        if (product.getIsRecommended() == null) {
-                            product.setIsRecommended(false);
-                        }
-                        if (product.getIsSale() == null) {
-                            product.setIsSale(false);
-                        }
 
-                        product.setLikeCount(productLikeRepository.countByProductNo(productNo));
+                        productMap.put("imageUrls", imageUrls); // 🔄 이 한 줄만 변경!
+                        productMap.put("brandName", "OOTD");
+                        productMap.put("categoryName", "패션");
+                        productMap.put("subCategory", "일반");
 
-                        if (productReviewRepository != null) {
-                            product.setReviewCount(productReviewRepository.countByProductNo(productNo));
-                            Double avgRating = productReviewRepository.findAverageRatingByProductNo(productNo);
-                            product.setAverageRating(avgRating != null ? avgRating : 0.0);
-                        }
+                        return productMap;
+                    })
+                    .collect(Collectors.toList());
 
-                        cancelledProducts.add(product);
-                        System.out.println("✅ 취소된 상품 처리 완료: " + product.getProductName());
-                    } else {
-                        System.out.println("❌ 취소된 상품 조회 실패: productNo=" + productNo);
-                    }
-                } catch (Exception e) {
-                    System.err.println("❌ 취소된 상품 처리 중 에러 - productNo: " + productNo);
-                    e.printStackTrace();
-                }
-            }
+            System.out.println("📋 취소 내역 처리 완료");
 
-            System.out.println("✅ 모든 취소된 상품 처리 완료: " + cancelledProducts.size() + "개");
-
-            response.put("success", true);
-            response.put("cancelledProducts", cancelledProducts);
-            response.put("totalCount", cancelledProducts.size());
-
-            System.out.println("✅ 취소 내역 응답 객체 생성 완료");
-
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "totalCount", cancelledOrders.size(),
+                    "cancelledProducts", cancelledProducts
+            ));
 
         } catch (Exception e) {
-            System.err.println("❌ 취소 내역 API 전체 실패: " + e.getMessage());
-            e.printStackTrace();
-
-            response.put("success", false);
-            response.put("message", "취소 내역을 가져오는 중 오류가 발생했습니다: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            System.err.println("❌ 취소 내역 조회 실패: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                    "success", false,
+                    "message", "취소 내역을 가져오는 중 오류가 발생했습니다."
+            ));
         }
     }
 
-    // 주문 취소 API (주문내역에서)
-//    @PostMapping("/api/auth/cancel-order/{orderId}")
-//    @ResponseBody
-//    public ResponseEntity<?> cancelOrderById(@PathVariable Long orderId,
-//                                             @AuthenticationPrincipal UserDetails userDetails) {
-//        Map<String, Object> response = new HashMap<>();
-//
-//        try {
-//            if (userDetails == null) {
-//                response.put("success", false);
-//                response.put("message", "로그인이 필요합니다");
-//                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-//            }
-//
-//            User user = userRepository.findByEmail(userDetails.getUsername())
-//                    .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
-//
-//            Optional<UserOrder> orderOpt = userOrderRepository.findByIdAndUserId(orderId, user.getId());
-//
-//            if (orderOpt.isEmpty()) {
-//                response.put("success", false);
-//                response.put("message", "주문을 찾을 수 없습니다");
-//                return ResponseEntity.badRequest().body(response);
-//            }
-//
-//            UserOrder order = orderOpt.get();
-//            if (order.getStatus() != UserOrder.OrderStatus.ORDERED) {
-//                response.put("success", false);
-//                response.put("message", "이미 처리된 주문입니다");
-//                return ResponseEntity.badRequest().body(response);
-//            }
-//
-//            order.cancel();
-//            userOrderRepository.save(order);
-//
-//            response.put("success", true);
-//            response.put("message", "주문이 취소되었습니다");
-//
-//            return ResponseEntity.ok(response);
-//
-//        } catch (Exception e) {
-//            response.put("success", false);
-//            response.put("message", "주문 취소 중 오류가 발생했습니다: " + e.getMessage());
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-//        }
-//    }
+//     주문 취소 API (주문내역에서)
+@PostMapping("/api/auth/cancel-order/{orderId}")
+@ResponseBody
+public ResponseEntity<?> cancelOrderById(@PathVariable Long orderId,
+                                         @AuthenticationPrincipal UserDetails userDetails) {
+    try {
+        System.out.println("📋 주문 취소 시작 - OrderID: " + orderId);
+
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "success", false,
+                    "message", "로그인이 필요합니다"
+            ));
+        }
+
+        User user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
+
+        // 🔥 Order 테이블에서 해당 주문 찾기
+        Optional<Order> orderOpt = orderRepository.findByOrderIdAndUserId(orderId, user.getId());
+
+        if (orderOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "주문을 찾을 수 없습니다"
+            ));
+        }
+
+        Order order = orderOpt.get();
+
+        if (!"success".equals(order.getOrderStatus())) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "취소할 수 없는 주문입니다"
+            ));
+        }
+
+        // 🔥 1. 결제 취소 로직 (가장 먼저!)
+        try {
+            // PaymentService를 사용해서 impUid 찾기
+            String impUid = paymentService.getImpUid(orderId);
+            if (impUid != null && !impUid.isEmpty()) {
+                // 실제 결제 취소 (돈 돌려주기)
+                IamportResponse<Payment> cancelResult = paymentService.cancelPayment(impUid);
+                if (cancelResult != null) {
+                    System.out.println("💰 결제 취소 완료 - OrderID: " + orderId + ", impUid: " + impUid);
+                } else {
+                    System.err.println("❌ 결제 취소 실패 - OrderID: " + orderId);
+                }
+            } else {
+                System.out.println("⚠️ impUid가 없어서 결제 취소를 건너뜁니다.");
+            }
+        } catch (Exception e) {
+            System.err.println("❌ 결제 취소 중 오류: " + e.getMessage());
+            // 결제 취소 실패해도 주문 취소는 계속 진행
+        }
+
+        // 🔥 2. Order 테이블 상태 변경
+        order.setOrderStatus("cancelled");
+        orderRepository.save(order);
+
+        // 🔥 3. UserOrder 테이블도 취소 처리
+        try {
+            List<UserOrder> userOrders = userOrderRepository.findByUserId(user.getId());
+
+            // ORDERED 상태인 UserOrder들 중 첫 번째 것을 취소
+            for (UserOrder userOrder : userOrders) {
+                if (userOrder.getStatus() == UserOrder.OrderStatus.ORDERED) {
+                    userOrder.cancel();
+                    userOrderRepository.save(userOrder);
+                    System.out.println("📋 UserOrder 취소 완료 - ID: " + userOrder.getId());
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("❌ UserOrder 취소 실패: " + e.getMessage());
+        }
+
+        System.out.println("📋 주문 취소 완료 - OrderID: " + orderId);
+
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "주문이 취소되었습니다"
+        ));
+
+    } catch (Exception e) {
+        System.err.println("❌ 주문 취소 실패: " + e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                "success", false,
+                "message", "주문 취소 중 오류가 발생했습니다: " + e.getMessage()
+        ));
+    }
+}
 
     // 🆕 사용자 통계 API (RewardService 사용)
     @GetMapping("/api/auth/user-stats")

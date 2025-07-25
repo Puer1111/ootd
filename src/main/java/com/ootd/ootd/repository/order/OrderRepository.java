@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
    @Modifying
@@ -50,5 +51,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             ("UPDATE Order o set o.impUid=:impUid WHERE  o.orderId=:orderId ")
     void updateOrderImpUid(String orderId,String impUid);
 
+    // OrderRepository.java에 추가
+    List<Order> findByUserIdAndOrderStatusOrderByOrderDateDesc(Long userId, String orderStatus);
 
+    Optional<Order> findByOrderIdAndUserId(Long orderId, long userId);
 }

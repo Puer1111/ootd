@@ -42,6 +42,10 @@ public interface UserOrderRepository extends JpaRepository<UserOrder, Long> {
     @Query("SELECT uo FROM UserOrder uo ORDER BY uo.createdAt DESC")
     List<UserOrder> findTop5ByOrderByCreatedAtDesc();
 
+
+    List<UserOrder> findByUserIdAndStatus(Long userId, UserOrder.OrderStatus status);
+
+    List<UserOrder> findByUserId(long userId);
     // 편의 메소드
 //    default List<UserOrder> findTop5ByOrderByCreatedAtDesc() {
 //        return findTop5ByOrderByCreatedAtDesc(PageRequest.of(0, 5));}

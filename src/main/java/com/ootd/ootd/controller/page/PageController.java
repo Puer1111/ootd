@@ -24,12 +24,6 @@ public class PageController {
     @Autowired
     private ProductService productService;
 
-    // 🆕 루트 경로 추가
-    @GetMapping("/")
-    public String homePage() {
-        return "redirect:/recommended";
-    }
-
     @GetMapping("/recommended")
     public String recommendedPage() {
         return "view/promotion/recommended";
