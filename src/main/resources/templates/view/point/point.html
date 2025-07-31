@@ -5,10 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>내 적립금 - OOTD</title>
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-
-    <!-- CSS 파일들 -->
     <link rel="stylesheet" th:href="@{/css/common/footer.css}">
     <link rel="stylesheet" th:href="@{/css/common/main-header.css}">
     <link rel="stylesheet" th:href="@{/css/common/layout.css}">
@@ -16,32 +12,24 @@
 </head>
 <body>
 
-<!-- 공통 헤더 -->
 <header th:replace="~{common/main-header.html :: header}"></header>
 
 <div class="points-container">
-    <!-- 로딩 상태 -->
     <div id="loading" class="loading" style="display: none;">
         적립금 정보를 불러오는 중...
     </div>
 
-    <!-- 에러 메시지 -->
     <div id="error-message" class="error-message" style="display: none;"></div>
 
-    <!-- 성공 메시지 -->
     <div id="success-message" class="success-message" style="display: none;"></div>
 
-    <!-- 메인 콘텐츠 -->
     <div id="main-content">
-        <!-- 페이지 헤더 -->
         <div class="points-header">
             <h1>💰 내 적립금</h1>
             <p>적립금을 확인하고 관리하세요</p>
         </div>
 
-        <!-- 적립금 카드들 -->
         <div class="points-cards">
-            <!-- 메인 적립금 카드 -->
             <div class="points-card main">
                 <div class="card-header">
                     <div class="card-icon">💎</div>
@@ -51,7 +39,6 @@
                 <div class="card-description">지금 바로 사용할 수 있는 적립금입니다</div>
             </div>
 
-            <!-- 총 적립금 -->
             <div class="points-card">
                 <div class="card-header">
                     <div class="card-icon">📈</div>
@@ -61,7 +48,6 @@
                 <div class="card-description">지금까지 받은 모든 적립금</div>
             </div>
 
-            <!-- 사용한 적립금 -->
             <div class="points-card">
                 <div class="card-header">
                     <div class="card-icon">🛒</div>
@@ -72,7 +58,6 @@
             </div>
         </div>
 
-        <!-- 적립금 통계 섹션 -->
         <div class="statistics-section">
             <h3 class="section-title">📊 적립금 통계</h3>
             <div class="statistics-grid">
@@ -95,7 +80,6 @@
             </div>
         </div>
 
-        <!-- 적립금 내역 섹션 -->
         <div class="points-history-section">
             <div class="section-header">
                 <h3 class="section-title">📋 적립금 내역</h3>
@@ -112,16 +96,13 @@
             </div>
 
             <div class="points-history-list" id="points-history-list">
-                <!-- 적립금 내역이 여기에 동적으로 추가됩니다 -->
             </div>
 
             <!-- 페이지네이션 -->
             <div id="pagination" class="pagination" style="display: none;">
-                <!-- 페이지네이션 버튼들이 여기에 동적으로 추가됩니다 -->
             </div>
         </div>
 
-        <!-- 최근 활동 섹션 -->
         <div class="recent-activity-section">
             <div class="section-header">
                 <h3 class="section-title">⏰ 최근 활동</h3>
@@ -140,7 +121,6 @@
             </div>
         </div>
 
-        <!-- 적립률 정보 -->
         <div class="points-info-section">
             <div class="section-header">
                 <h3 class="section-title">ℹ️ 적립금 안내</h3>
@@ -185,14 +165,12 @@
             </div>
         </div>
 
-        <!-- 뒤로가기 버튼 -->
         <div class="back-button">
             <a href="/mypage" class="btn btn-outline">← 마이페이지로 돌아가기</a>
         </div>
     </div>
 </div>
 
-<!-- 적립금 계산기 모달 -->
 <div id="point-calculator-modal" class="modal" style="display: none;">
     <div class="modal-content">
         <div class="modal-header">
@@ -210,15 +188,12 @@
     </div>
 </div>
 
-<!-- 공통 푸터 -->
 <footer th:replace="~{common/footer.html :: footer}"></footer>
 
-<!-- JavaScript 파일들 -->
 <script src="/js/point/pointsAPI.js"></script>
 <script src="/js/point/points.js"></script>
 
 <style>
-    /* 추가 스타일 */
     .info-content {
         padding: 30px;
     }

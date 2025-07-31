@@ -33,45 +33,32 @@ public class RewardService {
     @Autowired
     private PointHistoryRepository pointHistoryRepository;
 
-    // 적립률 (기본값: 1%)
     @Value("${app.point.earn-rate:0.01}")
     private Double earnRate;
 
-    // 회원가입 축하 적립금 (기본값: 1000원)
     @Value("${app.point.signup-bonus:1000}")
     private Long signupBonusPoints;
 
-    // ==================== 적립금 조회 ====================
 
-    /**
-     * 사용자 적립금 정보 조회 (DTO 형태)
-     */
     @Transactional(readOnly = true)
     public UserPointDTO getUserPointsDTO(Long userId) {
         UserPoint userPoint = getUserPointEntity(userId);
         return UserPointDTO.convertToDTO(userPoint);
     }
 
-    /**
-     * 사용자 적립금 엔티티 조회 (없으면 생성)
-     */
     @Transactional(readOnly = true)
     public UserPoint getUserPointEntity(Long userId) {
         return userPointRepository.findByUserId(userId)
                 .orElseGet(() -> createNewUserPoint(userId));
     }
 
-    /**
-     * 새로운 사용자 적립금 정보 생성
-     */
+
     private UserPoint createNewUserPoint(Long userId) {
         UserPoint userPoint = new UserPoint(userId);
         return userPointRepository.save(userPoint);
     }
 
-    /**
-     * 사용 가능한 적립금 조회
-     */
+
     @Transactional(readOnly = true)
     public Long getAvailablePoints(Long userId) {
         UserPoint userPoint = getUserPointEntity(userId);
@@ -80,18 +67,14 @@ public class RewardService {
 
     // ==================== 적립금 지급 ====================
 
-    /**
-     * 회원가입 축하 적립금 지급
-     */
+
     public void giveSignupReward(Long userId) {
         addPoints(userId, signupBonusPoints, PointHistory.PointType.EARN_SIGNUP,
                 "🎉 회원가입 축하 적립금");
         System.out.println("🎉 회원가입 축하 적립금 지급 완료 - 사용자ID: " + userId + ", 금액: " + signupBonusPoints + "원");
     }
 
-    /**
-     * 구매 적립금 지급
-     */
+
     public void givePurchaseReward(Long userId, Long purchaseAmount, Long orderId) {
         Long earnPoints = calculateRewardPoints(purchaseAmount);
         if (earnPoints > 0) {
@@ -100,23 +83,17 @@ public class RewardService {
         }
     }
 
-    /**
-     * 관리자 적립금 지급
-     */
+
     public void giveAdminReward(Long userId, Long points, String description) {
         addPoints(userId, points, PointHistory.PointType.EARN_ADMIN, description);
     }
 
-    /**
-     * 적립금 지급 공통 메소드
-     */
+
     public void addPoints(Long userId, Long points, PointHistory.PointType pointType, String description) {
         addPoints(userId, points, pointType, description, null);
     }
 
-    /**
-     * 적립금 지급 공통 메소드 (주문 ID 포함)
-     */
+
     public void addPoints(Long userId, Long points, PointHistory.PointType pointType,
                           String description, Long orderId) {
         try {
@@ -124,12 +101,10 @@ public class RewardService {
                 throw new IllegalArgumentException("유효하지 않은 적립 요청입니다.");
             }
 
-            // 적립금 업데이트
             UserPoint userPoint = getUserPointEntity(userId);
             userPoint.addPoints(points);
             userPointRepository.save(userPoint);
 
-            // 적립금 내역 저장
             PointHistory history = new PointHistory(userId, points, pointType, description, orderId);
             pointHistoryRepository.save(history);
 
@@ -141,18 +116,11 @@ public class RewardService {
         }
     }
 
-    // ==================== 적립금 사용 ====================
 
-    /**
-     * 적립금 사용 (기본)
-     */
     public boolean useReward(Long userId, Long points, String description) {
         return useReward(userId, points, description, null);
     }
 
-    /**
-     * 적립금 사용 (주문 ID 포함)
-     */
     public boolean useReward(Long userId, Long points, String description, Long orderId) {
         try {
             if (userId == null || points == null || points <= 0) {
@@ -162,14 +130,12 @@ public class RewardService {
 
             UserPoint userPoint = getUserPointEntity(userId);
 
-            // 사용 가능한 적립금 확인
             if (userPoint.getAvailablePoints() < points) {
                 System.out.println("❌ 적립금 부족 - 사용자ID: " + userId +
                         ", 요청: " + points + "원, 보유: " + userPoint.getAvailablePoints() + "원");
                 return false;
             }
 
-            // 적립금 사용 처리
             boolean success = userPoint.usePoints(points);
             if (!success) {
                 return false;
@@ -177,7 +143,6 @@ public class RewardService {
 
             userPointRepository.save(userPoint);
 
-            // 적립금 사용 내역 저장 (음수로 저장)
             PointHistory history = new PointHistory(userId, -points,
                     PointHistory.PointType.USE_PURCHASE, description, orderId);
             pointHistoryRepository.save(history);
@@ -191,9 +156,6 @@ public class RewardService {
         }
     }
 
-    /**
-     * 적립금 사용 가능 여부 확인
-     */
     @Transactional(readOnly = true)
     public boolean canUseReward(Long userId, Long points) {
         if (userId == null || points == null || points <= 0) {
@@ -204,49 +166,31 @@ public class RewardService {
         return userPoint.getAvailablePoints() >= points;
     }
 
-    // ==================== 적립금 환원 ====================
 
-    /**
-     * 사용한 적립금 환원 (결제 실패, 주문 취소 시)
-     */
     public void refundUsedReward(Long userId, Long points, Long orderId) {
         addPoints(userId, points, PointHistory.PointType.REFUND,
                 "🔄 적립금 환원 (주문취소/결제실패)", orderId);
         System.out.println("🔄 적립금 환원 완료 - 사용자ID: " + userId + ", 환원금액: " + points + "원");
     }
 
-    // ==================== 적립금 내역 조회 ====================
 
-    /**
-     * 적립금 내역 전체 조회
-     */
     @Transactional(readOnly = true)
     public List<PointHistory> getRewardHistory(Long userId) {
         return pointHistoryRepository.findByUserIdOrderByCreatedAtDesc(userId);
     }
 
-    /**
-     * 적립금 내역 페이지 조회
-     */
     @Transactional(readOnly = true)
     public Page<PointHistory> getRewardHistoryPage(Long userId, Pageable pageable) {
         return pointHistoryRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable);
     }
 
-    /**
-     * 최근 적립금 활동 조회
-     */
+
     @Transactional(readOnly = true)
     public List<PointHistory> getRecentRewardActivity(Long userId, int days) {
         LocalDateTime startDate = LocalDateTime.now().minusDays(days);
         return pointHistoryRepository.findRecentPointHistory(userId, startDate);
     }
 
-    // ==================== 적립금 계산 ====================
-
-    /**
-     * 구매 금액에 따른 적립금 계산
-     */
     public Long calculateRewardPoints(Long purchaseAmount) {
         if (purchaseAmount == null || purchaseAmount <= 0) {
             return 0L;
@@ -254,25 +198,16 @@ public class RewardService {
         return Math.round(purchaseAmount * earnRate);
     }
 
-    /**
-     * 적립률 조회
-     */
     public Double getEarnRate() {
         return earnRate;
     }
 
-    /**
-     * 회원가입 보너스 적립금 조회
-     */
+
     public Long getSignupBonusPoints() {
         return signupBonusPoints;
     }
 
-    // ==================== 적립금 통계 ====================
 
-    /**
-     * 사용자 적립금 통계 조회
-     */
     @Transactional(readOnly = true)
     public Map<String, Object> getRewardStatistics(Long userId) {
         Map<String, Object> statistics = new HashMap<>();
@@ -300,30 +235,21 @@ public class RewardService {
         return statistics;
     }
 
-    // ==================== 기타 유틸리티 ====================
 
-    /**
-     * 특정 주문의 적립금 내역 조회
-     */
     @Transactional(readOnly = true)
     public List<PointHistory> getRewardHistoryByOrderId(Long orderId) {
         return pointHistoryRepository.findByOrderId(orderId);
     }
 
-    /**
-     * 적립금 만료 처리 (배치 작업용)
-     */
     public void expireReward(Long userId, Long points, String reason) {
         UserPoint userPoint = getUserPointEntity(userId);
 
-        // 사용 가능한 적립금에서 차감
         Long expireAmount = Math.min(points, userPoint.getAvailablePoints());
 
         if (expireAmount > 0) {
-            userPoint.addPoints(-expireAmount); // 음수로 차감
+            userPoint.addPoints(-expireAmount);
             userPointRepository.save(userPoint);
 
-            // 만료 내역 저장
             PointHistory history = new PointHistory(userId, -expireAmount,
                     PointHistory.PointType.EXPIRE, reason);
             pointHistoryRepository.save(history);

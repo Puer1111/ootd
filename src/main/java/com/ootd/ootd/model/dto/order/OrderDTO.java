@@ -6,7 +6,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Getter
-@Setter  // 🆕 Setter 추가 (새로운 필드들 때문에 필요)
+@Setter
 @ToString
 @Builder
 @NoArgsConstructor

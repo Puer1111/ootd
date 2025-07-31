@@ -16,27 +16,19 @@ public class RankController {
     private RankingService rankingService;
 
     @Autowired
-    private RankingServiceImpl rankingServiceImpl; // 🆕 추가 메서드 사용을 위해
+    private RankingServiceImpl rankingServiceImpl;
 
-    /**
-     * 랭킹 페이지 이동
-     */
     @GetMapping("/ranking")
     public String rankingPage() {
         return "view/ranking/ranking";
     }
 
-    /**
-     * 상품 랭킹 조회 (정렬 기준별)
-     * @param sortBy reviews(리뷰수), likes(좋아요수), rating(평점) - 기본값: reviews
-     */
     @GetMapping("/api/ranking/products")
     @ResponseBody
     public ResponseEntity<?> getProductRanking(@RequestParam(defaultValue = "reviews") String sortBy) {
         try {
             Map<String, Object> result;
 
-            // 🆕 통합 메서드 사용
             result = rankingServiceImpl.getProductRankingBySortType(sortBy);
 
             return ResponseEntity.ok(result);
@@ -48,12 +40,6 @@ public class RankController {
         }
     }
 
-    /**
-     * 카테고리별 상품 랭킹 조회
-     * @param mainCategory 메인 카테고리
-     * @param subCategory 하위 카테고리
-     * @param sortBy 정렬 기준 (reviews, likes, rating)
-     */
     @GetMapping("/api/ranking/products/category")
     @ResponseBody
     public ResponseEntity<?> getProductRankingByCategory(
@@ -63,7 +49,6 @@ public class RankController {
         try {
             Map<String, Object> result;
 
-            // 🆕 통합 메서드 사용
             result = rankingServiceImpl.getProductRankingByCategoryAndSortType(mainCategory, subCategory, sortBy);
 
             return ResponseEntity.ok(result);
@@ -75,9 +60,6 @@ public class RankController {
         }
     }
 
-    /**
-     * 추천 상품 랭킹 조회
-     */
     @GetMapping("/api/ranking/products/recommended")
     @ResponseBody
     public ResponseEntity<?> getRecommendedProductRanking() {
@@ -92,9 +74,6 @@ public class RankController {
         }
     }
 
-    /**
-     * 세일 상품 랭킹 조회
-     */
     @GetMapping("/api/ranking/products/sale")
     @ResponseBody
     public ResponseEntity<?> getSaleProductRanking() {
@@ -109,9 +88,6 @@ public class RankController {
         }
     }
 
-    /**
-     * 메인 카테고리 목록 조회
-     */
     @GetMapping("/api/ranking/categories/main")
     @ResponseBody
     public ResponseEntity<?> getMainCategories() {
@@ -126,9 +102,6 @@ public class RankController {
         }
     }
 
-    /**
-     * 하위 카테고리 목록 조회
-     */
     @GetMapping("/api/ranking/categories/sub")
     @ResponseBody
     public ResponseEntity<?> getSubCategories(@RequestParam String mainCategory) {

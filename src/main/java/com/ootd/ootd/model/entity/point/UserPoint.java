@@ -6,10 +6,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
-/**
- * 사용자 적립금 잔액 관리 엔티티
- * 경로: src/main/java/com/ootd/ootd/model/entity/point/UserPoint.java
- */
 @Entity
 @Table(name = "user_points")
 public class UserPoint {
@@ -38,10 +34,8 @@ public class UserPoint {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // 기본 생성자
     public UserPoint() {}
 
-    // 사용자 ID로 생성하는 생성자
     public UserPoint(Long userId) {
         this.userId = userId;
         this.totalPoints = 0L;
@@ -49,14 +43,11 @@ public class UserPoint {
         this.usedPoints = 0L;
     }
 
-    // 🔥 수정된 적립금 추가 메서드 (음수 처리 추가)
     public void addPoints(Long points) {
         if (points > 0) {
-            // 양수: 적립
             this.totalPoints += points;
             this.availablePoints += points;
         } else if (points < 0) {
-            // 음수: 차감 처리
             Long absPoints = Math.abs(points);
             if (this.availablePoints >= absPoints) {
                 this.availablePoints -= absPoints;
@@ -67,7 +58,6 @@ public class UserPoint {
         }
     }
 
-    // 적립금 사용 메서드
     public boolean usePoints(Long points) {
         if (this.availablePoints >= points) {
             this.availablePoints -= points;
@@ -77,7 +67,6 @@ public class UserPoint {
         return false;
     }
 
-    // Getter & Setter
     public Long getId() {
         return id;
     }

@@ -30,19 +30,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     List<Order> findByMerchantUid(String merchantUid);
 
-    /**
-     * merchantUid로 Order 찾기 (최신순 정렬)
-     */
     List<Order> findByMerchantUidOrderByOrderDateDesc(String merchantUid);
 
-    /**
-     * 사용자별 Order 조회 (최신순)
-     */
     List<Order> findByUserIdOrderByOrderDateDesc(Long userId);
 
-    /**
-     * impUid가 있는 Order 조회 (결제 취소 가능한 주문)
-     */
     List<Order> findByUserIdAndImpUidIsNotNullOrderByOrderDateDesc(Long userId);
 
     @Transactional
@@ -51,7 +42,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             ("UPDATE Order o set o.impUid=:impUid WHERE  o.orderId=:orderId ")
     void updateOrderImpUid(String orderId,String impUid);
 
-    // OrderRepository.java에 추가
     List<Order> findByUserIdAndOrderStatusOrderByOrderDateDesc(Long userId, String orderStatus);
 
     Optional<Order> findByOrderIdAndUserId(Long orderId, long userId);

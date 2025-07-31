@@ -33,10 +33,8 @@ public class RankingServiceImpl implements RankingService {
 
     @Override
     public Map<String, Object> getProductRanking() {
-        // 기존 ProductRepository의 메서드 활용
         List<ProductDTO> products = productRepository.findAllOrderByReviewCountDesc();
 
-        // 각 상품에 좋아요 수, 리뷰 수, 평점 정보 추가
         List<ProductDTO> enrichedProducts = products.stream()
                 .map(this::enrichProductWithStats)
                 .collect(Collectors.toList());
@@ -54,21 +52,16 @@ public class RankingServiceImpl implements RankingService {
     public Map<String, Object> getProductRankingByCategory(String mainCategory, String subCategory) {
         List<ProductDTO> products;
 
-        // 🆕 카테고리 매핑 적용
         String mappedMainCategory = mapCategoryToKorean(mainCategory);
 
         if (subCategory != null && !subCategory.trim().isEmpty() && !"all".equals(subCategory)) {
-            // 하위 카테고리로 필터링
             products = productRepository.findBySubCategoryOrderByReviewCountDesc(subCategory);
         } else if (mappedMainCategory != null && !mappedMainCategory.trim().isEmpty() && !"all".equals(mappedMainCategory)) {
-            // 메인 카테고리로 필터링
             products = productRepository.findByMainCategoryOrderByReviewCountDesc(mappedMainCategory);
         } else {
-            // 전체 랭킹
             products = productRepository.findAllOrderByReviewCountDesc();
         }
 
-        // 각 상품에 통계 정보 추가
         List<ProductDTO> enrichedProducts = products.stream()
                 .map(this::enrichProductWithStats)
                 .collect(Collectors.toList());
@@ -89,7 +82,6 @@ public class RankingServiceImpl implements RankingService {
     public Map<String, Object> getRecommendedProductRanking() {
         List<ProductDTO> products = productRepository.findRecommendedProducts();
 
-        // 각 상품에 통계 정보 추가
         List<ProductDTO> enrichedProducts = products.stream()
                 .map(this::enrichProductWithStats)
                 .collect(Collectors.toList());
@@ -107,7 +99,6 @@ public class RankingServiceImpl implements RankingService {
     public Map<String, Object> getSaleProductRanking() {
         List<ProductDTO> products = productRepository.findSaleProducts();
 
-        // 각 상품에 통계 정보 추가
         List<ProductDTO> enrichedProducts = products.stream()
                 .map(this::enrichProductWithStats)
                 .collect(Collectors.toList());
@@ -134,7 +125,6 @@ public class RankingServiceImpl implements RankingService {
 
     @Override
     public Map<String, Object> getSubCategories(String mainCategory) {
-        // 🆕 카테고리 매핑 적용
         String mappedCategory = mapCategoryToKorean(mainCategory);
         List<String> categories = productRepository.findSubCategoriesByMainCategory(mappedCategory);
 
@@ -146,11 +136,7 @@ public class RankingServiceImpl implements RankingService {
         return result;
     }
 
-    // ========== 🆕 추가 메서드들 (RankController에서 사용) ==========
 
-    /**
-     * 🆕 정렬 기준별 상품 랭킹 조회 (통합 메서드)
-     */
     public Map<String, Object> getProductRankingBySortType(String sortBy) {
         List<ProductDTO> products;
 
@@ -180,9 +166,6 @@ public class RankingServiceImpl implements RankingService {
         return result;
     }
 
-    /**
-     * 🆕 카테고리별 + 정렬 기준별 상품 랭킹 조회 (통합 메서드)
-     */
     public Map<String, Object> getProductRankingByCategoryAndSortType(String mainCategory, String subCategory, String sortBy) {
         List<ProductDTO> products = getProductsByCategory(mainCategory, subCategory, sortBy);
 
@@ -203,17 +186,10 @@ public class RankingServiceImpl implements RankingService {
         return result;
     }
 
-    // ========== 🆕 헬퍼 메서드들 ==========
-
-    /**
-     * 카테고리와 정렬 기준에 따라 상품 목록을 조회하는 헬퍼 메서드
-     */
     private List<ProductDTO> getProductsByCategory(String mainCategory, String subCategory, String sortType) {
-        // 카테고리 매핑 적용
         String mappedMainCategory = mapCategoryToKorean(mainCategory);
 
         if (subCategory != null && !subCategory.trim().isEmpty() && !"all".equals(subCategory)) {
-            // 하위 카테고리로 필터링
             switch (sortType.toLowerCase()) {
                 case "likes":
                     return productRepository.findBySubCategoryOrderByLikeCountDesc(subCategory);
@@ -224,7 +200,6 @@ public class RankingServiceImpl implements RankingService {
                     return productRepository.findBySubCategoryOrderByReviewCountDesc(subCategory);
             }
         } else if (mappedMainCategory != null && !mappedMainCategory.trim().isEmpty() && !"all".equals(mappedMainCategory)) {
-            // 메인 카테고리로 필터링
             switch (sortType.toLowerCase()) {
                 case "likes":
                     return productRepository.findByMainCategoryOrderByLikeCountDesc(mappedMainCategory);
@@ -235,7 +210,6 @@ public class RankingServiceImpl implements RankingService {
                     return productRepository.findByMainCategoryOrderByReviewCountDesc(mappedMainCategory);
             }
         } else {
-            // 전체 상품
             switch (sortType.toLowerCase()) {
                 case "likes":
                     return productRepository.findAllOrderByLikeCountDesc();
@@ -248,9 +222,6 @@ public class RankingServiceImpl implements RankingService {
         }
     }
 
-    /**
-     * 영어 카테고리를 한국어 카테고리로 매핑
-     */
     private String mapCategoryToKorean(String englishCategory) {
         if (englishCategory == null || "all".equals(englishCategory)) {
             return null;
@@ -264,29 +235,22 @@ public class RankingServiceImpl implements RankingService {
             case "shoes":
                 return "신발";
             default:
-                return englishCategory; // 이미 한국어거나 다른 값인 경우 그대로 반환
+                return englishCategory;
         }
     }
 
-    /**
-     * 상품에 좋아요 수, 리뷰 수, 평점, 프로모션 정보 등을 추가하는 메서드
-     */
     private ProductDTO enrichProductWithStats(ProductDTO product) {
         Long productNo = product.getProductNo();
 
-        // 좋아요 수 설정
         int likeCount = productLikeRepository.countByProductNo(productNo);
         product.setLikeCount(likeCount);
 
-        // 리뷰 수 설정
         int reviewCount = productReviewRepository.countByProductNo(productNo);
         product.setReviewCount(reviewCount);
 
-        // 평점 설정
         Double averageRating = productReviewRepository.findAverageRatingByProductNo(productNo);
         product.setAverageRating(averageRating != null ? averageRating : 0.0);
 
-        // 프로모션 정보 설정
         promotionRepository.findByProductNo(productNo).ifPresent(promotion -> {
             ProductPromotionDTO promotionDTO = ProductPromotionDTO.convertToDTO(promotion);
             product.setPromotionInfo(promotionDTO);

@@ -65,7 +65,6 @@ public class LoginController {
     @Autowired
     private OrderRepository orderRepository;
 
-    // 🆕 RewardService 사용 (pointService 대신)
     @Autowired
     private RewardService rewardService;
 
@@ -75,14 +74,12 @@ public class LoginController {
     @Autowired
     private PaymentService paymentService;
 
-    // 로그인 페이지 보여주기
     @GetMapping("/login")
     public String loginPage(Model model) {
         model.addAttribute("title", "로그인");
         return "view/user/login";
     }
 
-    // 로그인 처리 API
     @PostMapping("/api/auth/login")
     @ResponseBody
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
@@ -274,7 +271,6 @@ public class LoginController {
                     if (product != null) {
                         System.out.println("✅ 상품 조회 성공: " + product.getProductName());
 
-                        // null 값 강제 설정으로 안전성 확보
                         if (product.getIsActiveSale() == null) {
                             product.setIsActiveSale(false);
                         }
@@ -324,7 +320,6 @@ public class LoginController {
         }
     }
 
-    // 주문 내역 페이지
     @GetMapping("/order-history")
     public String orderHistory() {
         return "view/user/orderHistory";
@@ -358,7 +353,6 @@ public class LoginController {
                         productMap.put("orderStatus", order.getOrderStatus());
                         productMap.put("orderId", order.getOrderId());
 
-                        // 🆕 이미지 추가 - 상품명으로 매칭
                         List<String> imageUrls = new ArrayList<>();
                         try {
                             List<ProductDTO> allProducts = productService.getAllProducts();
@@ -371,10 +365,9 @@ public class LoginController {
                                 imageUrls = matchedProduct.getImageUrls();
                             }
                         } catch (Exception e) {
-                            // 에러 시 빈 배열 유지
                         }
 
-                        productMap.put("imageUrls", imageUrls); // 🔄 이 한 줄만 변경!
+                        productMap.put("imageUrls", imageUrls);
                         productMap.put("brandName", "OOTD");
                         productMap.put("categoryName", "패션");
                         productMap.put("subCategory", "일반");
@@ -400,13 +393,11 @@ public class LoginController {
         }
     }
 
-    // 취소 내역 페이지
     @GetMapping("/cancel-history")
     public String cancelHistory() {
         return "view/user/cancelHistory";
     }
 
-    // 취소 내역 API
     @GetMapping("/api/auth/cancel-history")
     @ResponseBody
     public ResponseEntity<?> getUserCancelHistory(@AuthenticationPrincipal UserDetails userDetails) {
@@ -441,7 +432,6 @@ public class LoginController {
                         productMap.put("orderStatus", order.getOrderStatus());
                         productMap.put("orderId", order.getOrderId());
 
-                        // 🆕 이미지 추가 - 상품명으로 매칭
                         List<String> imageUrls = new ArrayList<>();
                         try {
                             List<ProductDTO> allProducts = productService.getAllProducts();
@@ -457,7 +447,7 @@ public class LoginController {
                             // 에러 시 빈 배열 유지
                         }
 
-                        productMap.put("imageUrls", imageUrls); // 🔄 이 한 줄만 변경!
+                        productMap.put("imageUrls", imageUrls);
                         productMap.put("brandName", "OOTD");
                         productMap.put("categoryName", "패션");
                         productMap.put("subCategory", "일반");
@@ -483,7 +473,6 @@ public class LoginController {
         }
     }
 
-//     주문 취소 API (주문내역에서)
 @PostMapping("/api/auth/cancel-order/{orderId}")
 @ResponseBody
 public ResponseEntity<?> cancelOrderById(@PathVariable Long orderId,
@@ -501,7 +490,6 @@ public ResponseEntity<?> cancelOrderById(@PathVariable Long orderId,
         User user = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
 
-        // 🔥 Order 테이블에서 해당 주문 찾기
         Optional<Order> orderOpt = orderRepository.findByOrderIdAndUserId(orderId, user.getId());
 
         if (orderOpt.isEmpty()) {
@@ -520,12 +508,9 @@ public ResponseEntity<?> cancelOrderById(@PathVariable Long orderId,
             ));
         }
 
-        // 🔥 1. 결제 취소 로직 (가장 먼저!)
         try {
-            // PaymentService를 사용해서 impUid 찾기
             String impUid = paymentService.getImpUid(orderId);
             if (impUid != null && !impUid.isEmpty()) {
-                // 실제 결제 취소 (돈 돌려주기)
                 IamportResponse<Payment> cancelResult = paymentService.cancelPayment(impUid);
                 if (cancelResult != null) {
                     System.out.println("💰 결제 취소 완료 - OrderID: " + orderId + ", impUid: " + impUid);
@@ -537,18 +522,14 @@ public ResponseEntity<?> cancelOrderById(@PathVariable Long orderId,
             }
         } catch (Exception e) {
             System.err.println("❌ 결제 취소 중 오류: " + e.getMessage());
-            // 결제 취소 실패해도 주문 취소는 계속 진행
         }
 
-        // 🔥 2. Order 테이블 상태 변경
         order.setOrderStatus("cancelled");
         orderRepository.save(order);
 
-        // 🔥 3. UserOrder 테이블도 취소 처리
         try {
             List<UserOrder> userOrders = userOrderRepository.findByUserId(user.getId());
 
-            // ORDERED 상태인 UserOrder들 중 첫 번째 것을 취소
             for (UserOrder userOrder : userOrders) {
                 if (userOrder.getStatus() == UserOrder.OrderStatus.ORDERED) {
                     userOrder.cancel();
@@ -577,7 +558,6 @@ public ResponseEntity<?> cancelOrderById(@PathVariable Long orderId,
     }
 }
 
-    // 🆕 사용자 통계 API (RewardService 사용)
     @GetMapping("/api/auth/user-stats")
     @ResponseBody
     public ResponseEntity<?> getUserStats(@AuthenticationPrincipal UserDetails userDetails) {
@@ -593,17 +573,14 @@ public ResponseEntity<?> cancelOrderById(@PathVariable Long orderId,
             User user = userRepository.findByEmail(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
 
-            // 🆕 실제 적립금 조회 (RewardService 사용)
             Long availablePoints = 0L;
             try {
                 availablePoints = rewardService.getAvailablePoints(user.getId());
                 System.out.println("✅ 적립금 조회 성공 - 사용자ID: " + user.getId() + ", 적립금: " + availablePoints + "원");
             } catch (Exception e) {
                 System.err.println("❌ 적립금 조회 실패: " + e.getMessage());
-                // 기본값 0 사용
             }
 
-            // 후기(리뷰) 개수 가져오기
             int reviewCount = 0;
             try {
                 if (productReviewRepository != null) {
@@ -614,11 +591,10 @@ public ResponseEntity<?> cancelOrderById(@PathVariable Long orderId,
                 System.err.println("❌ 리뷰 개수 조회 실패: " + e.getMessage());
             }
 
-            // 쿠폰은 나중에 구현 (기본값 0)
             int coupons = 0;
 
             response.put("success", true);
-            response.put("points", availablePoints); // 🆕 실제 적립금
+            response.put("points", availablePoints);
             response.put("reviewCount", reviewCount);
             response.put("coupons", coupons);
 

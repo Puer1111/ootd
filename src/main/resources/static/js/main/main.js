@@ -1,4 +1,3 @@
-// 토큰 관리
 const AuthManager = {
     getToken: function() {
         return localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
@@ -14,7 +13,6 @@ const AuthManager = {
     }
 };
 
-// 전역 상태 관리
 let currentState = {
     sortOrder: 'reviews',
     mainCategory: 'all',
@@ -32,7 +30,6 @@ document.addEventListener('DOMContentLoaded', function() {
     updateLikeButtons();
 });
 
-// 로그인 상태 확인 및 UI 업데이트
 function checkLoginStatus() {
     const token = AuthManager.getToken();
     const notLoggedIn = document.getElementById('not-logged-in');
@@ -50,7 +47,6 @@ function checkLoginStatus() {
     }
 }
 
-// 사용자 정보 가져오기
 async function getUserInfo(token) {
     try {
         const response = await fetch('/api/auth/mypage', {
@@ -76,7 +72,6 @@ async function getUserInfo(token) {
     }
 }
 
-// 로그아웃 함수
 function logout() {
     if (confirm('로그아웃 하시겠습니까?')) {
         AuthManager.removeToken();
@@ -90,7 +85,6 @@ function logout() {
     }
 }
 
-// 사용자가 좋아요한 상품들 불러오기
 async function loadUserLikedProducts() {
     if (!AuthManager.isLoggedIn()) {
         console.log('💡 비로그인 상태 - 좋아요 목록 로드 스킵');
@@ -130,7 +124,6 @@ async function loadUserLikedProducts() {
     }
 }
 
-// 좋아요 버튼 상태 업데이트
 function updateLikeButtons() {
     const likeButtons = document.querySelectorAll('.like-btn-card');
     console.log('🔄 좋아요 버튼 상태 업데이트 시작. 버튼 개수:', likeButtons.length);
@@ -151,9 +144,8 @@ function updateLikeButtons() {
     });
 }
 
-// 🔥 메인 페이지에서 좋아요 토글 (핵심 기능!)
 async function toggleLikeFromMain(event, button) {
-    event.stopPropagation(); // 카드 클릭 이벤트 방지
+    event.stopPropagation();
 
     console.log('💖 좋아요 버튼 클릭됨!');
 
@@ -169,7 +161,6 @@ async function toggleLikeFromMain(event, button) {
 
     console.log('💖 좋아요 토글 시작 - 상품번호:', productNo);
 
-    // 버튼 비활성화 (중복 클릭 방지)
     button.disabled = true;
     button.style.opacity = '0.5';
 
@@ -196,19 +187,16 @@ async function toggleLikeFromMain(event, button) {
             console.log('✅ 좋아요 토글 성공:', data);
 
             if (data.isLiked) {
-                // 좋아요 추가
                 currentState.userLikedProducts.add(productNo);
                 button.classList.add('liked');
                 heart.textContent = '♥';
                 console.log(`💖 상품 ${productNo}: 좋아요 추가됨`);
             } else {
-                // 좋아요 취소
                 currentState.userLikedProducts.delete(productNo);
                 button.classList.remove('liked');
                 heart.textContent = '♡';
                 console.log(`🤍 상품 ${productNo}: 좋아요 취소됨`);
 
-                // 좋아요 필터링 중이고 좋아요가 취소되면 해당 카드 숨김
                 if (currentState.showLikedOnly) {
                     const card = button.closest('.card');
                     if (card) {
@@ -217,7 +205,6 @@ async function toggleLikeFromMain(event, button) {
                 }
             }
 
-            // 좋아요 수 업데이트 (카드 내 통계)
             const card = button.closest('.card');
             const likeCountElement = card.querySelector('.stat-item .heart-icon + span');
             if (likeCountElement) {
@@ -233,13 +220,11 @@ async function toggleLikeFromMain(event, button) {
         console.error('❌ 좋아요 토글 네트워크 에러:', error);
         alert('네트워크 오류가 발생했습니다. 다시 시도해주세요.');
     } finally {
-        // 버튼 다시 활성화
         button.disabled = false;
         button.style.opacity = '1';
     }
 }
 
-// 좋아요 필터 토글
 function toggleLikedFilter() {
     if (!AuthManager.isLoggedIn()) {
         alert('로그인이 필요합니다.');
@@ -255,7 +240,6 @@ function toggleLikedFilter() {
     console.log('🔍 좋아요 필터 토글:', currentState.showLikedOnly ? '좋아요만 보기' : '전체 보기');
 
     if (currentState.showLikedOnly) {
-        // 좋아요만 보기 모드
         filterBtn.classList.add('active');
         filterBtn.innerHTML = '<span class="heart-icon">♥</span> 전체 보기';
 
@@ -270,14 +254,12 @@ function toggleLikedFilter() {
             }
         });
 
-        // 좋아요한 상품이 없으면 빈 상태 표시
         if (visibleCount === 0) {
             noLikedDiv.style.display = 'block';
         } else {
             noLikedDiv.style.display = 'none';
         }
     } else {
-        // 전체 보기 모드
         filterBtn.classList.remove('active');
         filterBtn.innerHTML = '<span class="heart-icon">♥</span> 좋아요만 보기';
 
@@ -288,7 +270,6 @@ function toggleLikedFilter() {
     }
 }
 
-// 상품 상세 페이지로 이동
 function goToProduct(element) {
     const productNo = element.getAttribute('data-product-no');
     if (productNo) {
@@ -297,23 +278,18 @@ function goToProduct(element) {
     }
 }
 
-// 🆕 추가 함수들 (현재는 사용하지 않음)
 function filterByCategory(category) {
     console.log('📁 카테고리 필터:', category);
-    // 필요시 추후 구현
 }
 
 function filterBySubCategory(subCategory) {
     console.log('📂 하위 카테고리 필터:', subCategory);
-    // 필요시 추후 구현
 }
 
 function changeSortOrder(sortOrder) {
     console.log('🔄 정렬 변경:', sortOrder);
-    // 필요시 추후 구현
 }
 
-// Carousel logic for multiple carousels
 document.addEventListener('DOMContentLoaded', () => {
     const carousels = document.querySelectorAll('.carousel-container');
 
@@ -331,7 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function getCardsToShow() {
             const containerWidth = carousel.offsetWidth;
-            const cardWidth = 250 + 32; // card width + margin-right
+            const cardWidth = 250 + 32;
             return Math.floor(containerWidth / cardWidth);
         }
 

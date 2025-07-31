@@ -4,10 +4,6 @@
     <meta charset="UTF-8">
     <title>추천 상품 - OOTD</title>
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-
-    <!-- CSS 파일들 -->
     <link rel="stylesheet" href="/css/common/footer.css">
     <link rel="stylesheet" href="/css/common/main-header.css">
     <link rel="stylesheet" href="/css/common/layout.css">
@@ -21,7 +17,6 @@
 
 <main>
     <div class="main-container">
-        <!-- 페이지 헤더 -->
         <div class="promotion-header">
             <div class="promotion-title-section">
                 <h1 class="promotion-title">
@@ -31,7 +26,6 @@
                 <p class="promotion-subtitle">OOTD가 엄선한 추천 상품들을 만나보세요</p>
             </div>
 
-            <!-- 추천 배지 -->
             <div class="promotion-badge-section">
                 <div class="promotion-badge recommended">
                     <span class="badge-icon">👑</span>
@@ -40,7 +34,6 @@
             </div>
         </div>
 
-        <!-- 통계 정보 (추천 상품 개수만) -->
         <div class="promotion-stats">
             <div class="stat-card">
                 <div class="stat-number" id="recommended-count">0</div>
@@ -48,15 +41,12 @@
             </div>
         </div>
 
-        <!-- 로딩 상태 -->
         <div id="loading-state" class="loading-state" style="display: none;">
             <div class="spinner"></div>
             <p>추천 상품을 불러오는 중...</p>
         </div>
 
-        <!-- 상품 목록 - 카테고리별 섹션 -->
         <div class="promotion-products">
-            <!-- 상의 섹션 -->
             <div class="category-section">
                 <div class="category-header">
                     <h2 class="category-title">
@@ -68,11 +58,9 @@
                     </div>
                 </div>
                 <div id="tops-grid" class="horizontal-grid">
-                    <!-- 상의 상품들이 여기에 추가됩니다 -->
                 </div>
             </div>
 
-            <!-- 하의 섹션 -->
             <div class="category-section">
                 <div class="category-header">
                     <h2 class="category-title">
@@ -84,11 +72,9 @@
                     </div>
                 </div>
                 <div id="bottoms-grid" class="horizontal-grid">
-                    <!-- 하의 상품들이 여기에 추가됩니다 -->
                 </div>
             </div>
 
-            <!-- 신발 섹션 -->
             <div class="category-section">
                 <div class="category-header">
                     <h2 class="category-title">
@@ -100,7 +86,6 @@
                     </div>
                 </div>
                 <div id="shoes-grid" class="horizontal-grid">
-                    <!-- 신발 상품들이 여기에 추가됩니다 -->
                 </div>
             </div>
         </div>
@@ -109,7 +94,6 @@
 
 <footer th:replace="~{common/footer.html :: footer}"></footer>
 
-<!-- JavaScript -->
 <script src="/js/promotion/recommended.js"></script>
 
 </body>

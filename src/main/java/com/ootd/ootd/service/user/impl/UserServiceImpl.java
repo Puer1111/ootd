@@ -24,7 +24,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO registerUser(SignupRequest signupRequest) {
-        // 비밀번호 암호화 및 User 생성
         User user = User.builder()
                 .username(signupRequest.getUsername())
                 .password(passwordEncoder.encode(signupRequest.getPassword()))
@@ -33,10 +32,8 @@ public class UserServiceImpl implements UserService {
                 .phone(signupRequest.getPhone())
                 .build();
 
-        // 저장
         User savedUser = userRepository.save(user);
 
-        // DTO로 변환하여 리턴
         return UserDTO.builder()
                 .id(savedUser.getId())
                 .username(savedUser.getUsername())

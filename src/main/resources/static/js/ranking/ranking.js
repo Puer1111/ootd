@@ -1,4 +1,3 @@
-// 토큰 관리
 const AuthManager = {
     getToken: function() {
         return localStorage.getItem('token') || sessionStorage.getItem('token');
@@ -14,7 +13,6 @@ const AuthManager = {
     }
 };
 
-// 랭킹 페이지 상태 관리
 let rankingState = {
     sortOrder: 'reviews',    // 'reviews', 'likes', 'rating'
     mainCategory: 'all',     // 'all', 'top', 'bottom', 'shoes'
@@ -30,20 +28,15 @@ let rankingState = {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
-    // URL 파라미터 파싱
     parseURLParameters();
 
-    // 좋아요 상품 로드 (로그인된 경우만)
     loadUserLikedProducts();
 
-    // 랭킹 데이터 로드
     loadRankingData();
 
-    // 초기 UI 상태 설정
     updateFilterButtonsFromState();
 });
 
-// URL 파라미터 파싱
 function parseURLParameters() {
     const urlParams = new URLSearchParams(window.location.search);
 
@@ -67,15 +60,12 @@ function parseURLParameters() {
         rankingState.currentPage = parseInt(urlParams.get('page')) || 1;
     }
 
-    // 🆕 좋아요 필터 URL 파라미터 추가
     if (urlParams.has('liked')) {
         rankingState.showLikedOnly = urlParams.get('liked') === 'true';
     }
 }
 
-// 현재 상태에 따라 필터 버튼 업데이트
 function updateFilterButtonsFromState() {
-    // 정렬 버튼 업데이트
     document.querySelectorAll('.sort-btn').forEach(btn => {
         btn.classList.remove('active');
     });
@@ -84,7 +74,6 @@ function updateFilterButtonsFromState() {
         activeSortBtn.classList.add('active');
     }
 
-    // 카테고리 버튼 업데이트
     document.querySelectorAll('.category-btn').forEach(btn => {
         btn.classList.remove('active');
     });
@@ -93,7 +82,6 @@ function updateFilterButtonsFromState() {
         activeCategoryBtn.classList.add('active');
     }
 
-    // 뷰 모드 버튼 업데이트
     document.querySelectorAll('.view-btn').forEach(btn => {
         btn.classList.remove('active');
     });
@@ -102,7 +90,6 @@ function updateFilterButtonsFromState() {
         activeViewBtn.classList.add('active');
     }
 
-    // 🆕 좋아요 필터 버튼 업데이트
     const filterBtn = document.getElementById('filter-liked-btn');
     if (filterBtn) {
         if (rankingState.showLikedOnly) {
@@ -114,13 +101,11 @@ function updateFilterButtonsFromState() {
         }
     }
 
-    // 하위 카테고리 로드
     if (rankingState.mainCategory !== 'all') {
         loadSubCategories(rankingState.mainCategory);
     }
 }
 
-// URL 업데이트
 function updateURL() {
     const params = new URLSearchParams();
 
@@ -153,7 +138,6 @@ function updateURL() {
     window.history.pushState(null, '', newURL);
 }
 
-// 🆕 랭킹 데이터 로드 (DB에서 정렬 완료된 데이터 받기)
 async function loadRankingData() {
     showLoading(true);
 
@@ -161,10 +145,8 @@ async function loadRankingData() {
         let url = '/api/ranking/products';
         let params = new URLSearchParams();
 
-        // 🆕 정렬 기준을 sortBy 파라미터로 전달
         params.append('sortBy', rankingState.sortOrder);
 
-        // 카테고리 필터링
         if (rankingState.subCategory !== 'all') {
             url = '/api/ranking/products/category';
             params.append('subCategory', rankingState.subCategory);
@@ -214,7 +196,6 @@ async function loadRankingData() {
     }
 }
 
-// 개발용 더미 데이터 로드
 function loadDummyData() {
     const dummyProducts = [
         {
@@ -339,7 +320,6 @@ function loadDummyData() {
             reviewCount: 89,
             averageRating: 4.8
         },
-        // 🆕 좋아요 적은 상품들 추가 (테스트용)
         {
             productNo: 9,
             productName: "기본 슬랙스",
@@ -370,7 +350,6 @@ function loadDummyData() {
         }
     ];
 
-    // 카테고리 필터링 적용
     let filteredProducts = dummyProducts;
 
     if (rankingState.subCategory !== 'all') {
@@ -387,7 +366,6 @@ function loadDummyData() {
         }
     }
 
-    // 정렬 적용
     switch (rankingState.sortOrder) {
         case 'likes':
             filteredProducts.sort((a, b) => (b.likeCount || 0) - (a.likeCount || 0));
@@ -415,7 +393,6 @@ function loadDummyData() {
     updateSectionTitle();
 }
 
-// 하위 카테고리 로드
 async function loadSubCategories(mainCategory) {
     try {
         const response = await fetch(`/api/ranking/categories/sub?mainCategory=${mainCategory}`);
@@ -478,11 +455,9 @@ async function loadSubCategories(mainCategory) {
     }
 }
 
-// 필터 적용
 function applyFilters() {
     let filtered = [...rankingState.allProducts];
 
-    // 🆕 좋아요 필터 적용 - 모든 사용자용 (좋아요 수가 많은 상품만)
     if (rankingState.showLikedOnly) {
         console.log(`좋아요 ${rankingState.likeThreshold}개 이상 상품만 필터링 중...`);
 
@@ -499,17 +474,14 @@ function applyFilters() {
     rankingState.filteredProducts = filtered;
 }
 
-// 랭킹 상품 렌더링
 function renderRankingProducts() {
     const rankingGrid = document.getElementById('ranking-grid');
     const noProductsDiv = document.getElementById('no-products');
     const noLikedDiv = document.getElementById('no-liked-products');
 
-    // 상태 초기화
     if (noProductsDiv) noProductsDiv.style.display = 'none';
     if (noLikedDiv) noLikedDiv.style.display = 'none';
 
-    // 페이지네이션 적용
     const totalProducts = rankingState.filteredProducts.length;
     const totalPages = Math.ceil(totalProducts / rankingState.itemsPerPage);
     const startIndex = (rankingState.currentPage - 1) * rankingState.itemsPerPage;
@@ -597,7 +569,6 @@ function renderRankingProducts() {
     renderPagination(totalPages, rankingState.currentPage, totalProducts);
 }
 
-// 페이지네이션 렌더링
 function renderPagination(totalPages, currentPage, totalProducts) {
     const paginationContainer = document.getElementById('pagination-container');
     const pageNumbers = document.getElementById('page-numbers');
@@ -634,7 +605,6 @@ function renderPagination(totalPages, currentPage, totalProducts) {
     }
 }
 
-// 정렬 방식 변경
 function changeSortOrder(sortOrder) {
     document.querySelectorAll('.sort-btn').forEach(btn => {
         btn.classList.remove('active');
@@ -650,7 +620,6 @@ function changeSortOrder(sortOrder) {
     loadRankingData();
 }
 
-// 카테고리 필터링
 function filterByCategory(category) {
     document.querySelectorAll('.category-btn').forEach(btn => {
         btn.classList.remove('active');
@@ -677,7 +646,6 @@ function filterByCategory(category) {
     loadRankingData();
 }
 
-// 하위 카테고리 필터링
 function filterBySubCategory(subCategory) {
     document.querySelectorAll('.sub-category-btn').forEach(btn => {
         btn.classList.remove('active');
@@ -693,7 +661,6 @@ function filterBySubCategory(subCategory) {
     loadRankingData();
 }
 
-// 뷰 모드 변경
 function changeView(viewMode) {
     document.querySelectorAll('.view-btn').forEach(btn => {
         btn.classList.remove('active');
@@ -708,7 +675,6 @@ function changeView(viewMode) {
     renderRankingProducts();
 }
 
-// 페이지 이동
 function goToPage(page) {
     rankingState.currentPage = page;
     updateURL();
@@ -717,7 +683,6 @@ function goToPage(page) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// 페이지 변경 (이전/다음)
 function changePage(direction) {
     const newPage = rankingState.currentPage + direction;
     if (newPage >= 1) {
@@ -725,7 +690,6 @@ function changePage(direction) {
     }
 }
 
-// 섹션 제목 업데이트
 function updateSectionTitle() {
     const titleElement = document.getElementById('section-title');
     if (!titleElement) return;
@@ -746,7 +710,6 @@ function updateSectionTitle() {
             title = '상품 랭킹';
     }
 
-    // 카테고리 정보 추가
     if (rankingState.subCategory !== 'all') {
         title += ` - ${rankingState.subCategory}`;
     } else if (rankingState.mainCategory !== 'all') {
@@ -758,7 +721,6 @@ function updateSectionTitle() {
         title += ` - ${categoryNames[rankingState.mainCategory] || rankingState.mainCategory}`;
     }
 
-    // 🆕 좋아요 필터 정보 추가
     if (rankingState.showLikedOnly) {
         title += ` (인기상품만)`;
     }
@@ -766,7 +728,6 @@ function updateSectionTitle() {
     titleElement.textContent = title;
 }
 
-// 🆕 좋아요 필터 토글 - 모든 사용자용 (인기상품 필터)
 function toggleLikedFilter() {
     rankingState.showLikedOnly = !rankingState.showLikedOnly;
     rankingState.currentPage = 1; // 페이지 리셋
@@ -787,11 +748,10 @@ function toggleLikedFilter() {
 
     applyFilters();
     renderRankingProducts();
-    updateSectionTitle(); // 🆕 제목도 업데이트
-    updateURL(); // URL 업데이트
+    updateSectionTitle();
+    updateURL();
 }
 
-// 필터 초기화
 function resetFilters() {
     rankingState.sortOrder = 'reviews';
     rankingState.mainCategory = 'all';
@@ -803,7 +763,6 @@ function resetFilters() {
     updateURL();
     loadRankingData();
 
-    // 좋아요 필터 버튼 초기화
     const filterBtn = document.getElementById('filter-liked-btn');
     if (filterBtn) {
         filterBtn.classList.remove('active');
@@ -811,7 +770,6 @@ function resetFilters() {
     }
 }
 
-// 사용자가 좋아요한 상품들 불러오기 (로그인한 경우만)
 function loadUserLikedProducts() {
     if (!AuthManager.isLoggedIn()) {
         console.log('로그인하지 않음 - 개인 좋아요 상품 로드 생략');
@@ -852,7 +810,6 @@ function loadUserLikedProducts() {
         });
 }
 
-// 랭킹에서 좋아요 토글 (로그인한 사용자만)
 function toggleLikeFromRanking(event, button) {
     event.stopPropagation(); // 카드 클릭 이벤트 방지
 
@@ -866,7 +823,6 @@ function toggleLikeFromRanking(event, button) {
     const token = AuthManager.getToken();
     const heart = button.querySelector('.heart');
 
-    // 버튼 비활성화 (중복 클릭 방지)
     button.disabled = true;
 
     fetch(`/products/${productNo}/like`, {
@@ -885,27 +841,22 @@ function toggleLikeFromRanking(event, button) {
         .then(data => {
             if (data.success) {
                 if (data.isLiked) {
-                    // 좋아요 추가
                     rankingState.userLikedProducts.add(productNo);
                     button.classList.add('liked');
                     heart.textContent = '♥';
                 } else {
-                    // 좋아요 취소
                     rankingState.userLikedProducts.delete(productNo);
                     button.classList.remove('liked');
                     heart.textContent = '♡';
                 }
 
-                // 좋아요 수 업데이트
                 const productIndex = rankingState.allProducts.findIndex(p => p.productNo.toString() === productNo);
                 if (productIndex !== -1) {
                     rankingState.allProducts[productIndex].likeCount = data.likeCount || 0;
 
-                    // 좋아요 순 정렬인 경우 데이터 다시 로드
                     if (rankingState.sortOrder === 'likes') {
                         loadRankingData();
                     } else {
-                        // 좋아요 수 변경 후 현재 상품의 좋아요 수 업데이트
                         const productIndex = rankingState.allProducts.findIndex(p => p.productNo.toString() === productNo);
                         if (productIndex !== -1) {
                             rankingState.allProducts[productIndex].likeCount = data.likeCount || 0;
@@ -924,7 +875,6 @@ function toggleLikeFromRanking(event, button) {
         .catch(error => {
             console.error('좋아요 토글 에러:', error);
 
-            // 개발 중이므로 임시로 클라이언트에서만 처리
             console.log('개발 중 - 클라이언트에서만 좋아요 상태 변경');
 
             if (rankingState.userLikedProducts.has(productNo)) {
@@ -937,7 +887,6 @@ function toggleLikeFromRanking(event, button) {
                 heart.textContent = '♥';
             }
 
-            // 🆕 임시 좋아요 수 업데이트 (실제로는 서버에서 받아야 함)
             const productIndex = rankingState.allProducts.findIndex(p => p.productNo.toString() === productNo);
             if (productIndex !== -1) {
                 if (rankingState.userLikedProducts.has(productNo)) {
@@ -947,7 +896,6 @@ function toggleLikeFromRanking(event, button) {
                 }
             }
 
-            // 인기상품 필터가 활성화된 경우 재필터링
             if (rankingState.showLikedOnly) {
                 applyFilters();
                 renderRankingProducts();
@@ -958,7 +906,6 @@ function toggleLikeFromRanking(event, button) {
         });
 }
 
-// 로딩 상태 표시
 function showLoading(show) {
     const loadingState = document.getElementById('loading-state');
     const rankingGrid = document.getElementById('ranking-grid');
@@ -972,7 +919,6 @@ function showLoading(show) {
     }
 }
 
-// 빈 상태 표시
 function showEmptyState() {
     const rankingGrid = document.getElementById('ranking-grid');
     const noProductsDiv = document.getElementById('no-products');
@@ -981,7 +927,6 @@ function showEmptyState() {
     if (noProductsDiv) noProductsDiv.style.display = 'block';
 }
 
-// 상품 상세 페이지로 이동
 function goToProduct(element) {
     const productNo = element.getAttribute('data-product-no');
     if (productNo) {
@@ -989,7 +934,6 @@ function goToProduct(element) {
     }
 }
 
-// 뒤로가기
 function goBack() {
     if (window.history.length > 1) {
         window.history.back();
@@ -998,7 +942,6 @@ function goBack() {
     }
 }
 
-// 윈도우의 popstate 이벤트 처리 (뒤로가기/앞으로가기)
 window.addEventListener('popstate', function(event) {
     parseURLParameters();
     updateFilterButtonsFromState();

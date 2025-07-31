@@ -10,19 +10,15 @@ const AuthManager = {
 
     removeToken: function() {
         localStorage.removeItem('token');
-        // ✅ 키 통일: 'token'으로 변경
         localStorage.setItem('auth_token', auth_token);
     },
 
     getToken: function() {
-        // ✅ 키 통일: 'token'으로 변경
         return localStorage.getItem('auth_token');
     },
 
     removeToken: function() {
-        // ✅ 키 통일: 'token'으로 변경
         localStorage.removeItem('auth_token');
-        // 기존 키도 삭제 (혹시 남아있을 경우)
 
         localStorage.removeItem('auth_token');
     },
@@ -37,7 +33,6 @@ const AuthManager = {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
-    // 필수 요소들 존재 확인
     const requiredElements = [
         'loading', 'userInfo', 'errorMessage', 'logoutBtn', 'passwordChangeForm'
     ];
@@ -49,28 +44,23 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
-    // 초기화
     loadUserInfo();
     loadUserStats();
 
-    // 이벤트 리스너 등록
     setupEventListeners();
 });
 
 function setupEventListeners() {
-    // 로그아웃 버튼
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', logout);
     }
 
-    // 비밀번호 변경 폼
     const passwordChangeForm = document.getElementById('passwordChangeForm');
     if (passwordChangeForm) {
         passwordChangeForm.addEventListener('submit', changePassword);
     }
 
-    // 좋아요 상품목록 메뉴
     const likedProductsMenu = document.querySelector('.menu-item[onclick="goToLikedProducts()"]');
     if (likedProductsMenu) {
         likedProductsMenu.addEventListener('click', function(e) {
@@ -81,12 +71,10 @@ function setupEventListeners() {
         likedProductsMenu.removeAttribute('onclick');
     }
 
-    // 모든 메뉴 아이템에 대한 이벤트 리스너 추가
     setupMenuEventListeners();
 }
 
 function setupMenuEventListeners() {
-    // 메뉴 아이템들에 대한 이벤트 리스너 설정
     const menuItems = [
         { selector: '.menu-item[onclick*="goToCart"]', handler: goToCart },
         { selector: '.menu-item[onclick*="goToOrderHistory"]', handler: goToOrderHistory },
@@ -132,13 +120,11 @@ function loadUserInfo() {
     const userInfoDiv = document.getElementById('userInfo');
     const errorDiv = document.getElementById('errorMessage');
 
-    // 요소 존재 확인
     if (!loadingDiv || !userInfoDiv || !errorDiv) {
         console.error('필수 UI 요소가 없습니다.');
         return;
     }
 
-    // 로딩 상태 표시
     loadingDiv.style.display = 'block';
     userInfoDiv.style.display = 'none';
     errorDiv.style.display = 'none';
@@ -188,7 +174,6 @@ function loadUserInfo() {
 }
 
 function displayUserInfo(user) {
-    // 사용자 정보 표시 함수 분리
     const userFields = [
         { id: 'userName', value: user.name },
         { id: 'userEmail', value: user.email },
@@ -236,7 +221,6 @@ function loadUserStats() {
         })
         .catch(error => {
             console.log('사용자 통계 로드 실패:', error);
-            // 에러 시 기본값 유지
         });
 }
 
@@ -309,8 +293,6 @@ function changePassword(e) {
         console.error('passwordFormMessage 요소를 찾을 수 없습니다.');
         return;
     }
-
-    // 입력 유효성 검사
     if (!currentPassword || !newPassword || !confirmPassword) {
         showPasswordMessage(messageDiv, '모든 필드를 입력해주세요.', 'error');
         return;
@@ -385,7 +367,6 @@ function goToLogin() {
     AuthManager.redirectToLogin();
 }
 
-// 네비게이션 함수들
 function goToCart() {
     window.location.href = '/cart';
 }
@@ -406,7 +387,6 @@ function goToMyReviews() {
     window.location.href = '/api/reviews/my-reviews';
 }
 
-// 모달 외부 클릭 시 닫기
 window.onclick = function(event) {
     const modal = document.getElementById('passwordModal');
     if (event.target === modal) {
@@ -414,7 +394,6 @@ window.onclick = function(event) {
     }
 }
 
-// 디버깅을 위한 함수
 function debugInfo() {
     console.log('=== 마이페이지 디버그 정보 ===');
     console.log('토큰:', AuthManager.getToken() ? '존재' : '없음');
@@ -430,14 +409,11 @@ function debugInfo() {
         console.log(`- ${id}: ${element ? '존재' : '없음'}`);
     });
 
-    // 현재 페이지 URL 확인
     console.log('현재 URL:', window.location.href);
 
-    // 네트워크 상태 확인
     console.log('온라인 상태:', navigator.onLine);
 }
 
-// 페이지 로드 완료 후 디버그 정보 출력 (개발 환경에서만)
 if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
     window.addEventListener('load', debugInfo);
 }

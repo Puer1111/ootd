@@ -5,10 +5,6 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
-/**
- * 적립금 내역 관리 엔티티
- * 경로: src/main/java/com/ootd/ootd/model/entity/point/PointHistory.java
- */
 @Entity
 @Table(name = "point_history")
 public class PointHistory {
@@ -37,9 +33,6 @@ public class PointHistory {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    /**
-     * 적립금 타입 열거형
-     */
     public enum PointType {
         EARN_PURCHASE("구매 적립"),
         EARN_SIGNUP("가입 적립"),
@@ -61,10 +54,8 @@ public class PointHistory {
         }
     }
 
-    // 기본 생성자
     public PointHistory() {}
 
-    // 적립용 생성자
     public PointHistory(Long userId, Long points, PointType pointType, String description) {
         this.userId = userId;
         this.points = points;
@@ -72,7 +63,6 @@ public class PointHistory {
         this.description = description;
     }
 
-    // 주문 관련 적립/사용용 생성자
     public PointHistory(Long userId, Long points, PointType pointType, String description, Long orderId) {
         this.userId = userId;
         this.points = points;
@@ -81,7 +71,6 @@ public class PointHistory {
         this.orderId = orderId;
     }
 
-    // Getter & Setter
     public Long getId() {
         return id;
     }

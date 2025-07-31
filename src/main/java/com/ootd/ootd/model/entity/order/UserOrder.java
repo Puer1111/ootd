@@ -24,11 +24,9 @@ public class UserOrder {
     @Column(nullable = false)
     private Long userId;
 
-    // 수량 필드 추가
     @Column(nullable = false)
     private Integer quantity = 1;
 
-    // 총 주문 금액 필드 추가
     @Column(nullable = false)
     private Long totalPrice;
 
@@ -45,7 +43,6 @@ public class UserOrder {
     @Column(name = "order_id")
     private Long orderId; // Order의 PK
 
-    // 기본 생성자 (수량 1개)
     public UserOrder(Long productNo, Long userId) {
         this.productNo = productNo;
         this.userId = userId;
@@ -53,7 +50,6 @@ public class UserOrder {
         this.status = OrderStatus.ORDERED;
     }
 
-    // 수량과 총 금액을 포함한 생성자
     public UserOrder(Long productNo, Long userId, Integer quantity, Long totalPrice) {
         this.productNo = productNo;
         this.userId = userId;
@@ -62,7 +58,6 @@ public class UserOrder {
         this.status = OrderStatus.ORDERED;
     }
 
-    // 주문 취소 메서드
     public void cancel() {
         this.status = OrderStatus.CANCELLED;
         this.cancelledAt = LocalDateTime.now();

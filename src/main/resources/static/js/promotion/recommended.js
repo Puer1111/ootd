@@ -7,26 +7,21 @@ function loadRecommendedProducts() {
 
     fetch('/api/promotion/recommended')
         .then(response => {
-            console.log('API 응답 상태:', response.status);
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: 추천 상품을 불러올 수 없습니다.`);
             }
             return response.json();
         })
         .then(data => {
-            console.log('추천 상품 데이터:', data);
-
             if (data.success && data.products) {
                 displayProductsByCategory(data.products);
                 updateStats(data.products);
             } else {
-                console.warn('추천 상품이 없거나 응답 형식이 올바르지 않습니다.');
-                displayProductsByCategory([]); // 빈 배열로 처리
+                displayProductsByCategory([]);
             }
         })
         .catch(error => {
-            console.error('추천 상품 로드 에러:', error);
-            displayProductsByCategory([]); // 에러 시에도 빈 상태로 처리
+            displayProductsByCategory([]);
         })
         .finally(() => {
             hideLoadingState();
@@ -34,19 +29,16 @@ function loadRecommendedProducts() {
 }
 
 function displayProductsByCategory(products) {
-    // 카테고리별로 상품 분류
     const categories = {
         tops: products.filter(product => isTopCategory(product)),
         bottoms: products.filter(product => isBottomCategory(product)),
         shoes: products.filter(product => isShoeCategory(product))
     };
 
-    // 각 카테고리별로 상품 표시
     displayCategoryProducts('tops', categories.tops);
     displayCategoryProducts('bottoms', categories.bottoms);
     displayCategoryProducts('shoes', categories.shoes);
 
-    // 카테고리별 개수 업데이트
     updateCategoryCount('top', categories.tops.length);
     updateCategoryCount('bottom', categories.bottoms.length);
     updateCategoryCount('shoes', categories.shoes.length);
@@ -101,16 +93,12 @@ function displayCategoryProducts(categoryType, products) {
     const grid = document.getElementById(gridId);
 
     if (!grid) {
-        console.error(`Grid element not found: ${gridId}`);
         return;
     }
 
     grid.innerHTML = '';
 
-    console.log(`${categoryType} 카테고리 상품 수:`, products.length);
-
     if (products.length === 0) {
-        // 해당 카테고리에 상품이 없을 때
         grid.innerHTML = `
             <div class="no-category-products">
                 <p>해당 카테고리의 추천 상품이 없습니다.</p>
@@ -121,14 +109,10 @@ function displayCategoryProducts(categoryType, products) {
 
     products.forEach((product, index) => {
         try {
-            console.log(`${categoryType} 상품 ${index + 1}:`, product.productName);
             const productCard = createHorizontalProductCard(product);
             grid.appendChild(productCard);
-        } catch (error) {
-            console.error(`상품 카드 생성 실패 - ${product.productName}:`, error);
-        }
+        } catch (error) {}
     });
-
 }
 
 function createHorizontalProductCard(product) {
@@ -136,12 +120,10 @@ function createHorizontalProductCard(product) {
     card.className = 'product-card-horizontal';
     card.setAttribute('data-product-no', product.productNo);
 
-    // 이미지 URL 처리
     const imageUrl = (product.imageUrls && product.imageUrls.length > 0)
         ? product.imageUrls[0]
         : '/images/no-image.png';
 
-    // 가격 포맷팅
     const formattedPrice = new Intl.NumberFormat('ko-KR').format(product.price);
 
     card.innerHTML = `
@@ -179,7 +161,6 @@ function createHorizontalProductCard(product) {
         </div>
     `;
 
-    // 카드 클릭 이벤트
     card.addEventListener('click', function() {
         goToProduct(product.productNo);
     });
@@ -208,7 +189,6 @@ function updateCategoryCount(categoryType, count) {
 }
 
 function updateStats(products) {
-    // 전체 추천 상품 수
     const recommendedCountElement = document.getElementById('recommended-count');
     if (recommendedCountElement) {
         recommendedCountElement.textContent = products.length;
@@ -233,7 +213,6 @@ function goToProduct(productNo) {
     window.location.href = `/products/${productNo}`;
 }
 
-// 터치 스크롤 지원 (모바일)
 document.querySelectorAll('.horizontal-grid').forEach(grid => {
     let isDown = false;
     let startX;

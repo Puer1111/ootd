@@ -29,10 +29,10 @@ public class ProductServiceImpl implements ProductService {
     private ProductRepository productRepository;
 
     @Autowired
-    private ProductLikeRepository productLikeRepository;        // 추가
+    private ProductLikeRepository productLikeRepository;
 
     @Autowired
-    private ProductReviewRepository productReviewRepository;    // 추가
+    private ProductReviewRepository productReviewRepository;
 
     @Autowired
     private ProductOptionRepository productOptionRepository;
@@ -71,7 +71,6 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-    // ProductServiceImpl에 추가
     @Override
     public List<ProductDTO> getAllProducts() {
         List<ProductDTO> productDTOs = productRepository.findAllandBrandName();
@@ -79,13 +78,8 @@ public class ProductServiceImpl implements ProductService {
 
         return productDTOs.stream()
                 .map(dto -> {
-                    // DTO 변환 과정은 필요 없음 - 이미 DTO임
-                    // ProductDTO dto = ProductDTO.convertToDTO(product); // 제거!
+                    Long productNo = dto.getProductNo(); // 또는 dto.getId()
 
-                    // ProductNo는 DTO에서 가져옴
-                    Long productNo = dto.getProductNo(); // 또는 dto.getId() 등
-
-                    // 좋아요 수와 리뷰 수만 추가 설정
                     dto.setLikeCount(productLikeRepository.countByProductNo(productNo));
                     dto.setReviewCount(productReviewRepository.countByProductNo(productNo));
 
@@ -126,19 +120,8 @@ public class ProductServiceImpl implements ProductService {
                         existingProduct.setImageUrls(dto.getImageUrls());
                     }
 
-//                    // 세일 정보 업데이트 (isActiveSale과 salePercentage는 함께 처리)
-//                    if (dto.getIsActiveSale() != null) {
-//                        existingProduct.setIsActiveSale(dto.getIsActiveSale());
-//                        if (dto.getIsActiveSale() && dto.getSalePercentage() != null) {
-//                            existingProduct.setSalePercentage(dto.getSalePercentage());
-//                        } else if (!dto.getIsActiveSale()) {
-//                            existingProduct.setSalePercentage(null);
-//                        }
-//                    }
 
-                    // 상품 옵션 업데이트 (기존 옵션 삭제 후 새로 추가하는 방식)
                     if (dto.getOptions() != null && !dto.getOptions().isEmpty()) {
-//                        productOptionRepository.deleteByProductNo(productId);
                         List<ProductOption> productOptions = dto.getOptions().stream()
                                 .map(optionDto -> ProductOption.builder()
                                         .optionId(null)
@@ -160,8 +143,6 @@ public class ProductServiceImpl implements ProductService {
                             .price(updatedProduct.getPrice())
                             .brandNo(updatedProduct.getBrandNo())
                             .categoryNo(updatedProduct.getCategoryNo())
-//                            .isActiveSale(updatedProduct.getIsActiveSale())
-//                            .salePercentage(updatedProduct.getSalePercentage())
                             .imageUrls(updatedProduct.getImageUrls())
                             .options(dto.getOptions() != null ? dto.getOptions() : new ArrayList<>())
                             .build();
@@ -259,13 +240,11 @@ public class ProductServiceImpl implements ProductService {
         try {
             System.out.println("🔥 세일 상품 조회 시작");
 
-            // 1. 세일 중인 프로모션 목록 가져오기
             List<ProductPromotionDTO> salePromotions = promotionService.getSaleProducts();
             System.out.println("세일 프로모션 개수: " + salePromotions.size());
 
             List<ProductDTO> saleProducts = new ArrayList<>();
 
-            // 2. 각 세일 상품의 상세 정보와 프로모션 정보 결합
             for (ProductPromotionDTO promotion : salePromotions) {
                 try {
                     Product product = productRepository.findById(promotion.getProductNo())
@@ -274,27 +253,22 @@ public class ProductServiceImpl implements ProductService {
                     if (product != null) {
                         ProductDTO productDTO = ProductDTO.convertToDTO(product);
 
-                        // 3. 프로모션 정보 설정
                         productDTO.setPromotionInfo(promotion);
 
-                        // 4. 세일 관련 정보 설정
                         productDTO.setIsSale(true);
                         productDTO.setIsActiveSale(promotion.getIsActiveSale());
                         productDTO.setSalePercentage(promotion.getSalePercentage());
 
-                        // 5. 세일 가격 계산
                         Integer originalPrice = productDTO.getPrice();
                         Integer salePrice = promotion.getSalePrice();
 
                         if (salePrice != null) {
                             productDTO.setSalePrice(salePrice);
                         } else if (promotion.getSalePercentage() != null && originalPrice != null) {
-                            // 세일 가격이 없으면 퍼센티지로 계산
                             int calculatedSalePrice = originalPrice - (originalPrice * promotion.getSalePercentage() / 100);
                             productDTO.setSalePrice(calculatedSalePrice);
                         }
 
-                        // 6. 좋아요 수와 리뷰 수 설정
                         productDTO.setLikeCount(productLikeRepository.countByProductNo(product.getProductNo()));
                         productDTO.setReviewCount(productReviewRepository.countByProductNo(product.getProductNo()));
 

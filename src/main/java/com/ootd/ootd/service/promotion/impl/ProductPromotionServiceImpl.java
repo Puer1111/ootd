@@ -66,12 +66,10 @@ public class ProductPromotionServiceImpl implements ProductPromotionService {
         if (isSale) {
             promotion.setSalePercentage(salePercentage);
             promotion.setOriginalPrice(originalPrice);
-            // 세일 시작 시간을 현재로 설정 (종료 시간은 별도 설정)
             if (promotion.getSaleStartDate() == null) {
                 promotion.setSaleStartDate(LocalDateTime.now());
             }
         } else {
-            // 세일 해제 시 관련 정보 초기화
             promotion.setSalePercentage(null);
             promotion.setSaleStartDate(null);
             promotion.setSaleEndDate(null);

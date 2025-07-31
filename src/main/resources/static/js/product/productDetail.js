@@ -1,33 +1,22 @@
-// 기존 캐러셸 관련 변수들
 let currentSlide = 0;
 let totalSlides = 0;
 
-// 새로운 좋아요/리뷰 관련 변수들
 let currentProductNo = 0;
 let selectedRating = 0;
 let isLoggedIn = false;
 
-// 🆕 세일 관련 전역 변수 추가
 let isActiveSale = false;
 let salePrice = 0;
 let originalPrice = 0;
 
 document.addEventListener('DOMContentLoaded', function () {
-    // 기존 캐러셸 및 탭 초기화
     initializeCarousel();
     initializeTabs();
-
-    // 새로운 기능들 초기화
     initializeProductInteraction();
-
-    // 수량 조절 초기화 추가
     initializeQuantityControls();
-
-    // 쿠폰 div 초기화 추가
     initializeCouponDiv();
 });
 
-// === 🔧 수정된 캐러셸 기능들 ===
 function initializeCarousel() {
     const slides = document.querySelectorAll('.carousel-slide');
     const thumbnails = document.querySelectorAll('.thumbnail');
@@ -39,7 +28,6 @@ function initializeCarousel() {
     console.log('총 슬라이드 수:', totalSlides);
 
     if (totalSlides <= 1) {
-        // 이미지가 1개 이하면 컨트롤 숨김
         const controls = document.querySelector('.carousel-controls');
         const thumbnailsContainer = document.querySelector('.image-thumbnails');
 
@@ -50,7 +38,6 @@ function initializeCarousel() {
         return;
     }
 
-    // 썸네일 클릭 이벤트 등록
     thumbnails.forEach((thumbnail, index) => {
         thumbnail.addEventListener('click', () => {
             console.log('썸네일 클릭:', index);
@@ -58,7 +45,6 @@ function initializeCarousel() {
         });
     });
 
-    // 초기 슬라이드 설정
     updateCarousel();
 
     console.log('캐러셸 초기화 완료');
@@ -88,7 +74,6 @@ function goToSlide(slideIndex) {
     updateCarousel();
 }
 
-// 🔧 썸네일에서 호출하는 함수 (HTML에서 onclick으로 호출)
 function goToSlideFromThumbnail(thumbnail) {
     const slideIndex = parseInt(thumbnail.getAttribute('data-slide'));
     console.log('썸네일에서 슬라이드 이동:', slideIndex);
@@ -101,7 +86,6 @@ function updateCarousel() {
 
     console.log('캐러셸 업데이트 - 현재 슬라이드:', currentSlide);
 
-    // 모든 슬라이드 비활성화
     slides.forEach((slide, index) => {
         slide.classList.remove('active');
         if (index === currentSlide) {
@@ -110,7 +94,6 @@ function updateCarousel() {
         }
     });
 
-    // 모든 썸네일 비활성화
     thumbnails.forEach((thumbnail, index) => {
         thumbnail.classList.remove('active');
         if (index === currentSlide) {
@@ -159,7 +142,6 @@ function goBack() {
     }
 }
 
-// 키보드 이벤트
 document.addEventListener('keydown', function (e) {
     if (e.key === 'ArrowLeft') {
         prevSlide();
@@ -168,27 +150,20 @@ document.addEventListener('keydown', function (e) {
     }
 });
 
-// === 새로운 좋아요/리뷰 기능들 ===
-
 function initializeProductInteraction() {
-    // 상품 번호 가져오기
     const productNoElement = document.getElementById('product-no');
     if (productNoElement) {
         currentProductNo = parseInt(productNoElement.textContent);
         console.log('현재 상품 번호:', currentProductNo);
     }
 
-    // 🆕 세일 정보 초기화
     initializeSaleInfo();
-
-    // 페이지 초기화
     initializePage();
     loadLikeInfo();
     loadReviews();
     setupReviewForm();
 }
 
-// 🆕 세일 정보 초기화 함수
 function initializeSaleInfo() {
     const isActiveSaleElement = document.getElementById('is-active-sale');
     const salePriceElement = document.getElementById('sale-price');
@@ -212,11 +187,9 @@ function initializeSaleInfo() {
         originalPrice: originalPrice
     });
 
-    // 초기 총 가격 설정
     updateTotalPrice();
 }
 
-// 🆕 현재 적용 가격 반환 (세일 중이면 세일가, 아니면 원가)
 function getCurrentPrice() {
     if (isActiveSale && salePrice > 0) {
         return salePrice;
@@ -224,14 +197,12 @@ function getCurrentPrice() {
     return originalPrice;
 }
 
-// JWT 토큰 가져오기
 function getJwtToken() {
     const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
     console.log('JWT 토큰:', token ? '있음' : '없음');
     return token;
 }
 
-// 페이지 초기화
 function initializePage() {
     const token = getJwtToken();
     isLoggedIn = !!token;
@@ -250,7 +221,6 @@ function initializePage() {
     }
 }
 
-// 좋아요 정보 로드
 async function loadLikeInfo() {
     try {
         const token = getJwtToken();
@@ -290,7 +260,6 @@ async function loadLikeInfo() {
     }
 }
 
-// 좋아요 토글
 async function toggleLike() {
     console.log('좋아요 토글 시작, 로그인 상태:', isLoggedIn);
 
@@ -351,7 +320,6 @@ async function toggleLike() {
     }
 }
 
-// 리뷰 목록 로드
 async function loadReviews() {
     try {
         console.log('리뷰 목록 로드 시작:', `/products/${currentProductNo}/reviews`);
@@ -364,7 +332,6 @@ async function loadReviews() {
             const data = await response.json();
             console.log('리뷰 데이터:', data);
 
-            // 리뷰 수 업데이트
             const reviewCountElement = document.getElementById('review-count');
             const reviewCountTabElement = document.getElementById('review-count-tab');
             const avgRatingElement = document.getElementById('avg-rating');
@@ -380,7 +347,6 @@ async function loadReviews() {
     }
 }
 
-// 리뷰 목록 표시
 function displayReviews(reviews) {
     const reviewsList = document.getElementById('reviews-list');
     const noReviews = document.getElementById('no-reviews');
@@ -409,7 +375,6 @@ function displayReviews(reviews) {
     </div>${reviewsHtml}`;
 }
 
-// HTML 이스케이프 함수
 function escapeHtml(text) {
     const map = {
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
@@ -419,7 +384,6 @@ function escapeHtml(text) {
     });
 }
 
-// 리뷰 폼 설정
 function setupReviewForm() {
     const writeBtn = document.getElementById('write-review-btn');
     const formContainer = document.getElementById('review-form-container');
@@ -443,7 +407,6 @@ function setupReviewForm() {
         });
     }
 
-    // 별점 선택
     stars.forEach(star => {
         star.addEventListener('click', () => {
             selectedRating = parseInt(star.dataset.rating);
@@ -457,7 +420,6 @@ function setupReviewForm() {
     }
 }
 
-// 별점 표시 업데이트
 function updateStarDisplay() {
     const stars = document.querySelectorAll('.rating-input .star');
     stars.forEach((star, index) => {
@@ -469,7 +431,6 @@ function updateStarDisplay() {
     });
 }
 
-// 리뷰 작성
 async function submitReview() {
     if (selectedRating === 0) {
         alert('별점을 선택해주세요.');
@@ -516,7 +477,6 @@ async function submitReview() {
             console.log('리뷰 작성 성공:', data);
             alert('리뷰가 작성되었습니다.');
 
-            // 폼 숨기기 및 초기화
             const formContainer = document.getElementById('review-form-container');
             const writeBtn = document.getElementById('write-review-btn');
 
@@ -524,8 +484,6 @@ async function submitReview() {
             if (writeBtn) writeBtn.style.display = 'inline-block';
 
             resetReviewForm();
-
-            // 리뷰 목록 새로고침
             loadReviews();
         } else {
             const data = await response.json();
@@ -538,7 +496,6 @@ async function submitReview() {
     }
 }
 
-// 리뷰 폼 초기화
 function resetReviewForm() {
     selectedRating = 0;
     const contentElement = document.getElementById('review-content');
@@ -551,22 +508,18 @@ function resetReviewForm() {
     });
 }
 
-// === 수량 조절 기능 ===
-
-// 현재 선택된 수량 가져오기
 function getSelectedQuantity() {
     const quantityInput = document.getElementById('quantity');
     return quantityInput ? parseInt(quantityInput.value) || 1 : 1;
 }
 
-// 총 가격 업데이트 (수정된 버전)
 function updateTotalPrice() {
     const quantityInput = document.getElementById('quantity');
     const totalPriceElement = document.getElementById('total-price');
 
     if (quantityInput && totalPriceElement) {
         const quantity = parseInt(quantityInput.value) || 1;
-        const currentUnitPrice = getCurrentPrice(); // 🆕 세일 가격 반영
+        const currentUnitPrice = getCurrentPrice();
         const totalPrice = currentUnitPrice * quantity;
 
         totalPriceElement.textContent = totalPrice.toLocaleString() + '원';
@@ -580,18 +533,15 @@ function updateTotalPrice() {
     }
 }
 
-// 수량 조절 함수
 function initializeQuantityControls() {
     const minusBtn = document.getElementById('minus');
     const plusBtn = document.getElementById('plus');
     const quantityInput = document.getElementById('quantity');
 
     if (minusBtn && plusBtn && quantityInput) {
-        // 기본값 설정
         quantityInput.value = 1;
         updateTotalPrice();
 
-        // 마이너스 버튼
         minusBtn.onclick = function () {
             let current = parseInt(quantityInput.value) || 1;
             if (current > 1) {
@@ -600,16 +550,14 @@ function initializeQuantityControls() {
             }
         };
 
-        // 플러스 버튼
         plusBtn.onclick = function () {
             let current = parseInt(quantityInput.value) || 1;
-            if (current < 99) { // 최대 99개 제한
+            if (current < 99) {
                 quantityInput.value = current + 1;
                 updateTotalPrice();
             }
         };
 
-        // 직접 입력 시 유효성 검사
         quantityInput.addEventListener('input', function () {
             let value = parseInt(this.value);
             if (isNaN(value) || value < 1) {
@@ -620,7 +568,6 @@ function initializeQuantityControls() {
             updateTotalPrice();
         });
 
-        // 포커스 아웃 시 값 정리
         quantityInput.addEventListener('blur', function () {
             if (!this.value || parseInt(this.value) < 1) {
                 this.value = 1;
@@ -630,7 +577,6 @@ function initializeQuantityControls() {
     }
 }
 
-// 🆕 수정된 주문하기 함수 (세일 가격 정보를 정확히 전달)
 async function orderProductWithQuantity() {
     console.log('주문하기 버튼 클릭, 로그인 상태:', isLoggedIn);
 
@@ -640,30 +586,27 @@ async function orderProductWithQuantity() {
         return;
     }
 
-    // 현재 선택된 수량 가져오기
     const quantity = getSelectedQuantity();
     const productName = document.getElementById('product-name').textContent;
-    const unitPrice = getCurrentPrice(); // 이미 세일이 적용된 최종 단가
+    const unitPrice = getCurrentPrice();
     const totalPrice = unitPrice * quantity;
 
     try {
-        // 🔥 수정: 결제 페이지에서 추가 할인이 적용되지 않도록 salePercentage를 0으로 설정
         const orderInfo = {
             productNo: currentProductNo,
             productName: productName,
-            unitPrice: unitPrice, // 이미 세일이 적용된 가격
+            unitPrice: unitPrice,
             quantity: quantity,
             totalPrice: totalPrice,
             isActiveSale: isActiveSale,
-            salePercentage: 0, // 🔥 중요: 이미 할인된 가격이므로 추가 할인 방지
-            originalPrice: originalPrice, // 원래 가격 정보는 참조용으로만 전달
-            finalUnitPrice: unitPrice // 최종 단가 명시
+            salePercentage: 0,
+            originalPrice: originalPrice,
+            finalUnitPrice: unitPrice
         };
 
         sessionStorage.setItem('orderInfo', JSON.stringify(orderInfo));
         console.log('주문 정보 세션 저장:', orderInfo);
 
-        // 결제 페이지로 바로 이동
         if (confirm('결제를 진행하시겠습니까?')) {
             window.location.href = '/goPay';
         }
@@ -674,27 +617,24 @@ async function orderProductWithQuantity() {
     }
 }
 
-// 기존 orderProduct 함수도 유지 (하위 호환성)
 async function orderProduct() {
     return orderProductWithQuantity();
 }
 
-// 장바구니에 담기 (세일 가격 적용 수정)
 async function addToCartWithQuantity() {
     const quantity = getSelectedQuantity();
     const productName = document.getElementById('product-name').textContent;
-    const productPrice = getCurrentPrice(); // 🆕 세일 가격 적용
+    const productPrice = getCurrentPrice();
 
-    // 첫 번째 이미지 URL 가져오기
     const firstImage = document.querySelector('.product-image');
     const imageUrl = firstImage ? firstImage.src : '';
 
     const cartData = {
         productNo: currentProductNo,
         productName: productName,
-        price: productPrice, // 🆕 세일 가격 적용
-        originalPrice: originalPrice, // 🆕 원가 정보도 전송
-        isActiveSale: isActiveSale, // 🆕 세일 여부 전송
+        price: productPrice,
+        originalPrice: originalPrice,
+        isActiveSale: isActiveSale,
         quantity: quantity,
         imageUrls: imageUrl
     };
@@ -721,7 +661,6 @@ async function addToCartWithQuantity() {
 
             alert(alertMessage);
 
-            // 장바구니로 이동할지 묻기
             if (confirm('장바구니를 확인하시겠습니까?')) {
                 window.location.href = '/cart';
             }

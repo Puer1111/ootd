@@ -1,9 +1,3 @@
-/**
- * 적립금 페이지 메인 JavaScript
- * 경로: src/main/resources/static/js/point/points.js
- */
-
-// ==================== 전역 변수 ====================
 let userPointsData = {
     totalPoints: 0,
     availablePoints: 0,
@@ -14,42 +8,23 @@ let pointsHistory = [];
 let currentPage = 0;
 const pageSize = 20;
 
-// ==================== 페이지 초기화 ====================
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('적립금 페이지 초기화 시작');
-
-    // 토큰 확인
     const token = PointsAPI.getToken();
     if (!token) {
         showLoginRequired();
         return;
     }
-
-    // 페이지 초기화
     initializePage();
 });
 
-/**
- * 페이지 초기화
- */
 async function initializePage() {
     try {
         showLoading(true);
-
-        // 적립금 정보 로드
         await loadPointsInfo();
-
-        // 적립금 내역 로드
         await loadPointsHistory();
-
-        // 적립금 통계 로드
         await loadPointsStatistics();
-
-        // 이벤트 리스너 설정
         setupEventListeners();
-
         showLoading(false);
-
     } catch (error) {
         console.error('페이지 초기화 실패:', error);
         showError('페이지를 불러오는 중 오류가 발생했습니다.');
@@ -57,24 +32,16 @@ async function initializePage() {
     }
 }
 
-// ==================== 적립금 정보 로드 ====================
-
-/**
- * 적립금 정보 로드
- */
 async function loadPointsInfo() {
     try {
         const response = await PointsAPI.getMyPoints();
-
         if (response.success) {
             userPointsData = {
                 totalPoints: response.totalPoints,
                 availablePoints: response.availablePoints,
                 usedPoints: response.usedPoints
             };
-
             updatePointsDisplay();
-            console.log('적립금 정보 로드 완료:', userPointsData);
         }
     } catch (error) {
         console.error('적립금 정보 로드 실패:', error);
@@ -82,9 +49,6 @@ async function loadPointsInfo() {
     }
 }
 
-/**
- * 적립금 표시 업데이트
- */
 function updatePointsDisplay() {
     const elements = {
         totalPoints: document.getElementById('total-points'),
@@ -107,22 +71,14 @@ function updatePointsDisplay() {
     }
 }
 
-// ==================== 적립금 내역 로드 ====================
-
-/**
- * 적립금 내역 로드
- */
 async function loadPointsHistory(page = 0) {
     try {
         const response = await PointsAPI.getPointHistory(page, pageSize);
-
         if (response.success) {
             pointsHistory = response.history;
             currentPage = response.currentPage;
-
             displayPointsHistory();
             updatePagination(response);
-            console.log(`적립금 내역 로드 완료: ${pointsHistory.length}개 항목`);
         }
     } catch (error) {
         console.error('적립금 내역 로드 실패:', error);
@@ -130,9 +86,6 @@ async function loadPointsHistory(page = 0) {
     }
 }
 
-/**
- * 적립금 내역 표시
- */
 function displayPointsHistory() {
     const historyContainer = document.getElementById('points-history-list');
     if (!historyContainer) return;
@@ -174,9 +127,6 @@ function displayPointsHistory() {
     historyContainer.innerHTML = historyHtml;
 }
 
-/**
- * 타입 배지 클래스 반환
- */
 function getTypeBadgeClass(pointType) {
     const typeClasses = {
         'EARN_PURCHASE': 'earn-purchase',
@@ -191,9 +141,6 @@ function getTypeBadgeClass(pointType) {
     return typeClasses[pointType] || 'default';
 }
 
-/**
- * 타입 표시명 반환
- */
 function getTypeDisplayName(pointType) {
     const typeNames = {
         'EARN_PURCHASE': '구매 적립',
@@ -208,28 +155,17 @@ function getTypeDisplayName(pointType) {
     return typeNames[pointType] || pointType;
 }
 
-// ==================== 적립금 통계 로드 ====================
-
-/**
- * 적립금 통계 로드
- */
 async function loadPointsStatistics() {
     try {
         const response = await PointsAPI.getPointsStatistics();
-
         if (response.success) {
             displayPointsStatistics(response.statistics);
-            console.log('적립금 통계 로드 완료');
         }
     } catch (error) {
         console.error('적립금 통계 로드 실패:', error);
-        // 통계는 필수가 아니므로 에러를 표시하지 않음
     }
 }
 
-/**
- * 적립금 통계 표시
- */
 function displayPointsStatistics(statistics) {
     const elements = {
         totalEarned: document.getElementById('total-earned'),
@@ -252,11 +188,6 @@ function displayPointsStatistics(statistics) {
     }
 }
 
-// ==================== 페이지네이션 ====================
-
-/**
- * 페이지네이션 업데이트
- */
 function updatePagination(response) {
     const paginationContainer = document.getElementById('pagination');
     if (!paginationContainer) return;
@@ -275,12 +206,10 @@ function updatePagination(response) {
 
     let paginationHtml = '';
 
-    // 이전 페이지 버튼
     if (hasPrevious) {
         paginationHtml += `<button class="page-btn" onclick="loadPointsHistory(${currentPage - 1})">이전</button>`;
     }
 
-    // 페이지 번호들
     const startPage = Math.max(0, currentPage - 2);
     const endPage = Math.min(totalPages - 1, currentPage + 2);
 
@@ -292,7 +221,6 @@ function updatePagination(response) {
         `;
     }
 
-    // 다음 페이지 버튼
     if (hasNext) {
         paginationHtml += `<button class="page-btn" onclick="loadPointsHistory(${currentPage + 1})">다음</button>`;
     }
@@ -300,13 +228,7 @@ function updatePagination(response) {
     paginationContainer.innerHTML = paginationHtml;
 }
 
-// ==================== 이벤트 리스너 ====================
-
-/**
- * 이벤트 리스너 설정
- */
 function setupEventListeners() {
-    // 새로고침 버튼
     const refreshBtn = document.getElementById('refresh-btn');
     if (refreshBtn) {
         refreshBtn.addEventListener('click', function() {
@@ -314,7 +236,6 @@ function setupEventListeners() {
         });
     }
 
-    // 필터 버튼들
     const filterBtns = document.querySelectorAll('.filter-btn');
     filterBtns.forEach(btn => {
         btn.addEventListener('click', function() {
@@ -323,7 +244,6 @@ function setupEventListeners() {
         });
     });
 
-    // 기간 선택 버튼들
     const periodBtns = document.querySelectorAll('.period-btn');
     periodBtns.forEach(btn => {
         btn.addEventListener('click', function() {
@@ -333,11 +253,6 @@ function setupEventListeners() {
     });
 }
 
-// ==================== 페이지 기능 ====================
-
-/**
- * 페이지 새로고침
- */
 async function refreshPage() {
     try {
         showLoading(true);
@@ -353,9 +268,6 @@ async function refreshPage() {
     }
 }
 
-/**
- * 내역 필터링
- */
 function filterHistory(filterType) {
     const filterBtns = document.querySelectorAll('.filter-btn');
     filterBtns.forEach(btn => {
@@ -381,22 +293,16 @@ function filterHistory(filterType) {
             filteredHistory = pointsHistory;
     }
 
-    // 임시로 필터된 내역을 저장하고 표시
     const originalHistory = pointsHistory;
     pointsHistory = filteredHistory;
     displayPointsHistory();
     pointsHistory = originalHistory;
 }
 
-/**
- * 최근 활동 로드
- */
 async function loadRecentActivity(days) {
     try {
         const response = await PointsAPI.getRecentActivity(days);
-
         if (response.success) {
-            // 기간 버튼 활성화 상태 변경
             const periodBtns = document.querySelectorAll('.period-btn');
             periodBtns.forEach(btn => {
                 btn.classList.remove('active');
@@ -405,7 +311,6 @@ async function loadRecentActivity(days) {
                 }
             });
 
-            // 최근 활동 표시
             displayRecentActivity(response.recentActivity, days);
         }
     } catch (error) {
@@ -414,9 +319,6 @@ async function loadRecentActivity(days) {
     }
 }
 
-/**
- * 최근 활동 표시
- */
 function displayRecentActivity(recentActivity, days) {
     const recentContainer = document.getElementById('recent-activity');
     if (!recentContainer) return;
@@ -450,11 +352,6 @@ function displayRecentActivity(recentActivity, days) {
     `;
 }
 
-// ==================== UI 상태 관리 ====================
-
-/**
- * 로딩 상태 표시/숨김
- */
 function showLoading(show) {
     const loadingElement = document.getElementById('loading');
     if (loadingElement) {
@@ -462,9 +359,6 @@ function showLoading(show) {
     }
 }
 
-/**
- * 에러 메시지 표시
- */
 function showError(message) {
     const errorElement = document.getElementById('error-message');
     if (errorElement) {
@@ -478,9 +372,6 @@ function showError(message) {
     }
 }
 
-/**
- * 성공 메시지 표시
- */
 function showSuccess(message) {
     const successElement = document.getElementById('success-message');
     if (successElement) {
@@ -490,7 +381,6 @@ function showSuccess(message) {
             successElement.style.display = 'none';
         }, 3000);
     } else {
-        // 성공 메시지를 위한 임시 알림 생성
         const notification = document.createElement('div');
         notification.className = 'success-notification';
         notification.textContent = message;
@@ -505,18 +395,13 @@ function showSuccess(message) {
             z-index: 1000;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         `;
-
         document.body.appendChild(notification);
-
         setTimeout(() => {
             document.body.removeChild(notification);
         }, 3000);
     }
 }
 
-/**
- * 로그인 필요 상태 표시
- */
 function showLoginRequired() {
     const mainContent = document.getElementById('main-content');
     if (mainContent) {
@@ -531,17 +416,10 @@ function showLoginRequired() {
     }
 }
 
-// ==================== 유틸리티 함수 ====================
-
-/**
- * 적립금 계산기 표시
- */
 function showPointCalculator() {
     const modal = document.getElementById('point-calculator-modal');
     if (modal) {
         modal.style.display = 'block';
-
-        // 계산기 로직
         const calculateBtn = document.getElementById('calculate-btn');
         const amountInput = document.getElementById('amount-input');
         const resultElement = document.getElementById('calculation-result');
@@ -556,9 +434,6 @@ function showPointCalculator() {
     }
 }
 
-/**
- * 모달 닫기
- */
 function closeModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
@@ -566,13 +441,9 @@ function closeModal(modalId) {
     }
 }
 
-/**
- * 적립률 정보 로드 및 표시
- */
 async function loadEarnRateInfo() {
     try {
         const response = await PointsAPI.getEarnRate();
-
         if (response.success) {
             const earnRateElement = document.getElementById('earn-rate-info');
             if (earnRateElement) {
@@ -592,9 +463,6 @@ async function loadEarnRateInfo() {
     }
 }
 
-// ==================== 내보내기 ====================
-
-// 전역 함수로 내보내기 (HTML에서 직접 호출 가능)
 window.refreshPage = refreshPage;
 window.filterHistory = filterHistory;
 window.loadRecentActivity = loadRecentActivity;

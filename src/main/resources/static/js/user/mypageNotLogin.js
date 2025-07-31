@@ -1,14 +1,7 @@
 (function() {
-    // 토큰 확인 함수
     function getToken() {
-        // ✅ 키 통일: 'token'으로 변경
         let token = localStorage.getItem('auth_token');
-        // if (!token) {
-        //     // 기존 키도 확인 (하위 호환성)
-        //     token = localStorage.getItem('auth_token');
-        // }
         if (!token) {
-            // 쿠키에서도 확인
             const cookies = document.cookie.split(';');
             for (let cookie of cookies) {
                 const [key, value] = cookie.trim().split('=');
@@ -37,7 +30,6 @@
 
     console.log('토큰 확인됨 - 페이지 로딩 계속');
 
-    // DOM 준비되면 페이지 표시
     function showPage() {
         document.body.classList.add('auth-verified');
         const loadingDiv = document.getElementById('auth-loading');
@@ -47,7 +39,6 @@
         console.log('페이지 표시됨');
     }
 
-    // DOM이 준비되면 페이지 표시
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', showPage);
     } else {

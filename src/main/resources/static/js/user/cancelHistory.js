@@ -1,4 +1,3 @@
-// 토큰 관리
 const AuthManager = {
     getToken: function() {
         return localStorage.getItem('auth_token') || localStorage.getItem('token');
@@ -35,7 +34,6 @@ async function loadCancelHistory() {
     const emptyState = document.getElementById('empty-state');
     const errorState = document.getElementById('error-state');
 
-    // 로딩 표시
     loadingState.style.display = 'block';
     productsContainer.style.display = 'none';
     emptyState.style.display = 'none';
@@ -81,7 +79,6 @@ async function loadCancelHistory() {
     }
 }
 
-// 취소 내역 표시 함수 (Order 기반)
 function displayCancelHistory(cancelledOrders, totalCount) {
     const productsContainer = document.getElementById('products-container');
     const productsGrid = document.getElementById('products-grid');
@@ -92,12 +89,10 @@ function displayCancelHistory(cancelledOrders, totalCount) {
         return;
     }
 
-    // 총 개수 업데이트
     if (totalCountElement) {
         totalCountElement.textContent = totalCount;
     }
 
-    // 취소된 주문 목록 HTML 생성
     const cancelledHtml = cancelledOrders.map(order => `
         <div class="product-card">
             <div class="product-image">

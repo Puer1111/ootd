@@ -21,7 +21,7 @@ public class UserDTO {
     public UserDTO(User user) {
         this.id = user.getId();
         this.username = user.getUsername();
-        this.password = user.getPassword(); // 응답에 사용하지 않으면 제거
+        this.password = user.getPassword();
         this.email = user.getEmail();
         this.name = user.getName();
         this.phone = user.getPhone();

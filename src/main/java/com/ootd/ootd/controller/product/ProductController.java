@@ -86,12 +86,10 @@ public class ProductController {
         return "view/index";
     }
 
-    // View 전달용
     @GetMapping("/products/{productNo}")
     public String productDetail(@PathVariable Long productNo, Model model) {
         ProductDTO product = productService.getProductById(productNo);
 
-        // 🆕 프로모션 정보 추가
         if (product != null) {
             ProductPromotionDTO promotion = promotionService.getPromotionByProductNo(productNo);
             if (promotion != null) {
@@ -264,7 +262,6 @@ public class ProductController {
         }
     }
 
-    // 내가 한 좋아요인지 체크
     @GetMapping("/products/{productNo}/like-info")
     public ResponseEntity<?> getLikeInfo(@PathVariable Long productNo,
                                          @AuthenticationPrincipal UserDetails userDetails) {
@@ -295,7 +292,6 @@ public class ProductController {
         }
     }
 
-    // 리뷰 작성
     @PostMapping("/products/{productNo}/review")
     public ResponseEntity<?> createReview(@PathVariable Long productNo,
                                           @RequestBody Map<String, Object> reviewData,
@@ -347,7 +343,6 @@ public class ProductController {
         }
     }
 
-    // 상품의 리뷰 목록 조회
     @GetMapping("/products/{productNo}/reviews")
     public ResponseEntity<?> getReviews(@PathVariable Long productNo) {
         Map<String, Object> response = new HashMap<>();
@@ -371,7 +366,6 @@ public class ProductController {
         }
     }
 
-    // 🆕 주문하기 (기존 메서드 - Order 연결 없음)
     @PostMapping("/products/{productNo}/order")
     public ResponseEntity<?> orderProduct(@PathVariable Long productNo,
                                           @RequestBody(required = false) Map<String, Object> orderRequest,
@@ -388,7 +382,6 @@ public class ProductController {
             User user = userRepository.findByEmail(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
 
-            // 요청에서 정보 가져오기
             Integer quantity = 1;
             Long totalPrice = 0L;
             Integer unitPrice = 0;
@@ -428,7 +421,6 @@ public class ProductController {
                 return ResponseEntity.badRequest().body(response);
             }
 
-            // 🆕 서버에서 가격 검증 (프로모션 정보 포함)
             ProductDTO product = productService.getProductById(productNo);
             if (product == null) {
                 response.put("success", false);
@@ -436,13 +428,11 @@ public class ProductController {
                 return ResponseEntity.badRequest().body(response);
             }
 
-            // 프로모션 정보 확인
             ProductPromotionDTO promotion = promotionService.getPromotionByProductNo(productNo);
             if (promotion != null) {
                 product.setPromotionInfo(promotion);
             }
 
-            // 서버에서 실제 가격 계산
             Long expectedTotalPrice;
             if (product.getIsActiveSale() != null && product.getIsActiveSale() && product.getSalePrice() != null) {
                 expectedTotalPrice = (long) (product.getSalePrice() * quantity);
@@ -450,7 +440,6 @@ public class ProductController {
                 expectedTotalPrice = (long) (product.getPrice() * quantity);
             }
 
-            // 클라이언트와 서버 가격 비교
             if (totalPrice == 0L || !totalPrice.equals(expectedTotalPrice)) {
                 totalPrice = expectedTotalPrice;
             }
@@ -476,7 +465,6 @@ public class ProductController {
         }
     }
 
-    // 주문 상태 확인 API
     @GetMapping("/products/{productNo}/order-status")
     public ResponseEntity<?> getOrderStatus(@PathVariable Long productNo,
                                             @AuthenticationPrincipal UserDetails userDetails) {
@@ -512,7 +500,6 @@ public class ProductController {
         }
     }
 
-    // 주문 취소 API
     @PostMapping("/products/{productNo}/cancel-order")
     public ResponseEntity<?> cancelOrder(@PathVariable Long productNo,
                                          @AuthenticationPrincipal UserDetails userDetails) {
@@ -554,7 +541,6 @@ public class ProductController {
         }
     }
 
-    // 🆕 세일 상품 목록 API
     @GetMapping("/api/products/sale")
     @ResponseBody
     public ResponseEntity<?> getSaleProducts() {
@@ -585,7 +571,6 @@ public class ProductController {
         }
     }
 
-    // 🆕 구매 후기 작성 권한 확인
     @GetMapping("/products/{productNo}/after-review-permission")
     public ResponseEntity<?> getAfterReviewPermission(@PathVariable Long productNo,
                                                       @AuthenticationPrincipal UserDetails userDetails) {
@@ -598,11 +583,9 @@ public class ProductController {
             if (isLoggedIn) {
                 User user = userRepository.findByEmail(userDetails.getUsername()).orElse(null);
                 if (user != null) {
-                    // 주문했는지 확인
                     boolean hasOrdered = userOrderRepository.existsByUserIdAndProductNoAndStatus(
                             user.getId(), productNo, UserOrder.OrderStatus.ORDERED);
 
-                    // 이미 후기를 작성했는지 확인
                     boolean alreadyReviewed = productReviewRepository.existsByProductNoAndUserId(productNo, user.getId());
 
                     canWriteAfterReview = hasOrdered && !alreadyReviewed;

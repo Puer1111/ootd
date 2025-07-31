@@ -43,13 +43,11 @@ public class PageController {
         try {
             System.out.println("=== 추천 상품 API 호출 ===");
 
-            // 추천 상품 목록 가져오기
             List<ProductPromotionDTO> promotions = promotionService.getRecommendedProducts();
             System.out.println("추천 프로모션 개수: " + promotions.size());
 
             List<ProductDTO> products = new ArrayList<>();
 
-            // 각 추천 상품의 상세 정보 가져오기
             for (ProductPromotionDTO promotion : promotions) {
                 try {
                     System.out.println("상품 조회 중 - productNo: " + promotion.getProductNo());
@@ -57,10 +55,8 @@ public class PageController {
                     if (product != null) {
                         System.out.println("상품 조회 성공: " + product.getProductName());
 
-                        // 프로모션 정보 설정
                         product.setPromotionInfo(promotion);
 
-                        // null 값 안전 처리
                         if (product.getIsRecommended() == null) {
                             product.setIsRecommended(true);
                         }

@@ -59,7 +59,6 @@ public class Order {
     @Column(name = "imp_uid", length = 100)
     private String impUid;
 
-    // 필요하다면, 직접 생성자 추가(파라미터 조합이 완전히 달라야 함)
     public Order(Long userId, Long quantity, String merchantUid, String userName,
                  String productName, Integer productPrice, Integer salePercent,
                  Long totalPrice, String orderStatus, String impUid) {

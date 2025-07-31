@@ -1,4 +1,3 @@
-// 토큰 관리
 const AuthManager = {
     getToken: function() {
         return localStorage.getItem('token') || sessionStorage.getItem('token');
@@ -14,7 +13,6 @@ const AuthManager = {
     }
 };
 
-// 전역 상태
 let userLikedProducts = new Set();
 let saleProducts = [];
 
@@ -24,7 +22,6 @@ document.addEventListener('DOMContentLoaded', function() {
     loadSaleProducts();
 });
 
-// 사용자 좋아요 목록 로드
 async function loadUserLikedProducts() {
     if (!AuthManager.isLoggedIn()) {
         console.log('💡 비로그인 상태 - 좋아요 목록 로드 스킵');
@@ -54,7 +51,6 @@ async function loadUserLikedProducts() {
     }
 }
 
-// 세일 상품 목록 로드
 async function loadSaleProducts() {
     showLoading(true);
 
@@ -83,7 +79,6 @@ async function loadSaleProducts() {
     }
 }
 
-// 상품 목록 렌더링
 function renderProducts() {
     const productsGrid = document.getElementById('products-grid');
     const noProductsDiv = document.getElementById('no-products');
@@ -103,7 +98,6 @@ function renderProducts() {
             ? product.imageUrls[0]
             : '/img/common/no-image.png';
 
-        // 세일 정보 계산
         const originalPrice = product.price;
         const salePrice = product.salePrice || product.price;
         const salePercentage = product.salePercentage || 0;
@@ -111,19 +105,16 @@ function renderProducts() {
 
         html += `
             <div class="card promotion-card" data-product-no="${product.productNo}" onclick="goToProduct(this)">
-                <!-- 세일 배지 -->
                 <div class="product-badge sale">
                     <span>🔥 세일</span>
                 </div>
 
-                <!-- 할인율 -->
                 ${salePercentage > 0 ? `
                     <div class="discount-info">
                         ${salePercentage}% OFF
                     </div>
                 ` : ''}
 
-                <!-- 좋아요 버튼 -->
                 <button class="like-btn-card ${isLiked ? 'liked' : ''}" 
                         data-product-no="${product.productNo}" 
                         onclick="toggleLikeFromMain(event, this)">
@@ -167,7 +158,6 @@ function renderProducts() {
     productsGrid.innerHTML = html;
 }
 
-// 통계 정보 업데이트
 function updateStats() {
     const saleCountElement = document.getElementById('sale-count');
     const avgDiscountElement = document.getElementById('avg-discount');
@@ -178,13 +168,11 @@ function updateStats() {
     }
 
     if (saleProducts.length > 0) {
-        // 평균 할인율 계산
         const productsWithDiscount = saleProducts.filter(p => p.salePercentage > 0);
         const avgDiscount = productsWithDiscount.length > 0
             ? (productsWithDiscount.reduce((sum, p) => sum + p.salePercentage, 0) / productsWithDiscount.length)
             : 0;
 
-        // 최대 할인 금액
         const maxSavings = Math.max(...saleProducts.map(p => {
             const savings = p.price - (p.salePrice || p.price);
             return savings > 0 ? savings : 0;
@@ -200,7 +188,6 @@ function updateStats() {
     }
 }
 
-// 좋아요 토글
 async function toggleLikeFromMain(event, button) {
     event.stopPropagation();
 
@@ -267,7 +254,6 @@ async function toggleLikeFromMain(event, button) {
     }
 }
 
-// 상품 상세 페이지로 이동
 function goToProduct(element) {
     const productNo = element.getAttribute('data-product-no');
     if (productNo) {
@@ -276,7 +262,6 @@ function goToProduct(element) {
     }
 }
 
-// 로딩 상태 표시
 function showLoading(show) {
     const loadingState = document.getElementById('loading-state');
     const productsGrid = document.getElementById('products-grid');
@@ -290,7 +275,6 @@ function showLoading(show) {
     }
 }
 
-// 빈 상태 표시
 function showEmptyState() {
     const productsGrid = document.getElementById('products-grid');
     const noProductsDiv = document.getElementById('no-products');

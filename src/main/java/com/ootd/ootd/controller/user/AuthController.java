@@ -20,13 +20,12 @@ public class AuthController {
 
     @GetMapping("/signup")
     public String signupForm() {
-        return "view/user/signup";  // signup.html이 templates/user 아래 있어야 함
+        return "view/user/signup";
     }
 
     @PostMapping("/signup")
     public String signup(@ModelAttribute SignupRequest request) {
-        // 회원가입 처리 로직
-        return "redirect:view/login";  // 회원가입 후 로그인으로
+        return "redirect:view/login";
     }
 
     @GetMapping("/main")
@@ -34,7 +33,6 @@ public class AuthController {
         try {
             System.out.println("=== 메인 페이지 로딩 시작 ===");
 
-            // 전체 상품 목록을 가져와서 메인 페이지에 표시
             List<ProductDTO> products = productService.getAllProducts();
             System.out.println("가져온 상품 개수: " + (products != null ? products.size() : 0));
 
@@ -50,7 +48,6 @@ public class AuthController {
         } catch (Exception e) {
             System.err.println("❌ 메인 페이지 로딩 실패: " + e.getMessage());
             e.printStackTrace();
-            // 에러 발생 시 추천 페이지로 리다이렉트
             return "redirect:/recommended";
         }
     }

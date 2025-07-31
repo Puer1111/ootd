@@ -5,10 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>마이페이지</title>
 
-    <!-- Google Fonts - Noto Sans KR -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-
-    <!-- 외부 CSS 파일 링크 -->
     <link rel="stylesheet" th:href="@{/css/user/mypage.css}">
     <link rel="stylesheet" th:href="@{/css/static-user/mypage-enhanced.css}">
     <link rel="stylesheet" th:href="@{/css/common/footer.css}">
@@ -58,13 +54,11 @@
         }
     </style>
 
-    <!-- 로그인 인증 체크 -->
     <script src="/js/user/mypageNotLogin.js">
     </script>
 </head>
 <body>
 
-<!-- 로딩 화면 -->
 <div id="auth-loading">
     <div class="loading-content">
         <div class="spinner"></div>
@@ -72,7 +66,6 @@
     </div>
 </div>
 
-<!-- 공통 헤더 -->
 <header th:replace="~{common/header.html :: header}"></header>
 
 <div class="mypage-container">
@@ -196,7 +189,6 @@
     </div>
 </div>
 
-<!-- 공통 푸터 -->
 <footer th:replace="~{common/footer.html :: footer}"></footer>
 
 <script src="/js/user/mypage.js"></script>

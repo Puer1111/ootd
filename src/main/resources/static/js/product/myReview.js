@@ -33,7 +33,6 @@ async function loadMyReviews() {
     const emptyState = document.getElementById('empty-state');
     const errorState = document.getElementById('error-state');
 
-    // 로딩 표시
     loadingState.style.display = 'block';
     reviewsContainer.style.display = 'none';
     emptyState.style.display = 'none';
@@ -41,7 +40,6 @@ async function loadMyReviews() {
 
     try {
         const token = AuthManager.getToken();
-        // 컨트롤러 경로와 일치하도록 수정
         const response = await fetch('/api/reviews/my-reviews-data', {
             method: 'GET',
             headers: {
@@ -59,7 +57,6 @@ async function loadMyReviews() {
 
         if (response.ok) {
             const data = await response.json();
-            console.log('내 리뷰 데이터:', data);
 
             if (data.success && data.reviews) {
                 displayMyReviews(data.reviews, data.totalCount || 0);
@@ -71,7 +68,6 @@ async function loadMyReviews() {
         }
 
     } catch (error) {
-        console.error('리뷰 로드 실패:', error);
         showErrorState();
     } finally {
         loadingState.style.display = 'none';
@@ -88,12 +84,10 @@ function displayMyReviews(reviews, totalCount) {
         return;
     }
 
-    // 총 개수 업데이트
     if (totalCountElement) {
         totalCountElement.textContent = totalCount;
     }
 
-    // 리뷰 목록 HTML 생성
     const reviewsHtml = reviews.map(review => `
         <div class="review-card" data-product-no="${review.productNo}">
             <div class="review-header">
@@ -164,7 +158,6 @@ async function deleteReview(reviewId, productName) {
 
     try {
         const token = AuthManager.getToken();
-        // 컨트롤러 경로와 일치하도록 수정 (/api/reviews/{reviewId})
         const response = await fetch(`/api/reviews/${reviewId}`, {
             method: 'DELETE',
             headers: {
@@ -177,14 +170,12 @@ async function deleteReview(reviewId, productName) {
 
         if (response.ok && data.success) {
             alert('리뷰가 삭제되었습니다.');
-            // 페이지 새로고침하여 업데이트된 목록 표시
             loadMyReviews();
         } else {
             alert(data.message || '리뷰 삭제에 실패했습니다.');
         }
 
     } catch (error) {
-        console.error('리뷰 삭제 실패:', error);
         alert('오류가 발생했습니다. 다시 시도해주세요.');
     }
 }

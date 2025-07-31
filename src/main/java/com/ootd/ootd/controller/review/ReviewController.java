@@ -29,13 +29,11 @@ public class ReviewController {
     @Autowired
     private ProductService productService;
 
-    // 내가 쓴 리뷰 페이지
     @GetMapping("/my-reviews")
     public String myReviewsPage() {
         return "view/product/reviews";
     }
 
-    // 내가 쓴 리뷰 목록 API
     @GetMapping("/my-reviews-data")
     @ResponseBody
     public ResponseEntity<?> getMyReviews(@AuthenticationPrincipal UserDetails userDetails) {
@@ -51,7 +49,6 @@ public class ReviewController {
             User user = userRepository.findByEmail(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
 
-            // 내가 작성한 리뷰 목록 조회
             List<ProductReview> myReviews = productReviewRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
 
             List<Map<String, Object>> reviewsWithProduct = new ArrayList<>();
@@ -61,8 +58,7 @@ public class ReviewController {
                 if (product != null) {
                     Map<String, Object> reviewWithProduct = new HashMap<>();
 
-                    // 리뷰 정보
-                    reviewWithProduct.put("id", review.getReviewId()); // getId() -> getReviewId()
+                    reviewWithProduct.put("id", review.getReviewId());
                     reviewWithProduct.put("productNo", review.getProductNo());
                     reviewWithProduct.put("rating", review.getRating());
                     reviewWithProduct.put("content", review.getContent());
@@ -90,7 +86,6 @@ public class ReviewController {
         }
     }
 
-    // 리뷰 삭제 API
     @DeleteMapping("/{reviewId}")
     @ResponseBody
     public ResponseEntity<?> deleteMyReview(@PathVariable Long reviewId,
@@ -107,7 +102,6 @@ public class ReviewController {
             User user = userRepository.findByEmail(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
 
-            // 리뷰 존재 확인 및 본인 리뷰인지 확인
             Optional<ProductReview> reviewOpt = productReviewRepository.findById(reviewId);
 
             if (reviewOpt.isEmpty()) {
@@ -123,7 +117,6 @@ public class ReviewController {
                 return ResponseEntity.badRequest().body(response);
             }
 
-            // 리뷰 삭제
             productReviewRepository.delete(review);
 
             response.put("success", true);

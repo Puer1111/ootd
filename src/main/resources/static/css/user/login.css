@@ -1,4 +1,3 @@
-
 body {
     font-family: 'Noto Sans KR', sans-serif;
     background-color: #f9f9f9;
@@ -9,18 +8,18 @@ body {
 
 .container {
     display: flex;
-    min-height: calc(100vh - 56px); /* 헤더 높이(56px) 제외 */
+    min-height: calc(100vh - 56px);
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
-    margin-top: 20px; /* 헤더 높이만큼 마진 추가 */
+    margin-top: 20px;
 }
 
 .left-panel {
     flex: 1;
     background-color: #3498db;
     color: #fff;
-    padding: 60px 40px; /* 패딩 줄임 */
+    padding: 60px 40px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -28,7 +27,7 @@ body {
 }
 
 .left-panel h1 {
-    font-size: 2.2rem; /* 크기 약간 줄임 */
+    font-size: 2.2rem;
     margin-bottom: 20px;
     font-weight: 700;
 }
@@ -166,7 +165,6 @@ body {
     display: block;
 }
 
-/* 반응형 디자인 */
 @media (max-width: 768px) {
     .container {
         flex-direction: column;
@@ -176,7 +174,7 @@ body {
 
     .left-panel {
         border-radius: 10px 10px 0 0;
-        padding: 30px 20px; /* 모바일에서 패딩 더 줄임 */
+        padding: 30px 20px;
     }
 
     .left-panel h1 {
@@ -188,3 +186,4 @@ body {
         padding: 30px 20px;
     }
 }
+s

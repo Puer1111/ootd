@@ -1,4 +1,3 @@
-
 body {
     font-family: 'Noto Sans KR', sans-serif;
     background-color: #f9f9f9;
@@ -9,18 +8,18 @@ body {
 
 .container {
     display: flex;
-    min-height: calc(100vh - 56px); /* 헤더 높이(56px) 제외 */
+    min-height: calc(100vh - 56px);
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
-    margin-top: 20px; /* 헤더 높이만큼 마진 추가 */
+    margin-top: 20px;
 }
 
 .left-panel {
     flex: 1;
-    background-color: #6c63ff; /* 회원가입 컬러 유지 */
+    background-color: #6c63ff;
     color: #fff;
-    padding: 60px 40px; /* 로그인과 동일한 패딩 */
+    padding: 60px 40px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -28,7 +27,7 @@ body {
 }
 
 .left-panel h1 {
-    font-size: 2.2rem; /* 로그인과 동일한 크기 */
+    font-size: 2.2rem;
     margin-bottom: 20px;
     font-weight: 700;
 }
@@ -52,7 +51,7 @@ body {
 
 .signup-form {
     width: 100%;
-    max-width: 400px; /* 로그인과 동일한 최대 너비 */
+    max-width: 400px;
 }
 
 .form-header {
@@ -67,7 +66,7 @@ body {
 }
 
 .form-group {
-    margin-bottom: 20px; /* 로그인과 동일한 마진 */
+    margin-bottom: 20px;
     position: relative;
 }
 
@@ -80,7 +79,7 @@ body {
 
 .form-control {
     width: 100%;
-    padding: 12px 15px; /* 로그인과 동일한 패딩 */
+    padding: 12px 15px;
     border: 1px solid #ddd;
     border-radius: 6px;
     font-size: 1rem;
@@ -112,7 +111,7 @@ body {
 .btn {
     display: block;
     width: 100%;
-    padding: 14px; /* 로그인과 동일한 패딩 */
+    padding: 14px;
     background-color: #6c63ff;
     color: #fff;
     border: none;
@@ -166,7 +165,6 @@ body {
     display: block;
 }
 
-/* 반응형 디자인 */
 @media (max-width: 768px) {
     .container {
         flex-direction: column;
@@ -176,7 +174,7 @@ body {
 
     .left-panel {
         border-radius: 10px 10px 0 0;
-        padding: 30px 20px; /* 모바일에서 패딩 조정 */
+        padding: 30px 20px;
     }
 
     .left-panel h1 {

@@ -4,10 +4,6 @@ import com.ootd.ootd.model.entity.point.UserPoint;
 
 import java.time.LocalDateTime;
 
-/**
- * 사용자 적립금 정보 전송용 DTO
- * 경로: src/main/java/com/ootd/ootd/model/dto/point/UserPointDTO.java
- */
 public class UserPointDTO {
 
     private Long id;
@@ -18,10 +14,8 @@ public class UserPointDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    // 기본 생성자
     public UserPointDTO() {}
 
-    // 전체 필드 생성자
     public UserPointDTO(Long id, Long userId, Long totalPoints, Long availablePoints,
                         Long usedPoints, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
@@ -33,9 +27,6 @@ public class UserPointDTO {
         this.updatedAt = updatedAt;
     }
 
-    /**
-     * Entity를 DTO로 변환
-     */
     public static UserPointDTO convertToDTO(UserPoint entity) {
         if (entity == null) {
             return null;
@@ -52,10 +43,6 @@ public class UserPointDTO {
 
         return dto;
     }
-
-    /**
-     * DTO를 Entity로 변환
-     */
     public static UserPoint convertToEntity(UserPointDTO dto) {
         if (dto == null) {
             return null;
@@ -73,7 +60,6 @@ public class UserPointDTO {
         return entity;
     }
 
-    // Getter & Setter
     public Long getId() {
         return id;
     }

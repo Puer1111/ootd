@@ -4,10 +4,7 @@
     <meta charset="UTF-8">
     <title>랭킹 - OOTD</title>
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 
-    <!-- CSS 파일들 -->
     <link rel="stylesheet" href="/css/common/footer.css">
     <link rel="stylesheet" href="/css/common/main-header.css">
     <link rel="stylesheet" href="/css/common/layout.css">
@@ -20,15 +17,12 @@
 
 <main>
     <div class="ranking-container">
-        <!-- 랭킹 페이지 타이틀 -->
         <div class="ranking-header">
             <h1 class="ranking-title">상품 랭킹</h1>
             <p class="ranking-subtitle">카테고리별 인기 상품을 확인해보세요</p>
         </div>
 
-        <!-- 필터 및 정렬 섹션 -->
         <div class="filter-section">
-            <!-- 정렬 방식 선택 -->
             <div class="filter-group">
                 <h3>정렬 기준</h3>
                 <div class="sort-filters">
@@ -38,7 +32,6 @@
                 </div>
             </div>
 
-            <!-- 카테고리 필터 -->
             <div class="filter-group">
                 <h3>카테고리</h3>
                 <div class="category-filters">
@@ -48,19 +41,16 @@
                     <button class="category-btn" data-category="shoes" onclick="filterByCategory('shoes')">신발</button>
                 </div>
 
-                <!-- 하위 카테고리 필터 -->
                 <div class="sub-category-filters" id="sub-category-filters" style="display: none;">
                     <div class="sub-categories" id="sub-categories"></div>
                 </div>
             </div>
         </div>
 
-        <!-- 랭킹 결과 섹션 -->
         <div class="ranking-section">
             <div class="ranking-section-header">
                 <h2 class="section-title" id="section-title">리뷰 랭킹</h2>
                 <div class="section-controls">
-                    <!-- 🆕 버튼 텍스트 및 설명 변경 -->
                     <button id="filter-liked-btn" class="filter-btn" onclick="toggleLikedFilter()"
                             title="좋아요 1개 이상인 상품만 보기">
                         <span class="heart-icon">♥</span> 좋아요 많은 상품만
@@ -76,18 +66,15 @@
                 </div>
             </div>
 
-            <!-- 로딩 상태 -->
             <div id="loading-state" class="loading-state" style="display: none;">
                 <div class="spinner"></div>
                 <p>랭킹을 불러오는 중...</p>
             </div>
 
-            <!-- 랭킹 상품 그리드/리스트 -->
             <div class="ranking-grid" id="ranking-grid">
                 <!-- 상품 카드들이 JavaScript로 동적 생성됨 -->
             </div>
 
-            <!-- 🆕 인기상품 필터링 시 빈 상태 메시지 변경 -->
             <div id="no-liked-products" class="empty-state" style="display: none;">
                 <div class="empty-icon">🔥</div>
                 <h3>좋아요받은 상품이 없습니다</h3>
@@ -95,7 +82,6 @@
                 <button class="btn btn-primary" onclick="toggleLikedFilter()">전체 상품 보기</button>
             </div>
 
-            <!-- 상품이 없을 때 -->
             <div id="no-products" class="empty-state" style="display: none;">
                 <div class="empty-icon">📦</div>
                 <h3>상품이 없습니다</h3>
@@ -104,7 +90,6 @@
             </div>
         </div>
 
-        <!-- 페이지네이션 -->
         <div class="pagination-container" id="pagination-container" style="display: none;">
             <div class="pagination">
                 <button class="page-btn" id="prev-page" onclick="changePage(-1)">‹ 이전</button>
@@ -113,7 +98,6 @@
             </div>
         </div>
 
-        <!-- 뒤로가기 버튼 -->
         <div class="back-button">
             <button class="btn btn-outline" onclick="goBack()">← 메인으로 돌아가기</button>
         </div>
@@ -122,7 +106,6 @@
 
 <footer th:replace="~{common/footer.html :: footer}"></footer>
 
-<!-- JavaScript 파일 (중복 제거) -->
 <script src="/js/ranking/ranking.js"></script>
 
 </body>

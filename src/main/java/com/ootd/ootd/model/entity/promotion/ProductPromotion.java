@@ -59,7 +59,6 @@ public class ProductPromotion {
     @JoinColumn(name = "product_no", insertable = false, updatable = false)
     private Product product;
 
-    // 세일 가격 계산 메서드
     public Integer calculateSalePrice() {
         if (isSale && salePercentage != null && originalPrice != null) {
             return originalPrice - (originalPrice * salePercentage / 100);
@@ -67,7 +66,6 @@ public class ProductPromotion {
         return originalPrice;
     }
 
-    // 세일 진행 중인지 확인
     public boolean isActiveSale() {
         if (!isSale) return false;
 

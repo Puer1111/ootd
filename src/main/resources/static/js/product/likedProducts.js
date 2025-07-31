@@ -1,4 +1,3 @@
-// 토큰 관리
 const AuthManager = {
     getToken: function() {
         return localStorage.getItem('auth_token');
@@ -26,7 +25,6 @@ function loadLikedProducts() {
         return;
     }
 
-    // 로딩 상태 표시
     showLoadingState();
 
     fetch('/api/auth/liked-products', {
@@ -82,20 +80,16 @@ function showErrorState() {
 }
 
 function displayProducts(products, totalCount) {
-    // 총 개수 업데이트
     document.getElementById('total-count').textContent = totalCount;
 
-    // 로딩 상태 숨기기
     document.getElementById('loading-state').style.display = 'none';
 
     if (!products || products.length === 0) {
-        // 빈 상태 표시
         document.getElementById('empty-state').style.display = 'block';
         document.getElementById('products-container').style.display = 'none';
         return;
     }
 
-    // 상품 목록 표시
     const productsGrid = document.getElementById('products-grid');
     productsGrid.innerHTML = '';
 
@@ -113,12 +107,10 @@ function createProductCard(product) {
     card.className = 'product-card';
     card.setAttribute('data-product-no', product.productNo);
 
-    // 이미지 URL 처리
     const imageUrl = (product.imageUrls && product.imageUrls.length > 0)
         ? product.imageUrls[0]
         : '/images/no-image.png';
 
-    // 가격 포맷팅
     const formattedPrice = new Intl.NumberFormat('ko-KR').format(product.price);
 
     card.innerHTML = `
@@ -150,7 +142,6 @@ function createProductCard(product) {
         </div>
     `;
 
-    // 카드 클릭 이벤트 (좋아요 버튼 제외)
     card.addEventListener('click', function(e) {
         if (!e.target.closest('.unlike-btn')) {
             goToProduct(product.productNo);
@@ -165,7 +156,7 @@ function goToProduct(productNo) {
 }
 
 function toggleLike(event, productNo) {
-    event.stopPropagation(); // 카드 클릭 이벤트 방지
+    event.stopPropagation();
 
     const token = AuthManager.getToken();
 
@@ -177,7 +168,6 @@ function toggleLike(event, productNo) {
 
     const button = event.currentTarget;
 
-    // 버튼 비활성화 (중복 클릭 방지)
     button.disabled = true;
 
     fetch(`/products/${productNo}/like`, {
@@ -191,7 +181,6 @@ function toggleLike(event, productNo) {
         .then(data => {
             if (data.success) {
                 if (!data.isLiked) {
-                    // 좋아요 취소됨 - 카드 제거
                     const productCard = button.closest('.product-card');
                     productCard.style.opacity = '0';
                     productCard.style.transform = 'scale(0.9)';
@@ -201,7 +190,6 @@ function toggleLike(event, productNo) {
                         updateTotalCount();
                     }, 300);
 
-                    // 모든 카드가 제거되었는지 확인
                     setTimeout(() => {
                         const remainingCards = document.querySelectorAll('.product-card');
                         if (remainingCards.length === 0) {

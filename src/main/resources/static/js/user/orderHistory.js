@@ -1,4 +1,3 @@
-// 토큰 관리
 const AuthManager = {
     getToken: function() {
         return localStorage.getItem('auth_token');
@@ -34,7 +33,6 @@ async function loadOrderHistory() {
     const emptyState = document.getElementById('empty-state');
     const errorState = document.getElementById('error-state');
 
-    // 로딩 표시
     loadingState.style.display = 'block';
     productsContainer.style.display = 'none';
     emptyState.style.display = 'none';
@@ -78,7 +76,6 @@ async function loadOrderHistory() {
     }
 }
 
-// 주문 내역 표시 함수
 function displayOrderHistory(orders, totalCount) {
     const productsContainer = document.getElementById('products-container');
     const productsGrid = document.getElementById('products-grid');
@@ -89,12 +86,10 @@ function displayOrderHistory(orders, totalCount) {
         return;
     }
 
-    // 총 개수 업데이트
     if (totalCountElement) {
         totalCountElement.textContent = totalCount;
     }
 
-    // 주문 목록 HTML 생성
     const ordersHtml = orders.map(order => `
         <div class="product-card" data-product-no="${order.productNo}">
             <div class="product-image" onclick="goToProduct(${order.productNo})">
@@ -108,8 +103,8 @@ function displayOrderHistory(orders, totalCount) {
                 <div class="product-brand">브랜드: ${order.brandName || 'OOTD'}</div>
                 <div class="product-name" onclick="goToProduct(${order.productNo})">${order.productName}</div>
                 <div class="product-category">카테고리: ${order.categoryName || '패션'} > ${order.subCategory || '일반'}</div>
-                
-                <!-- 주문 정보 섹션 -->
+                <input type = "text" placeholder="${order.orderId}">
+                                
                 <div class="order-summary">
                     <div class="order-main-info">
                         <div class="quantity-price">
@@ -126,7 +121,7 @@ function displayOrderHistory(orders, totalCount) {
                 
                 <div class="product-actions">
                     <button class="btn btn-outline" onclick="goToProduct(${order.productNo})">상품 보기</button>
-                    <button class="btn btn-danger" onclick="cancelOrderFromHistory(${order.orderId || order.productNo})">주문 취소</button>
+                    <button class="btn btn-danger" onclick="cancelOrderFromHistory(${order.orderId})">주문 취소</button>
                 </div>
             </div>
         </div>
@@ -162,10 +157,6 @@ async function cancelOrderFromHistory(orderId) {
     }
 
     try {
-        // 결제 취소 API 호출 (있다면)
-        if (window.cancelPay) {
-            await window.cancelPay();
-        }
 
         const token = AuthManager.getToken();
         const response = await fetch(`/api/auth/cancel-order/${orderId}`, {
@@ -182,7 +173,6 @@ async function cancelOrderFromHistory(orderId) {
         if (contentType && contentType.includes('application/json')) {
             data = await response.json();
         } else {
-            // JSON이 아닌 경우 텍스트로 읽기
             const text = await response.text();
             console.error('서버에서 JSON이 아닌 응답을 받았습니다:', text);
             data = {
@@ -193,7 +183,6 @@ async function cancelOrderFromHistory(orderId) {
 
         if (response.ok && data.success) {
             alert(data.message || '주문이 취소되었습니다.');
-            // 페이지 새로고침하여 업데이트된 목록 표시
             loadOrderHistory();
         } else {
             alert(data.message || '주문 취소에 실패했습니다.');

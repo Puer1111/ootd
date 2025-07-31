@@ -7,7 +7,7 @@ body {
 .mypage-container {
     display: flex;
     justify-content: center;
-    padding: 2rem 5%; /* 좌우 여백 5%로 줄임 */
+    padding: 2rem 5%;
     background-color: #f9f9f9;
     min-height: calc(100vh - 56px);
     width: 100%;
@@ -18,7 +18,7 @@ body {
 .user-card {
     background: #ffffff;
     width: 100%;
-    max-width: 1200px; /* 800px에서 1200px로 증가 */
+    max-width: 1200px;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     padding: 2rem;
@@ -122,7 +122,6 @@ body {
     font-weight: 300;
 }
 
-/* 개인정보 */
 .personal-info-detail {
     display: none;
     background-color: #f8f9fa;
@@ -227,7 +226,6 @@ body {
     background-color: #0056b3;
 }
 
-/* modal */
 .modal {
     display: none;
     position: fixed;
@@ -458,7 +456,8 @@ body {
         flex-direction: column;
     }
 
-    .btn-cancel, .btn-submit {
+    .btn-cancel,
+    .btn-submit {
         width: 100%;
     }
 }
