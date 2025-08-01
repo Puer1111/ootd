@@ -18,7 +18,6 @@
     <div class="product-main-section">
 
         <div class="product-images">
-            <!-- 이미지가 여러 개인 경우 캐러셸 -->
             <div th:if="${product.imageUrls != null and product.imageUrls.size() > 1}"
                  class="carousel-container">
                 <div class="carousel-slides">
@@ -48,7 +47,6 @@
                 </div>
             </div>
 
-            <!-- 이미지가 1개인 경우 단일 이미지 -->
             <div th:if="${product.imageUrls != null and product.imageUrls.size() == 1}"
                  class="single-image">
                 <div class="product-image-container">

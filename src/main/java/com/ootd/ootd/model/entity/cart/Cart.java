@@ -35,14 +35,6 @@ public class Cart {
     @Column(name="cart_current_time")
     LocalDateTime currentTime;
 
-//    public String getFirstImageUrl() {
-//        // ✅ JSON 파싱 없이 바로 접근
-//        if (imageUrls == null || imageUrls.isEmpty()) {
-//            return null;  // 또는 기본 이미지 URL
-//        }
-//
-//        return imageUrls.get(0);  // ✅ 첫 번째 이미지 바로 반환
-//    }
 
 
 }

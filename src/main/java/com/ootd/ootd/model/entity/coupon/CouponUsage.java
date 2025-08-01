@@ -45,7 +45,6 @@ public class CouponUsage {
             this.isUsed = false;
         }
     }
-
     @Column(name = "order_id")
     private Long orderId;               // 주문 상품 ID
 }

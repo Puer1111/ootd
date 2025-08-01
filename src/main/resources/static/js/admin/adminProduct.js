@@ -17,14 +17,14 @@ const productManagementToggle = document.getElementById('product-management-togg
 const productSubmenu = document.getElementById('product-submenu');
 
 if (productManagementToggle && productSubmenu) {
-    // Get all clickable elements in the sidebar for deactivation
+
     const allSidebarClickables = document.querySelectorAll('.admin-sidebar a, .admin-sidebar span');
 
     const deactivateAllActiveStates = () => {
         allSidebarClickables.forEach(el => {
             el.classList.remove('active');
         });
-        // Also ensure all submenus are hidden, except the one being toggled if it's a parent
+
         document.querySelectorAll('.admin-sidebar .submenu').forEach(submenu => {
             submenu.classList.remove('active');
         });
@@ -34,18 +34,18 @@ if (productManagementToggle && productSubmenu) {
         event.preventDefault();
         const clickedElement = event.target;
 
-        // Check if the clicked element is the span itself or a child of the li (but not an 'a' tag)
+
         const isToggleSpan = clickedElement.tagName === 'SPAN' && clickedElement.closest('#product-management-toggle');
         const isSubmenuLink = clickedElement.tagName === 'A' && clickedElement.closest('#product-submenu');
 
         if (isToggleSpan) {
-            // If the span (toggle) is clicked
+
             const isActive = productSubmenu.classList.contains('active');
             deactivateAllActiveStates(); // Deactivate all others first
             productSubmenu.classList.toggle('active', !isActive); // Toggle submenu visibility
             clickedElement.classList.toggle('active', !isActive); // Toggle active state of the span
         } else if (isSubmenuLink) {
-            // If a submenu link is clicked
+
             deactivateAllActiveStates(); // Deactivate all others first
             clickedElement.classList.add('active'); // Activate the clicked link
             productManagementToggle.querySelector('span').classList.add('active'); // Activate the parent span
@@ -55,16 +55,15 @@ if (productManagementToggle && productSubmenu) {
             showSection(targetSectionId);
 
             if (targetSectionId === 'product-register-section') {
-                resetForm(); // Reset form when navigating to register section
+                resetForm();
             }
         }
-        // If clicked outside the span or a link, do nothing (e.g., clicking on the li padding)
     });
 }
 
 // --- 초기화 ---
 loadProducts();
-showSection('product-list-section'); // 초기 화면은 조회/관리
+showSection('product-list-section');
 
 // --- API 및 유틸리티 초기화 ---
 initializeApiAndUtils();
@@ -80,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeSaleEvents();
 });
 
-let allProductsData = []; // 모든 상품 데이터를 저장할 전역 변수
+let allProductsData = [];
 
 // --- 상품 목록 로드 (세일 정보 포함) ---
 function loadProducts() {
@@ -92,7 +91,7 @@ function loadProducts() {
             tableBody.innerHTML = ''; // 기존 내용을 비웁니다.
 
             products.forEach(product => {
-                // 1. 메인 상품 정보 행 생성
+
                 const productRow = document.createElement('tr');
                 productRow.classList.add('product-row');
 
@@ -154,7 +153,7 @@ function loadProducts() {
                 tableBody.appendChild(optionsRow);
             });
 
-            // 이벤트 리스너 등록
+
             addEventListeners();
         })
         .catch(error => console.error('Error loading products:', error));
@@ -193,7 +192,7 @@ function handleDelete(event) {
             .then(response => {
                 if (response.ok) {
                     alert('상품이 삭제되었습니다.');
-                    loadProducts(); // 목록 새로고침
+                    loadProducts();
                 } else {
                     throw new Error('상품 삭제에 실패했습니다.');
                 }
@@ -215,10 +214,10 @@ function handleEdit(event) {
         return;
     }
 
-    // 폼 초기화
+
     resetForm();
 
-    // 폼에 기본 데이터 채우기
+
     document.getElementById('productNo').value = productData.productNo;
     document.getElementById('productName').value = productData.productName;
     document.getElementById('description').value = productData.description;
@@ -233,17 +232,15 @@ function handleEdit(event) {
         }
     }
 
-    // 브랜드 및 카테고리 설정 (비동기적으로 로드될 수 있으므로 약간의 지연 후 설정)
+    // 브랜드 및 카테고리 설정
     setTimeout(() => {
         const brandSelect = document.getElementById('brand-select');
         if (Array.from(brandSelect.options).some(opt => opt.text === productData.brandName)) {
-            // 옵션의 텍스트 값으로 찾기
+
             const brandOption = Array.from(brandSelect.options).find(opt => opt.text === productData.brandName);
             if(brandOption) brandSelect.value = brandOption.value;
         }
 
-        // 카테고리 설정 로직 (구현 필요)
-        // 예: document.getElementById('categoryChoiceSecond').value = productData.categoryNo;
     }, 500); // 0.5초 지연
 
     // 이미지 미리보기 채우기
@@ -290,7 +287,7 @@ function resetForm() {
     document.getElementById('preview-area').innerHTML = '';
     document.getElementById('sizesContainer').innerHTML = '';
 
-    // 세일 설정 초기화
+
     document.getElementById('isSale').checked = false;
     document.querySelector('.sale-percentage').style.display = 'none';
     document.getElementById('salePercentage').value = '';

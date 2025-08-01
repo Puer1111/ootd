@@ -2,30 +2,30 @@ export const utils = {
     selectedFiles: [],
     fileInput: null,
     previewArea: null,
-    placeholderCreated: false, // placeholder 생성 여부 추적
+    placeholderCreated: false,
 
     // 프리뷰 기능 초기화
     init(fileInputId = 'fileInput', previewAreaId = 'preview-area') {
         this.fileInput = document.getElementById(fileInputId);
         this.previewArea = document.getElementById(previewAreaId);
-        this.selectedFiles = []; // 초기화 시 배열 초기화
-        this.placeholderCreated = false; // 초기화
+        this.selectedFiles = [];
+        this.placeholderCreated = false;
 
         if (!this.fileInput || !this.previewArea) {
             console.error('파일 입력 또는 프리뷰 영역을 찾을 수 없습니다.');
             return;
         }
 
-        // placeholder HTML 추가 (한 번만)
+
         this.createPlaceholder();
 
-        // handleFileSelect 함수를 이벤트 리스너로 등록
+
         this.fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
 
-        // 드래그 앤 드롭 이벤트 추가
+
         this.setupDragAndDrop();
 
-        // 폼 제출 이벤트 리스너 추가
+
         const form = document.getElementById('product-form');
         if (form) {
             form.addEventListener('submit', (e) => {
@@ -37,14 +37,14 @@ export const utils = {
         console.log('이미지 업로드 초기화 완료');
     },
 
-    // placeholder 생성 (한 번만 실행되도록 수정)
+
     createPlaceholder() {
-        // 이미 생성되었다면 실행하지 않음
+
         if (this.placeholderCreated || this.previewArea.querySelector('.upload-placeholder')) {
             return;
         }
 
-        // 기존 내용 완전히 제거
+
         this.previewArea.innerHTML = '';
 
         // placeholder HTML 생성
@@ -61,12 +61,12 @@ export const utils = {
         `;
 
         this.previewArea.appendChild(placeholderDiv);
-        this.placeholderCreated = true; // 생성 완료 표시
+        this.placeholderCreated = true;
 
         console.log('Placeholder 생성 완료');
     },
 
-    // 드래그 앤 드롭 설정
+
     setupDragAndDrop() {
         const boundary = document.querySelector('.product-img-boundary');
         if (!boundary) return;
@@ -119,42 +119,41 @@ export const utils = {
     handleFileSelect(e) {
         const files = Array.from(e.target.files);
 
-        // 이미지 파일만 필터링
+
         const imageFiles = files.filter(file => file.type.startsWith('image/'));
 
-        // selectedFiles 배열에 파일 추가
+
         imageFiles.forEach(file => {
             this.selectedFiles.push(file);
         });
 
-        // 프리뷰 표시
         this.showPreviews(imageFiles);
 
-        // UI 상태 업데이트
+
         this.updateUIState();
 
         console.log('선택된 파일들:', this.selectedFiles);
     },
 
-    // UI 상태 업데이트 (placeholder 안전하게 제어)
+
     updateUIState() {
         const placeholder = this.previewArea.querySelector('#uploadPlaceholder');
         const boundary = document.querySelector('.product-img-boundary');
 
-        // placeholder가 없으면 다시 생성
+
         if (!placeholder) {
             this.placeholderCreated = false;
             this.createPlaceholder();
-            return this.updateUIState(); // 재귀 호출로 다시 실행
+            return this.updateUIState();
         }
 
         if (this.selectedFiles.length > 0) {
-            // 파일이 있을 때: placeholder 숨기기
+
             placeholder.style.display = 'none';
             placeholder.classList.add('hidden');
             if (boundary) boundary.classList.add('has-files');
         } else {
-            // 파일이 없을 때: placeholder 보이기
+
             placeholder.style.display = '';
             placeholder.classList.remove('hidden');
             if (boundary) boundary.classList.remove('has-files');
@@ -163,12 +162,12 @@ export const utils = {
         console.log('UI 상태 업데이트:', this.selectedFiles.length > 0 ? '파일 있음' : '파일 없음');
     },
 
-    // 여러 파일의 프리뷰 표시
+
     showPreviews(files) {
-        // 각 파일에 대해 프리뷰 생성
+
         Array.from(files).forEach((file, index) => {
             if (file.type.startsWith('image/')) {
-                // selectedFiles의 현재 길이를 기준으로 인덱스 설정
+
                 const actualIndex = this.selectedFiles.length - files.length + index;
                 this.createPreview(file, actualIndex);
             }
@@ -191,7 +190,7 @@ export const utils = {
 
             const removeBtn = div.querySelector('.remove-btn');
 
-            // 삭제 버튼 이벤트
+
             removeBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -216,10 +215,9 @@ export const utils = {
     removePreview(index) {
         console.log('삭제 버튼 클릭됨, index:', index);
 
-        // selectedFiles에서 제거
+
         this.selectedFiles.splice(index, 1);
 
-        // DOM에서 해당 미리보기 제거
         const previewItem = this.previewArea.querySelector(`[data-index="${index}"]`);
         if (previewItem) {
             previewItem.remove();
@@ -228,10 +226,9 @@ export const utils = {
         // 인덱스 재정렬
         this.reindexPreviews();
 
-        // UI 상태 업데이트 (placeholder 복원 포함)
+
         this.updateUIState();
 
-        // input 초기화 (필요시)
         if (this.selectedFiles.length === 0) {
             this.fileInput.value = '';
         }
@@ -269,33 +266,21 @@ export const utils = {
             }
         });
     },
-
-    // 선택된 파일들 가져오기
-    getSelectedFiles() {
-        return this.selectedFiles;
-    },
-
-    // 모든 파일 초기화 (placeholder 안전하게 복원)
     clearAllFiles() {
         console.log('모든 파일 초기화 시작');
 
-        // 선택된 파일들 초기화
         this.selectedFiles = [];
 
-        // 모든 미리보기 아이템만 제거 (placeholder는 유지)
         const previews = this.previewArea.querySelectorAll('.preview-item');
         previews.forEach(preview => preview.remove());
 
-        // placeholder가 없으면 다시 생성
         if (!this.previewArea.querySelector('#uploadPlaceholder')) {
             this.placeholderCreated = false;
             this.createPlaceholder();
         }
 
-        // UI 상태 업데이트
         this.updateUIState();
 
-        // input 초기화
         if (this.fileInput) {
             this.fileInput.value = '';
         }
@@ -316,19 +301,16 @@ export const utils = {
             }
         });
 
-        // 이미지 파일들 추가
         console.log('Selected files count:', this.selectedFiles.length);
         this.selectedFiles.forEach((file, index) => {
             console.log(`Adding file ${index}:`, file.name);
             formData.append('images', file);
         });
 
-        // FormData 내용 확인
         for (let [key, value] of formData.entries()) {
             console.log(key, value);
         }
 
-        // 유효성 검증
         if (this.selectedFiles.length === 0) {
             alert('이미지를 선택해주세요.');
             return;

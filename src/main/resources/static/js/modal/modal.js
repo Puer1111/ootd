@@ -42,7 +42,7 @@ export const modal = {
         if (btnId === 'add-brand-btn') {
             modalTitle.textContent = '새 브랜드 추가';
             typeInputTitle.placeholder = '브랜드명 입력';
-            saveBtn.dataset.type = 'brand'; // 제출 버튼에 타입 지정
+            saveBtn.dataset.type = 'brand';
             typeInputTitle.name = "brandName";
             typeContentDiv.style.display='block';
             typeInputContent1.placeholder= '브랜드 로고 등록'
@@ -56,9 +56,8 @@ export const modal = {
         else if (btnId === 'add-category-btn') {
             modalTitle.textContent = '새 카테고리 추가';
             typeInputTitle.placeholder = '카테고리명 입력';
-            saveBtn.dataset.type = 'category'; // 제출 버튼에 타입 지정
+            saveBtn.dataset.type = 'category';
             typeInputTitle.name = "subCategory";
-            // typeContentDiv.style.display='block';
             CategoryMain.innerHTML = '<option value="choiceCategory">-- 카테고리 선택 --</option>';
             CategoryMain.style.display='block';
             Array.from(categoryFirst.options).forEach(option => {
@@ -76,7 +75,6 @@ export const modal = {
     },
 
     close() {
-        // 아직 요소가 초기화되지 않았다면 초기화
         if (!this.elements.modalElement) {
             this.initElements();
         }
@@ -85,11 +83,11 @@ export const modal = {
     },
 
     init() {
-        // 요소 초기화
+
         this.initElements();
         const { addBrandBtn, addCategoryBtn, addColorBtn, closeBtn, cancelBtn, modalElement, saveBtn } = this.elements;
 
-        // 브랜드/카테고리 추가 버튼
+
         if (addBrandBtn) {
             addBrandBtn.addEventListener('click', (event) => this.open(event));
         }
@@ -102,17 +100,17 @@ export const modal = {
             addColorBtn.addEventListener('click', (event) => this.open(event));
         }
 
-        // 닫기 버튼 이벤트
+
         if (closeBtn) {
             closeBtn.addEventListener('click', () => this.close());
         }
 
-        // 취소 버튼 이벤트
+
         if (cancelBtn) {
             cancelBtn.addEventListener('click', () => this.close());
         }
 
-        // 모달 외부 클릭 이벤트
+
         window.addEventListener('click', (event) => {
             if (event.target === modalElement) {
                 this.close();
@@ -126,7 +124,7 @@ export const modal = {
     },
 
     save() {
-        // 아직 요소가 초기화되지 않았다면 초기화
+
         if (!this.elements.modalElement) {
             this.initElements();
         }
@@ -140,8 +138,6 @@ export const modal = {
         if (inputTitleValue === '' ) {
             return;
         }
-
-        // 타입에 따라 적절한 API 호출
         if (type === 'brand') {
             window.api.brand.register(inputTitleValue,inputContentValue1,inputContentValue2)
         } else if (type === 'category') {

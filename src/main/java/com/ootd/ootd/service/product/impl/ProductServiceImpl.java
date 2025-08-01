@@ -205,10 +205,9 @@ public class ProductServiceImpl implements ProductService {
         // 그룹화된 맵을 최종적인 AdminProductDTO 리스트로 변환
         return groupedByProduct.values().stream()
                 .map(optionsForOneProduct -> {
-                    // 리스트의 첫 번째 항목에서 공통 상품 정보를 가져옴
                     AdminProductFlatDTO firstOption = optionsForOneProduct.get(0);
 
-                    // 해당 상품의 모든 옵션 정보를 ProductOptionInfo 리스트로 변환
+
                     List<AdminProductDTO.ProductOptionInfo> options = optionsForOneProduct.stream()
                             .map(flatDto -> new AdminProductDTO.ProductOptionInfo(
                                     flatDto.getSize() != null ? flatDto.getSize() : "",
@@ -219,7 +218,6 @@ public class ProductServiceImpl implements ProductService {
                             ))
                             .collect(Collectors.toList());
 
-                    // 최종적으로 계층 구조를 가진 AdminProductDTO를 빌드
                     return AdminProductDTO.builder()
                             .productNo(firstOption.getProductNo())
                             .productName(firstOption.getProductName())

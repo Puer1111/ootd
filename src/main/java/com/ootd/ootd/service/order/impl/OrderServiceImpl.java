@@ -19,11 +19,11 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrderRepository orderRepository;
 
-    // 💡 PaymentService 주입
+
     @Autowired
     private PaymentService paymentService;
 
-    // 생성자
+
     public OrderServiceImpl(OrderRepository orderRepository, PaymentService paymentService) {
         this.orderRepository = orderRepository;
         this.paymentService = paymentService;

@@ -50,10 +50,9 @@ export const brandAPI = {
             newOption.textContent = brandName;
             brandSelect.appendChild(newOption);
 
-            // 새로 추가된 브랜드 선택
+
             brandSelect.value = data.brandNo;
 
-            // 성공 메시지
             alert(`'${brandName}' 브랜드가 추가되었습니다.`);
 
         } catch (error) {
@@ -66,7 +65,7 @@ export const brandAPI = {
         fetch('/api/lookup/brands')
             .then(response => response.json())
             .then(brandList => {
-                // 브랜드 옵션 추가
+
                 brandList.forEach(brand => {
                     const option = document.createElement('option');
                     option.value = brand.brandNo;

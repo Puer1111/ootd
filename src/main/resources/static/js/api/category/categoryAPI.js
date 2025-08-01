@@ -30,7 +30,7 @@ export const categoryAPI = {
                         errorMessage = '이미 등록 된 카테고리 입니다.';
                     }
                 } catch (jsonParseError) {
-                    // JSON 파싱 실패 시, 텍스트로 시도
+
                     const errorText = await response.text();
                     if (errorText) {
                         errorMessage = errorText;
@@ -49,33 +49,16 @@ export const categoryAPI = {
             newOption.textContent = data.subCategory;
             categorySelect.appendChild(newOption);
 
-            // 새로 추가된 카테고리 선택
+
             categorySelect.value = data.categoryNo;
 
-            // 성공 메시지
+
             alert(`'${data.subCategory}' 카테고리가 추가되었습니다.`);
 
         } catch (error) {
             alert(error.message);
         }
     },
-
-
-    // lookupAllCategory() {
-    //     const categorySelect = this.getCategorySelect().second;
-    //     fetch('/api/lookup/category')
-    //         .then(response => response.json())
-    //         .then(subCategories => {
-    //             // 카테고리 옵션 추가
-    //             subCategories.forEach(Category => {
-    //                 const option = document.createElement('option');
-    //                 option.value = Category.categoryNo;
-    //                 option.textContent = Category.subCategory;
-    //                 categorySelect.appendChild(option);
-    //             });
-    //         })
-    //         .catch(error => console.error('카테고리 목록을 가져오는 중 오류 발생:', error));
-    // },
 
     lookupByMain() {
         const mainCategory = this.getCategorySelect().first.value;
@@ -88,7 +71,6 @@ export const categoryAPI = {
             .then(subCategories => {
                 this.clearSecondCategory();
 
-                // 카테고리 옵션 추가
                 subCategories.forEach(Category => {
                     const option = document.createElement('option');
                     option.value = Category.categoryNo;
@@ -116,10 +98,9 @@ export const categoryAPI = {
         // 두 번째 카테고리 초기화
         this.clearSecondCategory();
 
-        // 선택된 첫 번째 카테고리에 따라 두 번째 카테고리 옵션 생성
         if (selectedValue) {
             this.lookupByMain()
-            // this.populateSecondCategory(this.categoryData[selectedValue]);
+
         }
     },
 
@@ -129,18 +110,6 @@ export const categoryAPI = {
         // 기본 옵션만 남기고 모든 옵션 제거
         secondSelect.innerHTML = '<option value="">카테고리 선택</option>';
     },
-
-// 두 번째 카테고리 옵션 추가
-//     populateSecondCategory(categories) {
-//         const secondSelect = this.getCategorySelect().second;
-//
-//         categories.forEach(category => {
-//             const option = document.createElement('option');
-//             option.value = category.value;
-//             option.textContent = category.text;
-//             secondSelect.appendChild(option);
-//         });
-//     },
 
 // 초기화
     init() {

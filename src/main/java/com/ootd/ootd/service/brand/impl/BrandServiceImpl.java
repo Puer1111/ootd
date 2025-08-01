@@ -38,7 +38,7 @@ public class BrandServiceImpl implements BrandService {
             return BrandDTO.convertToDTO(brand);
         }catch(Exception e){
             System.out.println("BrandServiceImpl: " + e.getMessage());
-            throw e; // 예외를 다시 던져서 상위 계층에서 처리할 수 있도록 함
+            throw e;
         }
     }
 

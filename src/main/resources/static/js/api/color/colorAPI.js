@@ -34,19 +34,18 @@ export const colors ={
 
             const data = await response.json();
 
-            const colorSelects = this.getColorSelect(); // 모든 select 요소 가져오기
+            const colorSelects = this.getColorSelect();
 
-            colorSelects.forEach(colorSelect => { // 각 select 요소에 새 옵션 추가
+            colorSelects.forEach(colorSelect => {
                 const newOption = document.createElement('option');
                 newOption.value = data.colorsNo;  // 서버에서 반환된 ID
                 newOption.textContent = colorName;
                 colorSelect.appendChild(newOption);
 
-                // 새로 추가된 색깔을 현재 select에서 선택 (선택 사항)
+
                 colorSelect.value = data.colorsNo;
             });
 
-            // 성공 메시지
             alert(`'${colorName}' 색깔이 추가되었습니다.`);
 
         } catch (error) {
@@ -59,15 +58,15 @@ export const colors ={
             fetch("/api/lookup/colors")
                 .then(response => response.json())
                 .then(colors => {
-                    colorSelects.forEach(colorSelect => {  // 🔥 각 select마다 반복
-                        // 기존 옵션 제거 (중복 방지)
+                    colorSelects.forEach(colorSelect => {
+
                         colorSelect.innerHTML = '<option value="">-- 색깔 선택 --</option>';
 
                         colors.forEach(color => {
                             const option = document.createElement('option');
                             option.value = color.colorNo;
                             option.textContent = color.colorName;
-                            colorSelect.appendChild(option);  // 🔥 개별 요소에 appendChild
+                            colorSelect.appendChild(option);
                         });
                     });
                 })
@@ -75,7 +74,7 @@ export const colors ={
         },
 
     getColorSelect() {
-        return document.querySelectorAll('select[name="colorsNo"]');  // name으로 변경
+        return document.querySelectorAll('select[name="colorsNo"]');
     },
 
 }

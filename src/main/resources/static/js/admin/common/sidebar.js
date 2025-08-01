@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (toggleElement && submenuElement) {
             toggleElement.addEventListener('click', (event) => {
-                // Prevent the default anchor behavior if it's a span or other non-link element
+
                 if (event.target.tagName !== 'A') {
                     event.preventDefault();
                 }

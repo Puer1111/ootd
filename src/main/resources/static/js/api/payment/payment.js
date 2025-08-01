@@ -96,32 +96,6 @@ function setupQuantityControls() {
     }
 }
 
-async function updateOrderPayment(imp_uid, orderId) {
-    const sendData = {
-        impUid: imp_uid,
-        orderId: orderId
-    };
-
-    try {
-        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-        if (!token) return;
-
-        const response = await fetch(`/sendImpUid`, {
-            method: "Patch",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(sendData)
-        });
-
-        if (response.ok) {
-            return response.json();
-        } else {
-            throw new Error('Network response was not ok');
-        }
-    } catch (error) {
-        console.error('결제 정보 업데이트 오류:', error);
-        return null;
-    }
-}
 
 function getItem() {
     return {
@@ -304,16 +278,3 @@ function updateSalePercent(percent) {
     }
 }
 window.updateSalePercent = updateSalePercent;
-
-function updatePaymentDetails() {
-    const productPrice = parseFloat(productPriceElement.textContent.replace(/[^0-9.-]+/g, ""));
-    const quantity = parseInt(quantityElement.textContent.replace(/[^0-9]+/g, ""));
-    const currentSalePercent = parseFloat(salePercentElement.textContent.replace(/[^0-9.-]+/g, ""));
-
-    const originalTotal = productPrice * quantity;
-    const discountAmount = originalTotal * (currentSalePercent / 100);
-    const finalPrice = originalTotal - discountAmount;
-
-    discountAmountElement.textContent = discountAmount.toFixed(0);
-    totalPriceElement.textContent = finalPrice.toFixed(0);
-}

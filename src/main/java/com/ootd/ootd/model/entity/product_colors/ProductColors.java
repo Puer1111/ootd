@@ -22,7 +22,7 @@ public class ProductColors {
 
     @Column(name = "colors_no",length = 500)
     @Convert(converter = LongListToStringConverter.class)
-    private List<Long> colorsNo;  // 여러 색상 번호를 리스트로 저장
+    private List<Long> colorsNo;
 
     public ProductColors(List<Long> colorsNo) {
         this.colorsNo = colorsNo;

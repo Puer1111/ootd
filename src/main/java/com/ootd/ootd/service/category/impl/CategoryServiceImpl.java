@@ -41,22 +41,9 @@ public class CategoryServiceImpl implements CategoryService {
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("categoryServiceImpl: " + e.getMessage());
-            throw e; // 예외를 다시 던져서 상위 계층에서 처리할 수 있도록 함
+            throw e;
         }
     }
-
-//    @Override
-//    @Transactional
-//    public List<Map<String, Object>> getCategoryNoAndName() {
-//        List<Map<String, Object>> categoryList = new ArrayList<>();
-//        categoryRepository.mainCategory(mainCategory).forEach(category -> {
-//            Map<String, Object> categoryMap = new HashMap<>();
-//            categoryMap.put("categoryNo" , category[0]);
-//            categoryMap.put("subCategory", category[1]);
-//            categoryList.add(categoryMap);
-//        });
-//        return categoryList;
-//    }
 
     @Override
     @Transactional

@@ -20,7 +20,4 @@ public class Colors {
     @Column(name ="colors_name" , nullable = false, unique = true)
     private String colorName;
 }
-//
-//    @ManyToOne
-//    @JoinColumn(name="product_colors_no")
-//    private ProductColors productColors;
+

@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const issueCouponBtn = document.getElementById('issue-coupon-btn');
-    let availableCoupons = []; // 조회된 쿠폰 목록을 저장할 전역 변수
+    let availableCoupons = [];
 
     if (issueCouponBtn) {
         issueCouponBtn.addEventListener('click', async () => {
@@ -45,20 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const productPriceElement = document.getElementById('productPrice');
     const quantityElement = document.getElementById('quantity');
 
-    // 결제 금액 업데이트 함수 (payment.js의 로직과 유사하게 구현)
-    function updatePaymentDetails() {
-        const productPrice = parseFloat(productPriceElement.textContent);
-        const quantity = parseInt(quantityElement.textContent);
-        const currentSalePercent = parseFloat(salePercentElement.textContent);
-
-        const originalTotal = productPrice * quantity;
-        const discountAmount = originalTotal * (currentSalePercent / 100);
-        const finalPrice = originalTotal - discountAmount;
-
-        discountAmountElement.textContent = discountAmount.toFixed(0); // 소수점 제거
-        totalPriceElement.textContent = finalPrice.toFixed(0); // 소수점 제거
-    }
-
     if (modalCouponBtn) {
         modalCouponBtn.addEventListener('click', async () => {
             if (!AuthManager.isLoggedIn()) {
@@ -69,8 +55,8 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const response = await AuthManager.authenticatedFetch('/api/coupons/lookup');
                 if (response.ok) {
-                    availableCoupons = await response.json(); // 조회된 쿠폰 목록 저장
-                    couponListContainer.innerHTML = ''; // 기존 목록 초기화
+                    availableCoupons = await response.json();
+                    couponListContainer.innerHTML = '';
                     if (availableCoupons.length > 0) {
                         availableCoupons.forEach(coupon => {
                             const couponItemWrapper = document.createElement('div');
@@ -96,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             discountArea.appendChild(couponDiscountSpan);
                             discountArea.appendChild(radioInput);
 
-                            // discountArea 클릭 시 radioInput 선택 및 할인율 업데이트
+
                             discountArea.addEventListener('click', (event) => {
                                 radioInput.checked = true;
                                 const rate = parseFloat(event.currentTarget.dataset.discountRate);

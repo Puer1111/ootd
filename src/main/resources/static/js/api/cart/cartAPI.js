@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const addCartBtn = document.getElementById('add-cart-btn');
 
     addCartBtn.addEventListener('click', function (e) {
-        e.preventDefault(); // 🚨 기본 동작 방지 (중요!)
+        e.preventDefault();
 
         const productInfo = extractProductFromDOM();
 
@@ -14,10 +14,10 @@ document.addEventListener('DOMContentLoaded', function () {
             },
             body: JSON.stringify({
                 productNo: productInfo.productNo,
-                // productNo: 1,
+
                 productName: productInfo.productName,
                 price: productInfo.price,
-                // quantity: quantity.value,
+
                 imageUrls: productInfo.imageUrl
             })
         })
